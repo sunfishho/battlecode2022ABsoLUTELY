@@ -4,16 +4,16 @@ package first_bot;
 import battlecode.common.*;
 
 
-public class Builder {
+public class Builder extends RobotCommon{
 
-    RobotController rc;
+    static RobotController rc;
 
     public Builder(RobotController rc){
-        this.rc = rc;
+        super(rc);
         //do more stuff later
     }
 
     //TODO
-    static void takeTurn() throws GameActionException {
+    public void takeTurn() throws GameActionException {
     }
 }

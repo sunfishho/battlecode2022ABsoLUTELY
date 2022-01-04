@@ -6,13 +6,13 @@ import battlecode.common.*;
 
 public class Soldier extends RobotCommon{
 
-    RobotController rc;
+    static RobotController rc;
 
     public Soldier(RobotController rc){
-        this.rc = rc;
+        super(rc);
         //do more stuff later
     }
-    static void takeTurn() throws GameActionException {
+    public void takeTurn() throws GameActionException {
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();

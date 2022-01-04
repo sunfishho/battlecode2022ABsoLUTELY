@@ -6,14 +6,14 @@ import battlecode.common.*;
 
 public class Laboratory extends RobotCommon{
 
-    RobotController rc;
+    static RobotController rc;
 
     public Laboratory(RobotController rc){
-        this.rc = rc;
+        super(rc);
         //do more stuff later
     }
 
     //TODO
-    static void takeTurn() throws GameActionException {
+    public void takeTurn() throws GameActionException {
     }
 }

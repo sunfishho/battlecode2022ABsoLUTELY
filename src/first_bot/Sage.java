@@ -4,13 +4,16 @@ package first_bot;
 import battlecode.common.*;
 
 
-public class Sage {
+public class Sage extends RobotCommon{
+
+    static RobotController rc;
+
     public Sage(RobotController rc){
-        this.rc = rc;
+        super(rc);
         //do more stuff later
     }
 
     //TODO
-    static void takeTurn() throws GameActionException {
+    public void takeTurn() throws GameActionException {
     }
 }

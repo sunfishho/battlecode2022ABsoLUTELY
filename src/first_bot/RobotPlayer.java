@@ -51,6 +51,7 @@ public strictfp class RobotPlayer {
             //run the robot by putting stuff in here
         }
     }
+}
 
 
 

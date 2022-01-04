@@ -6,14 +6,14 @@ import battlecode.common.*;
 
 public class Miner extends RobotCommon{
 
-    RobotController rc;
+    static RobotController rc;
 
     public Miner(RobotController rc){
-        this.rc = rc;
+        super(rc);
         //do more stuff later
     }
     
-    static void takeTurn() throws GameActionException {
+    public void takeTurn() throws GameActionException {
         // Try to mine on squares around us.
         MapLocation me = rc.getLocation();
         for (int dx = -1; dx <= 1; dx++) {
@@ -29,4 +29,5 @@ public class Miner extends RobotCommon{
                 }
             }
         }
+    }
 }

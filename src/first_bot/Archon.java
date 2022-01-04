@@ -6,13 +6,13 @@ import battlecode.common.*;
 
 public class Archon extends RobotCommon{
 
-    RobotController rc;
+    static RobotController rc;
 
     public Archon(RobotController rc){
-        this.rc = rc;
+        super(rc);
         //do more stuff later
     }
-    static void takeTurn() throws GameActionException {
+    public void takeTurn() throws GameActionException {
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
         if (rng.nextBoolean()) {
