@@ -6,8 +6,6 @@ import battlecode.common.*;
 
 public class Laboratory extends RobotCommon{
 
-    static RobotController rc;
-
     public Laboratory(RobotController rc){
         super(rc);
         //do more stuff later

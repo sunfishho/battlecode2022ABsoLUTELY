@@ -6,7 +6,7 @@ import battlecode.common.*;
 
 public class Archon extends RobotCommon{
 
-    static RobotController rc;
+    // static RobotController rc;
 
     public Archon(RobotController rc){
         super(rc);

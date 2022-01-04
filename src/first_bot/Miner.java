@@ -6,7 +6,6 @@ import battlecode.common.*;
 
 public class Miner extends RobotCommon{
 
-    static RobotController rc;
 
     public Miner(RobotController rc){
         super(rc);

@@ -6,8 +6,6 @@ import battlecode.common.*;
 
 public class Sage extends RobotCommon{
 
-    static RobotController rc;
-
     public Sage(RobotController rc){
         super(rc);
         //do more stuff later
