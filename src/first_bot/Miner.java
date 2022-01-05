@@ -56,7 +56,6 @@ public class Miner extends RobotCommon{
         Direction dir = directions[rng.nextInt(directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
-            me = rc.getLocation();
         }
     }
 }

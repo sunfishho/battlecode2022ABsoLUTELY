@@ -21,13 +21,5 @@ public class Soldier extends RobotCommon{
                 rc.attack(toAttack);
             }
         }
-        tryToMove();
-    }
-
-    public void tryToMove() throws GameActionException {
-        Direction dir = directions[rng.nextInt(directions.length)];
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-        }
     }
 }
