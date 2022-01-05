@@ -1,6 +1,8 @@
 package first_bot;
 
 import battlecode.common.*;
+import javafx.util.converter.LocalDateStringConverter;
+
 import java.util.Random;
 
 public abstract class RobotCommon {
@@ -10,6 +12,11 @@ public abstract class RobotCommon {
     public RobotCommon(RobotController rc){
         this.rc = rc;
         //do more stuff later
+    }
+
+    public static int getLocationInt() {
+        MapLocation loc = rc.getLocation();
+        return loc.x * 64 + loc.y;
     }
 
     public static int getVisionRadiusSquared(){
