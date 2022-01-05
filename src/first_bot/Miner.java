@@ -5,12 +5,21 @@ import battlecode.common.*;
 
 
 public class Miner extends RobotCommon{
+    public static int archonRank;
 
-    public MapLocation me;
-    public Miner(RobotController rc){
+    public Miner(RobotController rc) throws GameActionException {
         super(rc);
-        me = rc.getLocation();
-        //do more stuff later
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                MapLocation loc = new MapLocation(me.x + dx, me.y + dy);
+                for(int i = 0; i < 4; i++) {
+                    if(Util.getIntFromLocation(loc) == rc.readSharedArray(i)) {
+                        archonRank = i;
+                        break;
+                    }
+                }
+            }
+        }
     }
     
     public void takeTurn() throws GameActionException {

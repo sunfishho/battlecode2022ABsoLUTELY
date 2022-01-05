@@ -12,14 +12,13 @@ public class Archon extends RobotCommon{
 
     public Archon(RobotController rc){
         super(rc);
-        //do more stuff later
     }
 
     // Establish an order between the Archons by writing to the shared array.
-    public static void establishRank() throws GameActionException {
+    public void establishRank() throws GameActionException {
         for(int i = 0; i < 4; i++) {
             if(rc.readSharedArray(i) == 0) {
-                rc.writeSharedArray(i, getLocationInt());
+                rc.writeSharedArray(i, Util.getIntFromLocation(me));
                 rank = i;
                 break;
             }
@@ -36,6 +35,16 @@ public class Archon extends RobotCommon{
             // rc.setIndicatorString("Trying to build a miner");
             if (rc.canBuildRobot(RobotType.MINER, dir)) {
                 rc.buildRobot(RobotType.MINER, dir);
+
+                for(int dx = -5; dx <= 5; dx++) {
+                    for(int dy = -5; dy <= 5; dy++) {
+                        MapLocation target = new MapLocation(me.x + dx, me.y + dy);
+                        if(rc.canSenseLocation(target) && rc.senseLead(target) > 0) {
+                            rc.writeSharedArray(4 + rank * Util.ARCHON_MEMORY_SIZE, Util.getIntFromLocation(target));
+                        }
+                    }
+                }
+
             }
         } else {
             // Let's try to build a soldier.

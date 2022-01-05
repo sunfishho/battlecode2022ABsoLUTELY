@@ -8,15 +8,11 @@ import java.util.Random;
 public abstract class RobotCommon {
 
     static RobotController rc;
+    static MapLocation me;
 
     public RobotCommon(RobotController rc){
         this.rc = rc;
-        //do more stuff later
-    }
-
-    public static int getLocationInt() {
-        MapLocation loc = rc.getLocation();
-        return loc.x * 64 + loc.y;
+        me = rc.getLocation();
     }
 
     public static int getVisionRadiusSquared(){
