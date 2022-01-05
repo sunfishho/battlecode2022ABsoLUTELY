@@ -4,7 +4,7 @@ import battlecode.common.*;
 public class Util {
     static int TAXICAB_WEIGHT = 30;
     static int ARCHON_MEMORY_SIZE = 1;
-
+    static int NUM_ITERATIONS_BELLMAN_FORD = 3;
 
     static final int[] dxDiff = new int[] {-1, -1, -1, 0, 0, 1, 1, 1};
     static final int[] dyDiff = new int[] {-1, 0, 1, -1, 1, -1, 0, 1};

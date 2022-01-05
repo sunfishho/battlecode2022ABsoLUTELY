@@ -53,7 +53,7 @@ public class Pathfinding {
         //     intermediateDestination = destination;
         // }
         //iters should probably be 1 or 2 because greediness is good
-        for (int iters = 2; iters >= 0; iters--){
+        for (int iters = Util.NUM_ITERATIONS_BELLMAN_FORD - 1; iters >= 0; iters--){
             for (int dx = 4; dx >= 0; dx--){
                 for (int dy = 4; dy >= 0; dy--){
                     for (int directionIdx = 7; directionIdx >= 0; directionIdx--){
