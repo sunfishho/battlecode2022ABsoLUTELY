@@ -13,14 +13,14 @@ public class Pathfinding {
     RobotCommon robot;
     // static int maxStraightDistance;
 
-    static int[5][5] rubbleLevels;
-    static int[5][5] distances;
+    static int[][] rubbleLevels = new int[5][5];
+    static int[][] distances = new int[5][5];
     //will store the direction used to get to a particular square in bellman-ford
-    static int[5][5] predecessor; 
+    static int[][] predecessor = new int[5][5]; 
 
     public Pathfinding(RobotCommon robot){
         this.robot = robot;
-        distanceSquared = getVisionRadiusSquared(robot);
+        distanceSquared = this.robot.visionRadiusSquared;
         currentLocation = robot.rc.getLocation();
         // maxStraightDistance = (int) Math.sqrt(distanceSquared);
     }
@@ -28,9 +28,9 @@ public class Pathfinding {
     public void populateArrays(){
         for (int dx = 4; dx >= 0; dx--){
             for (int dy = 4; dy >= 0; dy--){
-                rubbleLevels[dx][dy] = RobotController.senseRubble(MapLocation.add(MapLocation(dx - 2, dy - 2), currentLocation));
+                rubbleLevels[dx][dy] = RobotController.senseRubble(MapLocation(dx - 2 + currentLocation.x, dy - 2 + currentLocation.y));
                 //if the spot is occupied, pretend like the rubble level is just a really large number
-                if (RobotController.canSenseRobotAtLocation(MapLocation.add(MapLocation(dx - 2, dy - 2), currentLocation)){
+                if (this.robot.rc.canSenseRobotAtLocation(MapLocation(dx - 2 + currentLocation.x, dy - 2 + currentLocation.y))){
                     rubbleLevels[dx][dy] = 10000;
                 }
                 distances[dx][dy] = 1000000;
@@ -38,9 +38,9 @@ public class Pathfinding {
         }
         distances[0][0] = 0;
     }
-
-    static final int dxDiff[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-    static final int dyDiff[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
+    
+    static final int[] dxDiff = new int[] {-1, -1, -1, 0, 0, 1, 1, 1};
+    static final int[] dyDiff = new int[] {-1, 0, 1, -1, 1, -1, 0, 1};
 
     //http://web.mit.edu/agrebe/www/battlecode/20/index.html#navigation see navigation section
     //also not 100% sure the iteration order is best here (going from one corner to the other in bellman-ford)
@@ -51,13 +51,13 @@ public class Pathfinding {
         //     intermediateDestination = destination;
         // }
         //iters should probably be 1 or 2 because greediness is good
-        for (iters = 2; iters >= 0; iters--){
+        for (int iters = 2; iters >= 0; iters--){
             for (int dx = 4; dx >= 0; dx--){
                 for (int dy = 4; dy >= 0; dy--){
                     for (int directionIdx = 7; directionIdx >= 0; directionIdx--){
                         if (dx + dxDiff[directionIdx] >= 0 && dx + dxDiff[directionIdx] <= 4 && 
-                            dy + dyDiff[directionIdx] >= 0 && dy + dyDiff[directionIdx] <= 4 && ){
-                            if (distances[dx][dy] + rubbleLevels[dx + dxDiff[directionIdx][dy + dyDiff[directionIdx]] < distances[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]]){
+                            dy + dyDiff[directionIdx] >= 0 && dy + dyDiff[directionIdx] <= 4){
+                            if (distances[dx][dy] + rubbleLevels[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]] < distances[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]]){
                                 distances[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]] = distances[dx][dy] + rubbleLevels[dx][dy];
                                 predecessor[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]] = directionIdx;
                             }
@@ -73,14 +73,14 @@ public class Pathfinding {
     public Direction returnBestDirection(MapLocation destination){
         //if we can't even move, we can't do anything, so just... return lol
         if (RobotController.getMovementCooldownTurns() > 0){
-            return CENTER;
+            return Direction.CENTER;
         }
         //otherwise, do bellman ford to populate the arrays
 
         this.bellmanFord(destination);
         //note that for squares bigger than 5x5, this should probably be modified to comparing angles instead of cheaply doing this
         //Need to somehow figure out the intermediate destination, returning CENTER for now
-        return CENTER;
+        return Direction.CENTER;
     }
 
 }

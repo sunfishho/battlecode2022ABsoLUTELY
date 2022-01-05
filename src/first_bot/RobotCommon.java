@@ -21,7 +21,7 @@ public abstract class RobotCommon {
             case MINER:
             case SAGE:
             case SOLDIER:
-            case Watchtower:
+            case WATCHTOWER:
                 return 34;
             default:
                 return 20;
