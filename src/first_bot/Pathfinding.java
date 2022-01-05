@@ -9,7 +9,6 @@ import battlecode.common.*;
 
 public class Pathfinding {
     static int distanceSquared;
-    static MapLocation currentLocation;
     RobotCommon robot;
     // static int maxStraightDistance;
 
@@ -21,14 +20,14 @@ public class Pathfinding {
     public Pathfinding(RobotCommon robot){
         this.robot = robot;
         distanceSquared = robot.rc.getType().visionRadiusSquared;
-        currentLocation = robot.rc.getLocation();
         // maxStraightDistance = (int) Math.sqrt(distanceSquared);
     }
 
     public void populateArrays(){
         for (int dx = 4; dx >= 0; dx--){
             for (int dy = 4; dy >= 0; dy--){
-                MapLocation mc = new MapLocation(dx - 2 + currentLocation.x, dy - 2 + currentLocation.y);
+                MapLocation mc = new MapLocation(dx - 2 + robot.me.x, dy - 2 + robot.me.y);
+                predecessor[dx][dy] = -1;
                 try {
                     rubbleLevels[dx][dy] = robot.rc.senseRubble(mc);
                 } catch (Exception e){
@@ -44,8 +43,6 @@ public class Pathfinding {
         distances[0][0] = 0;
     }
     
-    static final int[] dxDiff = new int[] {-1, -1, -1, 0, 0, 1, 1, 1};
-    static final int[] dyDiff = new int[] {-1, 0, 1, -1, 1, -1, 0, 1};
 
     //http://web.mit.edu/agrebe/www/battlecode/20/index.html#navigation see navigation section
     //also not 100% sure the iteration order is best here (going from one corner to the other in bellman-ford)
@@ -60,11 +57,11 @@ public class Pathfinding {
             for (int dx = 4; dx >= 0; dx--){
                 for (int dy = 4; dy >= 0; dy--){
                     for (int directionIdx = 7; directionIdx >= 0; directionIdx--){
-                        if (dx + dxDiff[directionIdx] >= 0 && dx + dxDiff[directionIdx] <= 4 && 
-                            dy + dyDiff[directionIdx] >= 0 && dy + dyDiff[directionIdx] <= 4){
-                            if (distances[dx][dy] + rubbleLevels[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]] < distances[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]]){
-                                distances[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]] = distances[dx][dy] + rubbleLevels[dx][dy];
-                                predecessor[dx + dxDiff[directionIdx]][dy + dyDiff[directionIdx]] = directionIdx;
+                        if (dx + Util.dxDiff[directionIdx] >= 0 && dx + Util.dxDiff[directionIdx] <= 4 && 
+                            dy + Util.dyDiff[directionIdx] >= 0 && dy + Util.dyDiff[directionIdx] <= 4){
+                            if (distances[dx][dy] + rubbleLevels[dx + Util.dxDiff[directionIdx]][dy + Util.dyDiff[directionIdx]] < distances[dx + Util.dxDiff[directionIdx]][dy + Util.dyDiff[directionIdx]]){
+                                distances[dx + Util.dxDiff[directionIdx]][dy + Util.dyDiff[directionIdx]] = distances[dx][dy] + rubbleLevels[dx][dy];
+                                predecessor[dx + Util.dxDiff[directionIdx]][dy + Util.dyDiff[directionIdx]] = directionIdx;
                             }
                         }
                     }
@@ -73,14 +70,33 @@ public class Pathfinding {
         }
     }
 
-    public boolean isWall (int xIndex, int yIndex){
-        int directionIdx = predecessor[xIndex][yIndex];
-        return true;
+    public MapLocation getPriorSquare(MapLocation mL){
+        int directionIdx = predecessor[mL.x][mL.y];
+        MapLocation mL2 = new MapLocation(mL.x - Util.dxDiff[directionIdx], mL.y - Util.dyDiff[directionIdx]);
+        return mL2;
     }
+
+    // public boolean isWall (int xIndex, int yIndex){
+    //     int directionIdx = predecessor[xIndex][yIndex];
+    //     MapLocation priorSquare = getPriorSquare(new MapLocation(xIndex, yIndex));
+    //     try {
+    //         return rubbleLevels[xIndex][yIndex] - rubbleLevels[priorSquare.x][priorSquare.y] >= Util.WALL_DEFINITION_CUTOFF;
+    //     } catch(Exception e){
+    //         e.printStackTrace();
+    //         return false;
+    //     }
+    // }
+
+
+
+    public int taxicab(int x1, int y1, int x2, int y2){
+        return Util.abs(x2 - x1) + Util.abs(y2 - y1);
+    }
+
 
     // NOTE: going to assume that rubble is roughly additive, i.e. that the cost of the path you 
     // take really only depends on the sum of the rubble you went through
-    public Direction returnBestDirection(MapLocation destination){
+    public Direction returnBestDirection(MapLocation destination) throws GameActionException{
         //if we can't even move, we can't do anything, so just... return lol
         if (robot.rc.getMovementCooldownTurns() > 0){
             return Direction.CENTER;
@@ -90,6 +106,45 @@ public class Pathfinding {
         this.bellmanFord(destination);
         //note that for squares bigger than 5x5, this should probably be modified to comparing angles instead of cheaply doing this
         //Need to somehow figure out the intermediate destination, returning CENTER for now
-        return Direction.CENTER;
+
+        //Iterate over all the boundary squares
+
+        int bestWeightedTravelDistance = 1000000;
+        int bestExitSquareX = 0, bestExitSquareY = 0;
+        for (int xIdx = 4; xIdx >= 0; xIdx--){
+            if (bestWeightedTravelDistance > (distances[xIdx][0] + taxicab(xIdx, 0, destination.x, destination.y))){
+                bestWeightedTravelDistance = distances[xIdx][0] + taxicab(xIdx, 0, destination.x, destination.y);
+                bestExitSquareX = xIdx;
+                bestExitSquareY = 0;
+            }
+            if (bestWeightedTravelDistance > (distances[xIdx][4] + taxicab(xIdx, 4, destination.x, destination.y))){
+                bestWeightedTravelDistance = distances[xIdx][4] + taxicab(xIdx, 4, destination.x, destination.y);
+                bestExitSquareX = xIdx;
+                bestExitSquareY = 4;
+            }
+        }
+        for (int yIdx = 4; yIdx >= 0; yIdx--){
+            if (bestWeightedTravelDistance > (distances[yIdx][0] + taxicab(yIdx, 0, destination.x, destination.y))){
+                bestWeightedTravelDistance = distances[yIdx][0] + taxicab(yIdx, 0, destination.x, destination.y);
+                bestExitSquareX = 0;
+                bestExitSquareY = yIdx;
+            }
+            if (bestWeightedTravelDistance > (distances[yIdx][4] + taxicab(yIdx, 4, destination.x, destination.y))){
+                bestWeightedTravelDistance = distances[yIdx][4] + taxicab(yIdx, 4, destination.x, destination.y);
+                bestExitSquareX = 4;
+                bestExitSquareY = yIdx;
+            }
+        }
+
+        int priorX = bestExitSquareX;
+        int priorY = bestExitSquareY;
+        Direction toMoveIn = Direction.CENTER;
+        while (priorX != 0 || priorY != 0){
+            int directionIdx = predecessor[priorX][priorY];
+            priorX -= Util.dxDiff[directionIdx];
+            priorY -= Util.dyDiff[directionIdx];
+            toMoveIn = Util.getDirectionFromIndex(directionIdx);
+        }
+        return toMoveIn;
     }
 }
