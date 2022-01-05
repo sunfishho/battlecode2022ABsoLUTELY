@@ -22,14 +22,14 @@ public class Util {
 
     public static int getDirectionIndex(Direction d){
         switch (d){
-            case Direction.NORTH: return 0;
-            case Direction.NORTHEAST: return 1;
-            case Direction.EAST: return 2;
-            case Direction.SOUTHEAST: return 3;
-            case Direction.SOUTH: return 4;
-            case Direction.SOUTHWEST: return 5;
-            case Direction.WEST: return 6;
-            case Direction.NORTHWEST: return 7;
+            case NORTH: return 0;
+            case NORTHEAST: return 1;
+            case EAST: return 2;
+            case SOUTHEAST: return 3;
+            case SOUTH: return 4;
+            case SOUTHWEST: return 5;
+            case WEST: return 6;
+            case NORTHWEST: return 7;
             default: return 8;
         }
     }
@@ -53,5 +53,14 @@ public class Util {
         return -a;
     }
 
-    // static int WALL_DEFINITION_CUTOFF = 50;
+    public static int max(int a, int b){
+        if (a >= b){
+            return a;
+        }
+        return b;
+    }
+
+    public static int distanceMetric(int x1, int x2, int y1, int y2){
+        return max(abs(x1 - x2), abs(y1 - y2));
+    }
 }
