@@ -40,7 +40,7 @@ public class Pathfinding {
                 distances[dx][dy] = 1000000;
             }
         }
-        distances[0][0] = 0;
+        distances[2][2] = 0;
     }
     
 
@@ -139,7 +139,7 @@ public class Pathfinding {
         int priorX = bestExitSquareX;
         int priorY = bestExitSquareY;
         Direction toMoveIn = Direction.CENTER;
-        while (priorX != 0 || priorY != 0){
+        while (priorX != 2 || priorY != 2){
             int directionIdx = predecessor[priorX][priorY];
             priorX -= Util.dxDiff[directionIdx];
             priorY -= Util.dyDiff[directionIdx];
