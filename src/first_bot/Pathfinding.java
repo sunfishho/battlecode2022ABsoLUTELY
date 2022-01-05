@@ -34,7 +34,7 @@ public class Pathfinding {
                     e.printStackTrace();
                 }
                 //if the spot is occupied, pretend like the rubble level is just a really large number
-                if (this.robot.rc.canSenseRobotAtLocation(mc)){
+                if (mc.x < 0 || mc.y < 0 || mc.x >= this.robot.rc.getMapWidth() || mc.y >= this.robot.rc.getMapHeight() || this.robot.rc.canSenseRobotAtLocation(mc)){
                     rubbleLevels[dx][dy] = 10000;
                 }
                 distances[dx][dy] = 1000000;
