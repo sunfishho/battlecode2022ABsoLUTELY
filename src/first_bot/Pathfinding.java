@@ -73,6 +73,11 @@ public class Pathfinding {
         }
     }
 
+    public boolean isWall (int xIndex, int yIndex){
+        int directionIdx = predecessor[xIndex][yIndex];
+        return true;
+    }
+
     // NOTE: going to assume that rubble is roughly additive, i.e. that the cost of the path you 
     // take really only depends on the sum of the rubble you went through
     public Direction returnBestDirection(MapLocation destination){
@@ -87,5 +92,4 @@ public class Pathfinding {
         //Need to somehow figure out the intermediate destination, returning CENTER for now
         return Direction.CENTER;
     }
-
 }
