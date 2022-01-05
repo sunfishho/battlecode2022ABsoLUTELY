@@ -40,7 +40,8 @@ public class Archon extends RobotCommon{
                     for(int dy = -5; dy <= 5; dy++) {
                         MapLocation target = new MapLocation(me.x + dx, me.y + dy);
                         if(rc.canSenseLocation(target) && rc.senseLead(target) > 0) {
-                            rc.writeSharedArray(4 + rank * Util.ARCHON_MEMORY_SIZE, Util.getIntFromLocation(target));
+                            rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(target));
+                            break;
                         }
                     }
                 }

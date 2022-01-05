@@ -6,6 +6,8 @@ import battlecode.common.*;
 
 public class Miner extends RobotCommon{
     public static int archonRank;
+    public static MapLocation target;
+    public static boolean reachedTarget;
 
     public Miner(RobotController rc) throws GameActionException {
         super(rc);
@@ -15,6 +17,7 @@ public class Miner extends RobotCommon{
                 for(int i = 0; i < 4; i++) {
                     if(Util.getIntFromLocation(loc) == rc.readSharedArray(i)) {
                         archonRank = i;
+                        target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank)));
                         break;
                     }
                 }
@@ -24,8 +27,13 @@ public class Miner extends RobotCommon{
     
     public void takeTurn() throws GameActionException {
         // Try to mine on squares around us.
+
+        rc.setIndicatorString(rc.getLocation() + " " + Integer.toString(archonRank) + " " + target.toString() + " " + Boolean.toString(reachedTarget));
+
+        if(rc.getLocation().equals(target)) reachedTarget = true;
+
         tryToMine();
-        tryToMove();
+        if(!reachedTarget) tryToMove();
     }
 
     public void tryToMine() throws GameActionException {
@@ -45,10 +53,9 @@ public class Miner extends RobotCommon{
     }
 
     public void tryToMove() throws GameActionException {
-        
-    }
-
-    public void checkIfLeadDepositsInVision() throws GameActionException {
-
+        Direction dir = directions[rng.nextInt(directions.length)];
+        if (rc.canMove(dir)) {
+            rc.move(dir);
+        }
     }
 }

@@ -5,6 +5,10 @@ public class Util {
     static int ARCHON_MEMORY_SIZE = 1;
     static int wall_definition_cutoff = 50;
 
+    public static int getArchonMemoryBlock(int rank) {
+        return 4 + rank * ARCHON_MEMORY_SIZE;
+    }
+
     public static MapLocation getLocationFromInt(int loc) {
         return new MapLocation(loc / 64, loc % 64);
     }
