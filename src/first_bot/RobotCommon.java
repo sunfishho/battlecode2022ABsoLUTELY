@@ -13,7 +13,7 @@ public abstract class RobotCommon {
     }
 
     public static int getVisionRadiusSquared(){
-        switch(this.rc.getType()){
+        switch(rc.getType()){
             case ARCHON:
             case LABORATORY:
                 return 53;

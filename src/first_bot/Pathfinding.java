@@ -20,7 +20,7 @@ public class Pathfinding {
 
     public Pathfinding(RobotCommon robot){
         this.robot = robot;
-        distanceSquared = this.robot.visionRadiusSquared;
+        distanceSquared = robot.rc.getType().visionRadiusSquared;
         currentLocation = robot.rc.getLocation();
         // maxStraightDistance = (int) Math.sqrt(distanceSquared);
     }
@@ -28,9 +28,14 @@ public class Pathfinding {
     public void populateArrays(){
         for (int dx = 4; dx >= 0; dx--){
             for (int dy = 4; dy >= 0; dy--){
-                rubbleLevels[dx][dy] = RobotController.senseRubble(MapLocation(dx - 2 + currentLocation.x, dy - 2 + currentLocation.y));
+                MapLocation mc = new MapLocation(dx - 2 + currentLocation.x, dy - 2 + currentLocation.y);
+                try {
+                    rubbleLevels[dx][dy] = robot.rc.senseRubble(mc);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
                 //if the spot is occupied, pretend like the rubble level is just a really large number
-                if (this.robot.rc.canSenseRobotAtLocation(MapLocation(dx - 2 + currentLocation.x, dy - 2 + currentLocation.y))){
+                if (this.robot.rc.canSenseRobotAtLocation(mc)){
                     rubbleLevels[dx][dy] = 10000;
                 }
                 distances[dx][dy] = 1000000;
@@ -72,7 +77,7 @@ public class Pathfinding {
     // take really only depends on the sum of the rubble you went through
     public Direction returnBestDirection(MapLocation destination){
         //if we can't even move, we can't do anything, so just... return lol
-        if (RobotController.getMovementCooldownTurns() > 0){
+        if (robot.rc.getMovementCooldownTurns() > 0){
             return Direction.CENTER;
         }
         //otherwise, do bellman ford to populate the arrays
