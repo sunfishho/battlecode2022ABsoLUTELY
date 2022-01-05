@@ -6,8 +6,8 @@ public class Util {
     static int ARCHON_MEMORY_SIZE = 1;
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
 
-    static final int[] dxDiff = new int[] {-1, -1, -1, 0, 0, 1, 1, 1};
-    static final int[] dyDiff = new int[] {-1, 0, 1, -1, 1, -1, 0, 1};
+    static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
+    static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
 
     static final Direction[] directions = new Direction[] {
         Direction.NORTH,
@@ -19,6 +19,20 @@ public class Util {
         Direction.WEST,
         Direction.NORTHWEST,
     };
+
+    public static int getDirectionIndex(Direction d){
+        switch (d){
+            case Direction.NORTH: return 0;
+            case Direction.NORTHEAST: return 1;
+            case Direction.EAST: return 2;
+            case Direction.SOUTHEAST: return 3;
+            case Direction.SOUTH: return 4;
+            case Direction.SOUTHWEST: return 5;
+            case Direction.WEST: return 6;
+            case Direction.NORTHWEST: return 7;
+            default: return 8;
+        }
+    }
 
     public static int getArchonMemoryBlock(int rank) {
         return 4 + rank * ARCHON_MEMORY_SIZE;
