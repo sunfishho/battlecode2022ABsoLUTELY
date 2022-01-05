@@ -124,13 +124,13 @@ public class Pathfinding {
             }
         }
         for (int yIdx = 4; yIdx >= 0; yIdx--){
-            if (bestWeightedTravelDistance > (distances[yIdx][0] + taxicab(yIdx, 0, destination.x, destination.y))){
-                bestWeightedTravelDistance = distances[yIdx][0] + taxicab(yIdx, 0, destination.x, destination.y);
+            if (bestWeightedTravelDistance > (distances[0][yIdx] + taxicab(0, yIdx, destination.x, destination.y))){
+                bestWeightedTravelDistance = distances[0][yIdx] + taxicab(0, yIdx, destination.x, destination.y);
                 bestExitSquareX = 0;
                 bestExitSquareY = yIdx;
             }
-            if (bestWeightedTravelDistance > (distances[yIdx][4] + taxicab(yIdx, 4, destination.x, destination.y))){
-                bestWeightedTravelDistance = distances[yIdx][4] + taxicab(yIdx, 4, destination.x, destination.y);
+            if (bestWeightedTravelDistance > (distances[4][yIdx] + taxicab(4, yIdx, destination.x, destination.y))){
+                bestWeightedTravelDistance = distances[4][yIdx] + taxicab(4, yIdx, destination.x, destination.y);
                 bestExitSquareX = 4;
                 bestExitSquareY = yIdx;
             }
