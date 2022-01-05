@@ -28,8 +28,10 @@ public class Archon extends RobotCommon{
     public void takeTurn() throws GameActionException {
         if(rank == -1) establishRank();
 
+        rc.setIndicatorString(Integer.toString(rank));
+
         // Pick a direction to build in.
-        Direction dir = directions[rng.nextInt(directions.length)];
+        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         if (rng.nextBoolean()) {
             // Let's try to build a miner.
             // rc.setIndicatorString("Trying to build a miner");
@@ -49,7 +51,7 @@ public class Archon extends RobotCommon{
             }
         } else {
             // Let's try to build a soldier.
-            rc.setIndicatorString("Trying to build a soldier");
+            // rc.setIndicatorString("Trying to build a soldier");
             if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }

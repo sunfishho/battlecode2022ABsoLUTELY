@@ -143,7 +143,7 @@ public class Pathfinding {
             int directionIdx = predecessor[priorX][priorY];
             priorX -= Util.dxDiff[directionIdx];
             priorY -= Util.dyDiff[directionIdx];
-            toMoveIn = Util.getDirectionFromIndex(directionIdx);
+            toMoveIn = Util.directions[directionIdx];
         }
         return toMoveIn;
     }

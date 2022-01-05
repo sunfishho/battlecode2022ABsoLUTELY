@@ -28,11 +28,15 @@ public class Miner extends RobotCommon{
     public void takeTurn() throws GameActionException {
         // Try to mine on squares around us.
 
-        rc.setIndicatorString(rc.getLocation() + " " + Integer.toString(archonRank) + " " + target.toString() + " " + Boolean.toString(reachedTarget));
+        rc.setIndicatorString(me + " " + Integer.toString(archonRank) + " " + target.toString() + " " + Boolean.toString(reachedTarget));
 
-        if(rc.getLocation().equals(target)) reachedTarget = true;
+        if(!reachedTarget && me.equals(target)) {
+            reachedTarget = true;
+            System.out.println("Reached target.");
+        }
 
         tryToMine();
+
         if(!reachedTarget) tryToMove();
     }
 
@@ -53,9 +57,9 @@ public class Miner extends RobotCommon{
     }
 
     public void tryToMove() throws GameActionException {
-        // Direction dir = directions[rng.nextInt(directions.length)];
-        Pathfinding pf = new Pathfinding(this);
-        Direction dir = pf.returnBestDirection(new MapLocation(10, 10));
+        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
+        // Pathfinding pf = new Pathfinding(this);
+        // Direction dir = pf.returnBestDirection(new MapLocation(10, 10));
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();

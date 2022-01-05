@@ -9,6 +9,17 @@ public class Util {
     static final int[] dxDiff = new int[] {-1, -1, -1, 0, 0, 1, 1, 1};
     static final int[] dyDiff = new int[] {-1, 0, 1, -1, 1, -1, 0, 1};
 
+    static final Direction[] directions = new Direction[] {
+        Direction.NORTH,
+        Direction.NORTHEAST,
+        Direction.EAST,
+        Direction.SOUTHEAST,
+        Direction.SOUTH,
+        Direction.SOUTHWEST,
+        Direction.WEST,
+        Direction.NORTHWEST,
+    };
+
     public static int getArchonMemoryBlock(int rank) {
         return 4 + rank * ARCHON_MEMORY_SIZE;
     }
@@ -27,25 +38,6 @@ public class Util {
         }
         return -a;
     }
-
-
-    public static Direction getDirectionFromIndex(int idx) throws GameActionException{
-        switch (idx){
-            case 0: return Direction.SOUTHWEST;
-            case 1: return Direction.WEST;
-            case 2: return Direction.NORTHWEST;
-            case 3: return Direction.SOUTH;
-            case 4: return Direction.NORTH;
-            case 5: return Direction.SOUTHEAST;
-            case 6: return Direction.EAST;
-            case 7: return Direction.NORTHEAST;
-        }
-        //kinda a hack
-        throw new GameActionException(GameActionExceptionType.CANT_DO_THAT, "INVALID INDEX INTO DIRECTION ARRAY");
-    }
-
-
-
 
     // static int WALL_DEFINITION_CUTOFF = 50;
 }

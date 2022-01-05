@@ -25,7 +25,7 @@ public class Soldier extends RobotCommon{
     }
 
     public void tryToMove() throws GameActionException {
-        Direction dir = directions[rng.nextInt(directions.length)];
+        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
         }
