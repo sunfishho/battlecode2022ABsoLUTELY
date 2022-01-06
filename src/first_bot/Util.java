@@ -5,6 +5,7 @@ public class Util {
     static int TAXICAB_WEIGHT = 30;
     static int ARCHON_MEMORY_SIZE = 1;
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
+    static int WALL_HEIGHT_DIFF = 30;
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
@@ -58,6 +59,13 @@ public class Util {
             return a;
         }
         return b;
+    }
+
+    public static int min(int a, int b){
+        if (a >= b){
+            return b;
+        }
+        return a;
     }
 
     public static int distanceMetric(int x1, int x2, int y1, int y2){
