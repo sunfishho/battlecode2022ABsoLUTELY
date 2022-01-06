@@ -91,28 +91,29 @@ public class Soldier extends RobotCommon{
                     break;
             }
         }
-        int radius = rc.getType().visionRadiusSquared;
+        int visionRadius = rc.getType().visionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        RobotInfo[] enemies = rc.senseNearbyRobots(visionRadius, opponent);
         int lowestInOrder = 7;
         int lowestHealth = 10000;
-        int targetIdx = 0;
+        int visionTargetIdx = 0;
         if (enemies.length > 0) {
             for (int enemyIndex = enemies.length - 1; enemyIndex >= 0; enemyIndex--){
                 if (lowestInOrder > Util.getAttackPref(enemies[enemyIndex].getType())){
+                    lowestInOrder = Util.getAttackPref(enemies[enemyIndex].getType());
                     lowestHealth = enemies[enemyIndex].getHealth();
-                    targetIdx = enemyIndex;
+                    visionTargetIdx = enemyIndex;
                 }
                 else if (lowestInOrder == Util.getAttackPref(enemies[enemyIndex].getType())){
                     if (lowestHealth > enemies[enemyIndex].getHealth()){
                         lowestHealth = enemies[enemyIndex].getHealth();
-                        targetIdx = enemyIndex;
+                        visionTargetIdx = enemyIndex;
                     }
                 }
             }
-            MapLocation toAttack = enemies[targetIdx].location;
+            MapLocation toFollow = enemies[visionTargetIdx].location;
             GreedyPathfinding gpf = new GreedyPathfinding(this);
-            dir = gpf.explore(toAttack);    
+            dir = gpf.explore(toFollow);    
         }
         if (rc.canMove(dir)) {
             rc.move(dir);
