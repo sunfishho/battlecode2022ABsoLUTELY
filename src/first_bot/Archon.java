@@ -23,9 +23,11 @@ public class Archon extends RobotCommon{
     public void establishRank() throws GameActionException {
         for(int i = 0; i < 4; i++) {
             if(rc.readSharedArray(i) == 0) {
-                rc.writeSharedArray(i, Util.getIntFromLocation(me));
+                int loc = Util.getIntFromLocation(me);
+                rc.writeSharedArray(i, loc);
                 System.out.println(i + " " + me);
                 rank = i + 1;
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, loc);
                 break;
             }
         }
@@ -37,11 +39,7 @@ public class Archon extends RobotCommon{
         if(!wroteArchons) {
             int loc = Util.getIntFromLocation(me);
             for(int i = 0; i < 4; i++) {
-                int cur = rc.readSharedArray(i);
-                if(cur == loc) {
-                    System.out.println(rank);
-                }
-                knownMap[cur] = i + 1;
+                knownMap[rc.readSharedArray(i)] = i + 1;
             }
             wroteArchons = true;
         }
@@ -71,6 +69,7 @@ public class Archon extends RobotCommon{
                 knownMap[loc] = 5;
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), loc);
                 sentTarget = true;
+                break;
             }
         }
 
@@ -83,6 +82,8 @@ public class Archon extends RobotCommon{
                 knownMap[loc] = 5;
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), loc);
                 sentTarget = true;
+                // System.out.println(rank + " " + leadLocations[i]);
+                break;
             }
         }
 

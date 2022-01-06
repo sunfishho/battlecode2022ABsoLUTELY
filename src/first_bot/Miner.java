@@ -28,26 +28,24 @@ public class Miner extends RobotCommon{
                 }
             }
         }
-        if(!foundArchon) {
-            System.out.println("I have not found rank!");
-        }
     }
     
     public void takeTurn() throws GameActionException {
         // Try to mine on squares around us.
 
-        rc.setIndicatorString(me + " " + archonRank + " " + target + " " + reachedTarget);
+        rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
 
         // Case when Archon could not assign a Location to the Miner
-        if(target.equals(archonRank)) {
+        if(target.equals(archonLocation)) {
             explore();
             tryToWriteTarget();
+            tryToMine();
             return;
         }
         
         if(!reachedTarget && me.equals(target)) {
             reachedTarget = true;
-            System.out.println("Reached target.");
+            // System.out.println("Reached target.");
         }
 
         if(!reachedTarget) {
@@ -59,6 +57,9 @@ public class Miner extends RobotCommon{
 
     // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
     public void explore() throws GameActionException {
+        if(rc.senseLead(me) > 0) {
+            return;
+        }
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         if(rc.canMove(dir)) {
             rc.move(dir);
@@ -88,6 +89,7 @@ public class Miner extends RobotCommon{
 
             if(change) {
                 rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.getIntFromLocation(bestLoc));
+                return;
             }
         }
 
@@ -110,6 +112,7 @@ public class Miner extends RobotCommon{
 
             if(change) {
                 rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.getIntFromLocation(bestLoc));
+                System.out.println("new target at " + bestLoc);
             }
         }
     }
