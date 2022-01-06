@@ -96,8 +96,13 @@ public class Archon extends RobotCommon{
         }
         rc.setIndicatorString(Integer.toString(rank));
 
-        // Pick a direction to build in.
+        // Try three times to pick a direction to build in.
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
+        for (int i = 0; i < 2; i++) {
+            if (!rc.canBuildRobot(RobotType.MINER, dir)) {
+                dir = Util.directions[rng.nextInt(Util.directions.length)];
+            }
+        }
         if (rc.canBuildRobot(RobotType.MINER, dir) && !builtMinersLast) {
             rc.buildRobot(RobotType.MINER, dir);
 
