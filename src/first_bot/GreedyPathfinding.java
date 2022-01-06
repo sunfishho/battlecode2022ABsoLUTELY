@@ -59,7 +59,6 @@ public class GreedyPathfinding {
                                                  {5, 6, 7}, 
                                                  {6, 7, 0}};
 
-    //if widely, consider the 5 directions around you
     //Later, weight the different directions differently depending on how far you've gone/how far you have left to go
     //if there's a giant rubble-y block in front, turn in a diff direction
     public Direction exploreNarrowly(MapLocation destination){
