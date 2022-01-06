@@ -57,9 +57,9 @@ public class Miner extends RobotCommon{
     }
 
     public void tryToMove() throws GameActionException {
-        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
-        // Pathfinding pf = new Pathfinding(this);
-        // Direction dir = pf.returnBestDirection(new MapLocation(10, 10));
+        // Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
+        GreedyPathfinding gpf = new GreedyPathfinding(this);
+        Direction dir = gpf.exploreNarrowly(new MapLocation(10, 10));
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();
