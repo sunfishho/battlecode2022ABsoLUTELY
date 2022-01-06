@@ -57,7 +57,7 @@ public class Miner extends RobotCommon{
 
     // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
     public void explore() throws GameActionException {
-        if(rc.senseLead(me) > 0) {
+        if(rc.senseLead(me) > 1) {
             return;
         }
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];

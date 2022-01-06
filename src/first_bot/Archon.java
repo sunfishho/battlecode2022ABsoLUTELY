@@ -105,6 +105,9 @@ public class Archon extends RobotCommon{
         }
         else {
             builtMinersLast = false;
+            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                rc.buildRobot(RobotType.SOLDIER, dir);
+            }
         }
     }
 
@@ -115,7 +118,15 @@ public class Archon extends RobotCommon{
         for(int i = 0; i < goldLocations.length; i++) {
             int loc = Util.getIntFromLocation(goldLocations[i]);
             if(knownMap[loc] == 0) {
-                knownMap[loc] = 5;
+                for (int j = -1; j <= 1; j++) {
+                    for (int k = -1; k <= 1; k++) {
+                        MapLocation newLocation = new MapLocation(goldLocations[i].x + j, goldLocations[i].y+k);
+                        if (rc.canSenseLocation(newLocation)) {
+                            int tempLoc = Util.getIntFromLocation(newLocation);
+                            knownMap[tempLoc] = 5;
+                        }
+                    }
+                }
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), loc);
                 sentTarget = true;
                 break;
@@ -128,7 +139,15 @@ public class Archon extends RobotCommon{
         for(int i = 0; i < leadLocations.length; i++) {
             int loc = Util.getIntFromLocation(leadLocations[i]);
             if(knownMap[loc] == 0) {
-                knownMap[loc] = 5;
+                for (int j = -1; j <= 1; j++) {
+                    for (int k = -1; k <= 1; k++) {
+                        MapLocation newLocation = new MapLocation(leadLocations[i].x + j, leadLocations[i].y+k);
+                        if ( rc.canSenseLocation(newLocation)) {
+                            int tempLoc = Util.getIntFromLocation(newLocation);
+                            knownMap[tempLoc] = 5;
+                        }
+                    }
+                }
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), loc);
                 sentTarget = true;
                 // System.out.println(rank + " " + leadLocations[i]);
@@ -137,6 +156,8 @@ public class Archon extends RobotCommon{
         }
 
         if(sentTarget) return;
+
+        
 
         int locFromMiner = rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1);
         if(knownMap[locFromMiner] == 0) {

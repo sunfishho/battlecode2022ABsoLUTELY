@@ -33,7 +33,9 @@ public class GreedyPathfinding {
                     continue;
                 }
                 try {
-                    rubbleLevels[dx][dy] = robot.rc.senseRubble(mc);
+                    if (robot.rc.canSenseLocation(mc)) {
+                        rubbleLevels[dx][dy] = robot.rc.senseRubble(mc);
+                    }
                 } catch (Exception e){
                     e.printStackTrace();
                 }
