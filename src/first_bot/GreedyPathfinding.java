@@ -91,12 +91,13 @@ public class GreedyPathfinding {
             return robot.me.directionTo(destination);
         }
         Direction mainDirection = robot.me.directionTo(destination);
-        int bestDistance = 1000000;
-        int bestDirectionIdx = -1;
+        int bestDistance = 10000;
         int directionIdx = Util.getDirectionIndex(mainDirection);
+        int bestDirectionIdx = (directionIdx + 4) % 8;
         for (int idx = 2; idx >= 0; idx--){
             int directionBeingTriedIdx = narrowPossibilities[directionIdx][idx];
             int rubbleLevel = rubbleLevels[Util.dxDiff[directionBeingTriedIdx] + 2][Util.dyDiff[directionBeingTriedIdx] + 2];
+            //in particular this will not work if all directions are blocked, and the thing will try to go backwards if the later steps fail.
             if (bestDistance > rubbleLevel){
                 bestDistance = rubbleLevel;
                 bestDirectionIdx = narrowPossibilities[directionIdx][idx];
