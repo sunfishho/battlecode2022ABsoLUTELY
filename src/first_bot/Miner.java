@@ -36,6 +36,9 @@ public class Miner extends RobotCommon{
         rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
 
         // Case when Archon could not assign a Location to the Miner
+        if(rc.senseGold(me) == 0 && rc.senseLead(me) <= 1) {
+            target = archonLocation;
+        }
         if(target.equals(archonLocation)) {
             explore();
             tryToWriteTarget();

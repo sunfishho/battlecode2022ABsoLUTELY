@@ -54,11 +54,13 @@ public class Archon extends RobotCommon{
                 }
                 MapLocation mc = new MapLocation(dx - 2 + lx, dy - 2 + ly);
                 try{//see if mc is a viable place to move to
-                    int rub = rc.senseRubble(mc);
-                    if((10 + rub) * (100 - 10 * bestd) < (10 + bestr) * (100 - 10 * d)){
-                        bestd = d;
-                        bestr = rub;
-                        newhome = mc;
+                    if (rc.canSenseLocation(mc)) {
+                        int rub = rc.senseRubble(mc);
+                        if((10 + rub) * (100 - 10 * bestd) < (10 + bestr) * (100 - 10 * d)){
+                            bestd = d;
+                            bestr = rub;
+                            newhome = mc;
+                        }
                     }
                 } catch (Exception e){
                     e.printStackTrace();
