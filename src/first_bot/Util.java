@@ -38,6 +38,18 @@ public class Util {
         RobotType.MINER
     };
 
+    static int getAttackPref(RobotType rt){
+        switch (rt){
+            case ARCHON: return 0;
+            case SAGE: return 1;
+            case LABORATORY: return 2;
+            case WATCHTOWER: return 3;
+            case SOLDIER: return 4;
+            case BUILDER: return 5;
+            case MINER: return 6;
+        }
+    }
+
     public static int getDirectionIndex(Direction d){
         switch (d) {
             case NORTH: return 0;

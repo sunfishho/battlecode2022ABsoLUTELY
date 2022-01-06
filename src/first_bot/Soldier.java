@@ -94,10 +94,24 @@ public class Soldier extends RobotCommon{
         int radius = rc.getType().visionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        int lowestInOrder = 7;
+        int lowestHealth = 10000;
+        int targetIdx;
         if (enemies.length > 0) {
-            MapLocation toAttack = enemies[0].location;
+            for (int enemyIndex = enemies.length - 1; enemyIndex >= 0; enemyIndex--){
+                if (lowestInOrder > Util.getAttackPref(enemies[enemyIndex].getType());
+                    lowestHealth = enemies[enemyIndex].getHealth();
+                    targetIdx = enemyIndex;
+                else if (lowestInOrder == Util.getAttackPref(enemies[enemyIndex].getType()){
+                    if (lowestHealth > enemies[enemyIndex].getHealth()){
+                        lowestHealth = enemies[enemyIndex].getHealth();
+                        targetIdx = enemyIndex;
+                    }
+                }
+            }
+            MapLocation toAttack = enemies[targetIdx].location;
             GreedyPathfinding gpf = new GreedyPathfinding(this);
-            dir = gpf.exploreNarrowly(toAttack);    
+            dir = gpf.explore(toAttack);    
         }
         if (rc.canMove(dir)) {
             rc.move(dir);
