@@ -28,7 +28,7 @@ public class Util {
         Direction.NORTHWEST,
     };
 
-    static final RobotType[] attackOrder = new attackOrder[] {
+    static final RobotType[] attackOrder = new RobotType[] {
         RobotType.ARCHON,
         RobotType.SAGE,
         RobotType.LABORATORY,

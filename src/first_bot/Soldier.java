@@ -38,7 +38,30 @@ public class Soldier extends RobotCommon{
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
         if (enemies.length > 0) {
-            MapLocation toAttack = enemies[0].location;
+            // Choose the enemy we want to attack
+            int bestType = 10;
+            int lowestHealth = 100000;
+            int bestIndex = -1;
+            for (int i = 0; i < enemies.length; i++) {
+                int type = -1;
+                for (int j = 0; j < 7; j++) {
+                    if (enemies[i].getType().equals(Util.attackOrder[j])) {
+                        type = j;
+                        break;
+                    }
+                }
+                if (type < bestType) {
+                    bestType = type;
+                    lowestHealth = 100000;
+                }
+                // Tiebreak by enemy health
+                int health = enemies[i].getHealth();
+                if (bestType == type && health < lowestHealth) {
+                    lowestHealth = health;
+                    bestIndex = i;
+                }
+            }
+            MapLocation toAttack = enemies[bestIndex].location;
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
                 return;
