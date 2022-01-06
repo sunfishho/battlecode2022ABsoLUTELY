@@ -28,7 +28,7 @@ public class Util {
         Direction.NORTHWEST,
     };
 
-    static final RobotType[] attackOrder = new attackOrder[] {
+    static final RobotType[] attackOrder = new RobotType[] {
         RobotType.ARCHON,
         RobotType.SAGE,
         RobotType.LABORATORY,
@@ -48,6 +48,7 @@ public class Util {
             case BUILDER: return 5;
             case MINER: return 6;
         }
+        return 7;
     }
 
     public static int getDirectionIndex(Direction d){

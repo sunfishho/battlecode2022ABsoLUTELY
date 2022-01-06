@@ -46,7 +46,7 @@ public class Soldier extends RobotCommon{
         }
         tryToMove();
     }
-
+    //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove() throws GameActionException {
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         MapLocation loc = rc.getLocation();
@@ -73,13 +73,14 @@ public class Soldier extends RobotCommon{
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
         int lowestInOrder = 7;
         int lowestHealth = 10000;
-        int targetIdx;
+        int targetIdx = 0;
         if (enemies.length > 0) {
             for (int enemyIndex = enemies.length - 1; enemyIndex >= 0; enemyIndex--){
-                if (lowestInOrder > Util.getAttackPref(enemies[enemyIndex].getType());
+                if (lowestInOrder > Util.getAttackPref(enemies[enemyIndex].getType())){
                     lowestHealth = enemies[enemyIndex].getHealth();
                     targetIdx = enemyIndex;
-                else if (lowestInOrder == Util.getAttackPref(enemies[enemyIndex].getType()){
+                }
+                else if (lowestInOrder == Util.getAttackPref(enemies[enemyIndex].getType())){
                     if (lowestHealth > enemies[enemyIndex].getHealth()){
                         lowestHealth = enemies[enemyIndex].getHealth();
                         targetIdx = enemyIndex;
