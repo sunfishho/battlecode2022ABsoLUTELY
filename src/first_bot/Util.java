@@ -3,7 +3,14 @@ import battlecode.common.*;
 
 public class Util {
     static int TAXICAB_WEIGHT = 30;
-    static int ARCHON_MEMORY_SIZE = 1;
+    static int ARCHON_MEMORY_SIZE = 2;
+    /*
+        Indices within each memory block size correspond to:
+            0: Archon writes to value (read by Miners)
+            1: Miner writes to value (read by Archons)
+    */
+    static int ARCHON_VISION_RADIUS = 34;
+    static int MINER_VISION_RADIUS = 20;
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
     static int WALL_HEIGHT_DIFF = 30;
 
@@ -22,7 +29,7 @@ public class Util {
     };
 
     public static int getDirectionIndex(Direction d){
-        switch (d){
+        switch (d) {
             case NORTH: return 0;
             case NORTHEAST: return 1;
             case EAST: return 2;
@@ -36,7 +43,7 @@ public class Util {
     }
 
     public static int getArchonMemoryBlock(int rank) {
-        return 4 + rank * ARCHON_MEMORY_SIZE;
+        return 4 + (rank - 1) * ARCHON_MEMORY_SIZE;
     }
 
     public static MapLocation getLocationFromInt(int loc) {
