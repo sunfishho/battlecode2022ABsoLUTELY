@@ -11,7 +11,7 @@ public class Miner extends RobotCommon{
 
     public Miner(RobotController rc) throws GameActionException {
         super(rc);
-
+        //find parent archon
         boolean foundArchon = false;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {

@@ -42,6 +42,7 @@ public class Util {
         }
     }
 
+
     public static int getArchonMemoryBlock(int rank) {
         return 4 + (rank - 1) * ARCHON_MEMORY_SIZE;
     }
@@ -77,5 +78,9 @@ public class Util {
 
     public static int distanceMetric(int x1, int x2, int y1, int y2){
         return max(abs(x1 - x2), abs(y1 - y2));
+    }
+
+    public static int distanceMetric(MapLocation m1, MapLocation m2){
+        return max(abs(m1.x - m2.x), abs(m1.y - m2.y));
     }
 }
