@@ -31,6 +31,21 @@ public class Miner extends RobotCommon{
     }
     
     public void takeTurn() throws GameActionException {
+        // Suicide if too many nearby miners
+        int radius = rc.getType().actionRadiusSquared;
+        Team ourTeam = rc.getTeam();
+        RobotInfo[] enemies = rc.senseNearbyRobots(radius, ourTeam);
+        int numMiners = 0;
+        for (int i = 0; i < enemies.length; i++) {
+            if (enemies[i].getType().equals(RobotType.MINER)) {
+                numMiners++;
+            }
+        }
+        if (numMiners > 4) {
+            rc.disintegrate();
+            return;
+        }
+
         // Try to mine on squares around us.
 
         rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
