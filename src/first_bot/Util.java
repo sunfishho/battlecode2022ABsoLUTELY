@@ -28,6 +28,16 @@ public class Util {
         Direction.NORTHWEST,
     };
 
+    static final RobotType[] attackOrder = new attackOrder[] {
+        RobotType.ARCHON,
+        RobotType.SAGE,
+        RobotType.LABORATORY,
+        RobotType.WATCHTOWER,
+        RobotType.SOLDIER,
+        RobotType.BUILDER,
+        RobotType.MINER
+    };
+
     public static int getDirectionIndex(Direction d){
         switch (d) {
             case NORTH: return 0;
