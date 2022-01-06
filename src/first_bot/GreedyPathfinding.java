@@ -89,31 +89,25 @@ public class GreedyPathfinding {
     }
 
     public Direction explore(MapLocation destination){
-        if (robot.me.distanceSquaredTo(destination) <= 1){
-            return robot.me.directionTo(destination);
+        int avgPassingRubbleValue = 20;
+        MapLocation current = robot.me;
+        Direction straightDirection = robot.me.directionTo(destination);
+        if (current.distanceSquaredTo(destination) <= 1){
+            return straightDirection;
         }
-        Direction mainDirection = robot.me.directionTo(destination);
-        int bestDistance = 10000;
+        Direction mainDirection = straightDirection;
+        int bestDistance = 1000000;
         int directionIdx = Util.getDirectionIndex(mainDirection);
         int bestDirectionIdx = (directionIdx + 4) % 8;
         for (int idx = 2; idx >= 0; idx--){
             int directionBeingTriedIdx = narrowPossibilities[directionIdx][idx];
             int rubbleLevel = rubbleLevels[Util.dxDiff[directionBeingTriedIdx] + 2][Util.dyDiff[directionBeingTriedIdx] + 2];
-            //in particular this will not work if all directions are blocked, and the thing will try to go backwards if the later steps fail.
-            if (bestDistance > rubbleLevel){
-                bestDistance = rubbleLevel;
+            if (bestDistance > rubbleLevel + Util.distanceMetric(current.x, current.y, destination.x, destination.y) * avgPassingRubbleValue){
+                bestDistance = rubbleLevel + Util.distanceMetric(current.x, current.y, destination.x, destination.y) * avgPassingRubbleValue;
                 bestDirectionIdx = narrowPossibilities[directionIdx][idx];
             }
-            // if (robot.me.x == 2 && robot.me.y == 35){
-            //     System.out.println(rubbleLevel);
-            //     System.out.println(Util.dxDiff[directionBeingTriedIdx] + " " + Util.dyDiff[directionBeingTriedIdx]);
-            //     System.out.println("directionBeingTriedIdx: " + directionBeingTriedIdx);
-            //     System.out.println("bestDirectionIdx: " + bestDirectionIdx);
-            //     System.out.println(Util.directions[bestDirectionIdx]);
-            // }
         }
-        if (bestDistance - rubbleLevels[2][2] <= Util.WALL_HEIGHT_DIFF){
-            // System.out.println("Case 0: " + bestDistance + rubbleLevels[2][2] + robot.me);
+        if (rubbleLevels[Util.dxDiff[bestDirectionIdx] + 2][Util.dyDiff[bestDirectionIdx] + 2] - rubbleLevels[2][2] <= Util.WALL_HEIGHT_DIFF){
             return Util.directions[bestDirectionIdx];
         }
         int rubblelevel1, rubblelevel2, rubblelevel3, rubblelevel4, rubblelevel5;
@@ -122,40 +116,35 @@ public class GreedyPathfinding {
         rubblelevel3 = rubbleLevels[Util.dxDiff[narrowPossibilities[directionIdx][1]] * 2 + 2][Util.dyDiff[narrowPossibilities[directionIdx][1]] * 2 + 2];
         rubblelevel4 = rubbleLevels[Util.dxDiff[narrowPossibilities[directionIdx][1]] + Util.dxDiff[narrowPossibilities[directionIdx][0]] + 2][Util.dyDiff[narrowPossibilities[directionIdx][1]] + Util.dyDiff[narrowPossibilities[directionIdx][0]] + 2];
         rubblelevel5 = rubbleLevels[Util.dxDiff[narrowPossibilities[directionIdx][0]] * 2 + 2][Util.dyDiff[narrowPossibilities[directionIdx][0]] * 2 + 2];
+        //expected distances to destination after taking each one
+        int distance1 = rubblelevel1 + Util.distanceMetric(Util.dxDiff[narrowPossibilities[directionIdx][2]] * 2 + 2, Util.dyDiff[narrowPossibilities[directionIdx][2]] * 2 + 2, destination.x, destination.y) * avgPassingRubbleValue;
+        int distance2 = rubblelevel2 + Util.distanceMetric(Util.dxDiff[narrowPossibilities[directionIdx][2]] + Util.dxDiff[narrowPossibilities[directionIdx][1]] + 2, Util.dyDiff[narrowPossibilities[directionIdx][2]] + Util.dyDiff[narrowPossibilities[directionIdx][1]] + 2, destination.x, destination.y) * avgPassingRubbleValue;
+        int distance3 = rubblelevel3 + Util.distanceMetric(Util.dxDiff[narrowPossibilities[directionIdx][1]] * 2 + 2, Util.dyDiff[narrowPossibilities[directionIdx][1]] * 2 + 2, destination.x, destination.y) * avgPassingRubbleValue;
+        int distance4 = rubblelevel4 + Util.distanceMetric(Util.dxDiff[narrowPossibilities[directionIdx][1]] + Util.dxDiff[narrowPossibilities[directionIdx][0]] + 2, Util.dyDiff[narrowPossibilities[directionIdx][1]] + Util.dyDiff[narrowPossibilities[directionIdx][0]] + 2, destination.x, destination.y) * avgPassingRubbleValue;
+        int distance5 = rubblelevel5 + Util.distanceMetric(Util.dxDiff[narrowPossibilities[directionIdx][0]] * 2 + 2, Util.dyDiff[narrowPossibilities[directionIdx][0]] * 2 + 2, destination.x, destination.y) * avgPassingRubbleValue;
         int bestsecondrubblelevel = Util.min(Util.min(rubblelevel1, rubblelevel2), Util.min(rubblelevel3, Util.min(rubblelevel4, rubblelevel5)));
+        int bestdistance = Util.min(Util.min(distance1, distance2), Util.min(distance3, Util.min(distance4, distance5)));
+        //check if there's a hole in the second layer of cells
         if (bestsecondrubblelevel - rubbleLevels[2][2] <= Util.WALL_HEIGHT_DIFF){
-            // System.out.println("Case 1: " + robot.me);
-            if (bestsecondrubblelevel == rubblelevel1) return Util.directions[narrowPossibilities[directionIdx][2]];
-            if (bestsecondrubblelevel == rubblelevel2){
+            if (bestdistance == distance1) return Util.directions[narrowPossibilities[directionIdx][2]];
+            if (bestdistance == distance2){
+                //check what's the fastest way to reach that second layer tile
                 if (rubbleLevels[Util.dxDiff[narrowPossibilities[directionIdx][2]] + 2][Util.dyDiff[narrowPossibilities[directionIdx][2]]+ 2] > rubbleLevels[Util.dxDiff[narrowPossibilities[directionIdx][1]] + 2][Util.dyDiff[narrowPossibilities[directionIdx][1]]+ 2]){
                     return Util.directions[narrowPossibilities[directionIdx][1]];
                 }
                 return Util.directions[narrowPossibilities[directionIdx][2]];
             }
-            if (bestsecondrubblelevel == rubblelevel3) return Util.directions[bestDirectionIdx];
-            if (bestsecondrubblelevel == rubblelevel4){
+            if (bestdistance == distance3) return Util.directions[bestDirectionIdx];
+            if (bestdistance == distance4){
+                //check what's the fastest way to reach that second layer tile
                 if (rubbleLevels[Util.dxDiff[narrowPossibilities[directionIdx][1]] + 2][Util.dyDiff[narrowPossibilities[directionIdx][1]]+ 2] > rubbleLevels[Util.dxDiff[narrowPossibilities[directionIdx][0]] + 2][Util.dyDiff[narrowPossibilities[directionIdx][0]]+ 2]){
                     return Util.directions[narrowPossibilities[directionIdx][0]];
                 }
                return Util.directions[narrowPossibilities[directionIdx][1]];
             }
-            if (bestsecondrubblelevel == rubblelevel5) return Util.directions[narrowPossibilities[directionIdx][0]];
+            if (bestdistance == distance5) return Util.directions[narrowPossibilities[directionIdx][0]];
+     
         }
-        //Well, there's a block in front of us... so turn right maybe?
-        int newDirectionIdx = (narrowPossibilities[directionIdx][2] + 1) % 8;
-        //if it's ok, just go that way
-        if (rubbleLevels[Util.dxDiff[newDirectionIdx] + 2][Util.dyDiff[newDirectionIdx] + 2] - rubbleLevels[2][2] <= Util.WALL_HEIGHT_DIFF){
-            // System.out.println("Case 2: " + robot.me);
-            return Util.directions[newDirectionIdx];
-        }
-        newDirectionIdx = (narrowPossibilities[directionIdx][0] + 7) % 8;
-        //check the other direction
-        if (rubbleLevels[Util.dxDiff[newDirectionIdx] + 2][Util.dyDiff[newDirectionIdx] + 2] - rubbleLevels[2][2] <= Util.WALL_HEIGHT_DIFF){
-            // System.out.println("Case 3: " + robot.me);
-            return Util.directions[newDirectionIdx];
-        }
-        // System.out.println("Case 4: " + robot.me);
-        return Util.directions[bestDirectionIdx];
-        //in this case, try the other direction lol
+        return straightDirection;
     }
 }
