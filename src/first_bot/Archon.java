@@ -141,6 +141,7 @@ public class Archon extends RobotCommon{
             if(knownMap[loc] == 0) {
                 knownMap[loc] = 5;
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), loc);
+                System.out.println(rank + " " + loc);
                 return;
             }
         }
