@@ -13,8 +13,6 @@ public class Util {
             1: Miner writes to value (read by Archons)
         Use Util.getMemoryBlock(rank) to find beginning of memory block
     */
-    static int ARCHON_VISION_RADIUS = 34;
-    static int MINER_VISION_RADIUS = 20;
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
     static int WALL_HEIGHT_DIFF = 30;
     static int LOC_BASE = 61;
@@ -84,21 +82,22 @@ public class Util {
         return loc.x * LOC_BASE + loc.y + 1;
     }
 
-    public static int moveOnLattice(int loc) {
-        if(loc % 2 == 1) {
-            if(loc % Util.LOC_BASE != HEIGHT) { // check if it's not on the very top edge
-                loc++;
-            }
-            else {
-                loc--;
-            }
+    public static int moveOnLattice(int intLoc) {
+        MapLocation loc = getLocationFromInt(intLoc);
+        if(loc.x % 2 == 1) {
+            if(loc.x != WIDTH) loc.translate(1, 0);
+            else loc.translate(-1, 0);
         }
-        return loc;
+        if(loc.y % 2 == 1) {
+            if(loc.y != WIDTH) loc.translate(0, 1);
+            else loc.translate(0, -1);
+        }
+        return getIntFromLocation(loc);
     }
 
-    public static boolean onLattice(int loc) {
-        if(loc % 2 == 0) return true;
-        return false;
+    public static boolean onLattice(int intLoc) {
+        MapLocation loc = getLocationFromInt(intLoc);
+        return (loc.x % 2 == 0 && loc.y % 2 == 0);
     }
 
     public static int abs(int a){

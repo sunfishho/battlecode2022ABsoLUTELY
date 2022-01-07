@@ -46,10 +46,10 @@ public class Miner extends RobotCommon{
 
         rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
 
-        // test heuristic: die every 200 rounds if you're not on lattice or you're on a zero lead location near Archon
+        // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location near Archon
         int round = rc.getRoundNum();
-        if(round % 100 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
-            || rc.senseLead(me) == 0) && me.distanceSquaredTo(archonLocation) <= round/100 * 5) {
+        if(round > 300 && round % 100 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
+            || rc.senseLead(me) == 0) && me.distanceSquaredTo(archonLocation) <= round/100 * 20) {
             rc.disintegrate();
         }
 
