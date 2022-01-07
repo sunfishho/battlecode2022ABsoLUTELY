@@ -86,7 +86,6 @@ public class Archon extends RobotCommon{
                 me = rc.getLocation();
             }
         }
-
         if(!wroteArchons) {
             int loc = Util.getIntFromLocation(me);
             for(int i = 0; i < 4; i++) {
@@ -95,7 +94,6 @@ public class Archon extends RobotCommon{
             wroteArchons = true;
         }
         rc.setIndicatorString(Integer.toString(rank));
-
         // Try three times to pick a direction to build in.
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         for (int i = 0; i < 2; i++) {
@@ -113,6 +111,7 @@ public class Archon extends RobotCommon{
         else {
             builtMinersLast = false;
             if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                System.out.println("hi");
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }
         }

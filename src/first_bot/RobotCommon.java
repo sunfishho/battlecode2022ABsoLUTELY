@@ -69,6 +69,13 @@ public abstract class RobotCommon {
         }
     }
 
+    public static MapLocation chooseRandomInitialDestination(){
+        int[] initialDestinationPossibilities = new int[] {0, 1, 2, 3, 4};
+        int x_coord = rc.getMapWidth()/6 * (initialDestinationPossibilities[rng.nextInt(5)] + 1);
+        int y_coord = rc.getMapHeight()/6 * (initialDestinationPossibilities[rng.nextInt(5)] + 1);
+        return new MapLocation(x_coord, y_coord);
+    }
+
     static final Random rng = new Random(6147);
 
     abstract void takeTurn() throws GameActionException;

@@ -151,7 +151,7 @@ public class Miner extends RobotCommon{
 
     public void tryToMove() throws GameActionException {
         GreedyPathfinding gpf = new GreedyPathfinding(this);
-        Direction dir = gpf.exploreNarrowly(target);
+        Direction dir = gpf.explore(target);
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();

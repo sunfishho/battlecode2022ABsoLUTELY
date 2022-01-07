@@ -9,10 +9,12 @@ public class Soldier extends RobotCommon{
     static int type;//0 = aggressive, 1 = defensive, 2 = escort?
     public static int archonRank;
     static MapLocation archonLocation, target;
+    static MapLocation initialDestination;
 
 
     public Soldier(RobotController rc) throws GameActionException {
-        super(rc);
+        super(rc); 
+        initialDestination = chooseRandomInitialDestination();
         //find parent archon
         boolean foundArchon = false;
         for (int dx = -1; dx <= 1; dx++) {
@@ -32,6 +34,7 @@ public class Soldier extends RobotCommon{
         }
         //do more stuff later
     }
+
     public void takeTurn() throws GameActionException {
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
@@ -71,7 +74,12 @@ public class Soldier extends RobotCommon{
     }
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove() throws GameActionException {
-        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
+        GreedyPathfinding gpf = new GreedyPathfinding(this);
+        Direction dir = Direction.CENTER;
+        if (initialDestination != null){
+            dir = gpf.explore(initialDestination);
+        }
+        // Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         MapLocation loc = rc.getLocation();
         if(type == 0){//aggressive soldier, just go in general direction of closest enemy archon
             //fix this eventually
@@ -82,12 +90,15 @@ public class Soldier extends RobotCommon{
                     break;
                 case 1:
                     dir = loc.directionTo(RobotCommon.nearestEnemyArchon(loc, 1));
+                    initialDestination = null;
                     break;
                 case 2:
                     dir = loc.directionTo(RobotCommon.nearestEnemyArchon(loc, 2));
+                    initialDestination = null;
                     break;
                 default:
                     dir = loc.directionTo(RobotCommon.nearestEnemyArchon(loc, 3));
+                    initialDestination = null;
                     break;
             }
         }
@@ -112,8 +123,8 @@ public class Soldier extends RobotCommon{
                 }
             }
             MapLocation toFollow = enemies[visionTargetIdx].location;
-            GreedyPathfinding gpf = new GreedyPathfinding(this);
-            dir = gpf.explore(toFollow);    
+            dir = gpf.explore(toFollow);
+            initialDestination = null;    
         }
         if (rc.canMove(dir)) {
             rc.move(dir);
