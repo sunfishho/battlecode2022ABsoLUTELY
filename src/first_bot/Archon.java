@@ -72,6 +72,7 @@ public class Archon extends RobotCommon{
 
     public void takeTurn() throws GameActionException {
         // -1 = establish rank, 0 = find other Archons
+        me = rc.getLocation();
         if(rank == -1) establishRank();
 
         if(!checkedNearby){
@@ -111,7 +112,6 @@ public class Archon extends RobotCommon{
         else {
             builtMinersLast = false;
             if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                System.out.println("hi");
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }
         }

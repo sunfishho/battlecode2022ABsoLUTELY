@@ -48,7 +48,6 @@ public strictfp class RobotPlayer {
         while(true){
             robot.takeTurn();
             Clock.yield();
-            //run the robot by putting stuff in here
         }
     }
 }

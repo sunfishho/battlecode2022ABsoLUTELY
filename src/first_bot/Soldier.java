@@ -39,6 +39,7 @@ public class Soldier extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
+        this.me = rc.getLocation();
         // Try to attack someone
         if (this.me.equals(initialDestination)){
             initialDestination = null;
@@ -141,7 +142,6 @@ public class Soldier extends RobotCommon{
         int newX = loc.x + dir.dx;
         int newY = loc.y + dir.dy;
         MapLocation newLoc = new MapLocation(newX, newY);
-        rc.setIndicatorLine(loc, newLoc, 0, 99, 0);
         if (rc.canMove(dir)) {
             rc.move(dir);
             movesSinceAction = 0;

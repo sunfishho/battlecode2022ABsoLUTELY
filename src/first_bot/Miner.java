@@ -31,6 +31,7 @@ public class Miner extends RobotCommon{
     }
     
     public void takeTurn() throws GameActionException {
+        this.me = rc.getLocation();
         // Suicide if too many nearby miners
         int radius = rc.getType().actionRadiusSquared;
         Team ourTeam = rc.getTeam();
