@@ -41,9 +41,6 @@ public class Soldier extends RobotCommon{
     public void takeTurn() throws GameActionException {
         this.me = rc.getLocation();
         // Try to attack someone
-        if (this.me.equals(initialDestination)){
-            initialDestination = null;
-        }
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
@@ -85,6 +82,12 @@ public class Soldier extends RobotCommon{
     }
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove() throws GameActionException {
+        if (this.me.equals(initialDestination)){
+            initialDestination = chooseRandomInitialDestination();
+            if (rc.getID() == 13087){
+                System.out.println(me + " " + rc.getLocation() + " " + initialDestination);
+            }
+        }
         GreedyPathfinding gpf = new GreedyPathfinding(this);
         Direction dir = Direction.CENTER;
         if (initialDestination != null){
@@ -137,7 +140,6 @@ public class Soldier extends RobotCommon{
             }
             MapLocation toFollow = enemies[visionTargetIdx].location;
             dir = gpf.explore(toFollow);
-            // initialDestination = null;    
         }
         int newX = loc.x + dir.dx;
         int newY = loc.y + dir.dy;
