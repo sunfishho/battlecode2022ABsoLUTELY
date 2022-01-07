@@ -11,17 +11,21 @@ public class Archon extends RobotCommon{
     static boolean checkedNearby = false;
     static MapLocation home;
     static int rank = -1; // 1-based
-    static int[] knownMap = new int[65 * 60];
+    static int[] knownMap = new int[62 * 60];
     static boolean wroteArchons;
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
             1-4: archons of corresponding rank
             5: miner sent to location
     */
-    static boolean builtMinersLast;
+    static boolean builtMinersLast; // true if miners were built on the previous turn
 
     public Archon(RobotController rc){
         super(rc);
+        
+        // for Util to know the width/height of the map
+        Util.WIDTH = rc.getMapWidth();
+        Util.HEIGHT = rc.getMapHeight();
     }
 
     // Establish an order between the Archons by writing to the shared array.
@@ -71,100 +75,77 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
-        // -1 = establish rank, 0 = find other Archons
         me = rc.getLocation();
-        if(rank == -1) establishRank();
 
         if(!checkedNearby){
             relocCheck();
             checkedNearby = true;
         }
 
-        if(me != home){//we should try moving to a nearby place with less rubble
-            Direction dir = me.directionTo(home);
-            if(rc.canMove(dir)){
+        if(me != home){ // we should try moving to a nearby place with less rubble
+            GreedyPathfinding gpf = new GreedyPathfinding(this);
+            Direction dir = gpf.explore(home);
+            if (rc.canMove(dir)) {
                 rc.move(dir);
                 me = rc.getLocation();
             }
         }
-        if(!wroteArchons) {
+
+        // establishRank on turn 1, write archon locations on turn 2
+        if(!wroteArchons && rank == -1) {
             int loc = Util.getIntFromLocation(me);
             for(int i = 0; i < 4; i++) {
                 knownMap[rc.readSharedArray(i)] = i + 1;
             }
             wroteArchons = true;
         }
+        if(rank == -1) establishRank();
         rc.setIndicatorString(Integer.toString(rank));
-        // Try three times to pick a direction to build in.
+
+        // Try randomly to pick a direction to build in
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
-        for (int i = 0; i < 2; i++) {
-            if (!rc.canBuildRobot(RobotType.MINER, dir)) {
-                dir = Util.directions[rng.nextInt(Util.directions.length)];
-            }
+        for (int i = 0; i < 8; i++) {
+            if (rc.canBuildRobot(RobotType.MINER, dir)) break;
+            dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) && !builtMinersLast) {
             rc.buildRobot(RobotType.MINER, dir);
-
             writeMinerLocation();
-
             builtMinersLast = true;
         }
         else {
+            builtMinersLast = false;
             if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                builtMinersLast = false;
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }
         }
     }
 
+    // Writes a new Location for the new Miner to go to, should be on-lattice
     public void writeMinerLocation() throws GameActionException {
-        boolean sentTarget = false;
-
-        MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(Util.ARCHON_VISION_RADIUS);
+        // iterate through gold locations that have not been targets before
+        MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         for(int i = 0; i < goldLocations.length; i++) {
-            int loc = Util.getIntFromLocation(goldLocations[i]);
+            int loc = Util.moveOnLattice(Util.getIntFromLocation(goldLocations[i]));
             if(knownMap[loc] == 0) {
-                for (int j = -1; j <= 1; j++) {
-                    for (int k = -1; k <= 1; k++) {
-                        MapLocation newLocation = new MapLocation(goldLocations[i].x + j, goldLocations[i].y+k);
-                        if (rc.canSenseLocation(newLocation)) {
-                            int tempLoc = Util.getIntFromLocation(newLocation);
-                            knownMap[tempLoc] = 5;
-                        }
-                    }
-                }
+                knownMap[loc] = 5;
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), loc);
-                sentTarget = true;
-                break;
+                return;
             }
         }
 
-        if(sentTarget) return;
-
-        MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(Util.ARCHON_VISION_RADIUS);
+        // iterate through lead locations that have not been targets before
+        MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
         for(int i = 0; i < leadLocations.length; i++) {
-            int loc = Util.getIntFromLocation(leadLocations[i]);
+            int loc = Util.moveOnLattice(Util.getIntFromLocation(leadLocations[i]));
             if(knownMap[loc] == 0) {
-                for (int j = -1; j <= 1; j++) {
-                    for (int k = -1; k <= 1; k++) {
-                        MapLocation newLocation = new MapLocation(leadLocations[i].x + j, leadLocations[i].y+k);
-                        if ( rc.canSenseLocation(newLocation)) {
-                            int tempLoc = Util.getIntFromLocation(newLocation);
-                            knownMap[tempLoc] = 5;
-                        }
-                    }
-                }
+                knownMap[loc] = 5;
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), loc);
-                sentTarget = true;
-                // System.out.println(rank + " " + leadLocations[i]);
-                break;
+                return;
             }
         }
-
-        if(sentTarget) return;
-
         
-
+        // otherwise, see if a Miner has sent back a location or send default location (me)
         int locFromMiner = rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1);
         if(knownMap[locFromMiner] == 0) {
             knownMap[locFromMiner] = 5;
@@ -173,5 +154,6 @@ public class Archon extends RobotCommon{
         else {
             rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(me));
         }
+        rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.getIntFromLocation(me)); // replace with default location
     }
 }

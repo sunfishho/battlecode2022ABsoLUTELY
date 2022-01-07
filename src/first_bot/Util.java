@@ -5,14 +5,20 @@ public class Util {
     static int TAXICAB_WEIGHT = 30;
     static int ARCHON_MEMORY_SIZE = 2;
     /*
+        Shared Array:
+            0-3: location of Archons 1-4
+            4-11: memory blocks
         Indices within each memory block size correspond to:
             0: Archon writes to value (read by Miners)
             1: Miner writes to value (read by Archons)
+        Use Util.getMemoryBlock(rank) to find beginning of memory block
     */
     static int ARCHON_VISION_RADIUS = 34;
     static int MINER_VISION_RADIUS = 20;
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
     static int WALL_HEIGHT_DIFF = 30;
+    static int LOC_BASE = 61;
+    static int HEIGHT, WIDTH;
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
@@ -65,17 +71,34 @@ public class Util {
         }
     }
 
-
+    // returns beginning of entry block
     public static int getArchonMemoryBlock(int rank) {
         return 4 + (rank - 1) * ARCHON_MEMORY_SIZE;
     }
 
     public static MapLocation getLocationFromInt(int loc) {
-        return new MapLocation((loc - 1) / 64, (loc - 1) % 64);
+        return new MapLocation((loc - 1) / LOC_BASE, (loc - 1) % LOC_BASE);
     }
 
     public static int getIntFromLocation(MapLocation loc) {
-        return loc.x * 64 + loc.y + 1;
+        return loc.x * LOC_BASE + loc.y + 1;
+    }
+
+    public static int moveOnLattice(int loc) {
+        if(loc % 2 == 1) {
+            if(loc % Util.LOC_BASE != HEIGHT) { // check if it's not on the very top edge
+                loc++;
+            }
+            else {
+                loc--;
+            }
+        }
+        return loc;
+    }
+
+    public static boolean onLattice(int loc) {
+        if(loc % 2 == 0) return true;
+        return false;
     }
 
     public static int abs(int a){

@@ -11,8 +11,8 @@ public class Miner extends RobotCommon{
 
     public Miner(RobotController rc) throws GameActionException {
         super(rc);
+        
         //find parent archon
-
         for(int i = 0; i < 4; i++) {
             MapLocation archonLoc = Util.getLocationFromInt(rc.readSharedArray(i));
             if(Util.abs(archonLoc.x - me.x) <= 1 && Util.abs(archonLoc.y - me.y) <= 1) {
@@ -25,30 +25,39 @@ public class Miner extends RobotCommon{
     }
     
     public void takeTurn() throws GameActionException {
-        this.me = rc.getLocation();
-        // Suicide if too many nearby miners
-        int radius = rc.getType().actionRadiusSquared;
-        Team ourTeam = rc.getTeam();
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, ourTeam);
-        int numMiners = 0;
-        for (int i = 0; i < enemies.length; i++) {
-            if (enemies[i].getType().equals(RobotType.MINER)) {
-                numMiners++;
-            }
-        }
-        if ((numMiners > 1 && rc.senseLead(rc.getLocation()) == 0) || numMiners > 3) {
-            rc.disintegrate();
-            return;
-        }
+        me = rc.getLocation();
 
-        // Try to mine on squares around us.
+        /*
+            // Suicide if too many nearby miners
+            int radius = rc.getType().actionRadiusSquared;
+            Team ourTeam = rc.getTeam();
+            RobotInfo[] enemies = rc.senseNearbyRobots(radius, ourTeam);
+            int numMiners = 0;
+            for (int i = 0; i < enemies.length; i++) {
+                if (enemies[i].getType().equals(RobotType.MINER)) {
+                    numMiners++;
+                }
+            }
+            if ((numMiners > 1 && rc.senseLead(rc.getLocation()) == 0) || numMiners > 3) {
+                rc.disintegrate();
+                return;
+            }
+        */
 
         rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
 
-        // Case when Archon could not assign a Location to the Miner
-        if(rc.senseGold(me) == 0 && rc.senseLead(me) <= 1) {
-            target = archonLocation;
+        // test heuristic: die every 200 rounds if you're not on lattice or you're on a zero lead location near Archon
+        int round = rc.getRoundNum();
+        if(round % 100 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
+            || rc.senseLead(me) == 0) && me.distanceSquaredTo(archonLocation) <= round/100 * 5) {
+            rc.disintegrate();
         }
+
+        // Case when Archon could not assign a Location to the Miner
+
+        /*
+            Current goal: avoid initial miner overlap using 2x2 lattice (stay on even int locations)
+        */
         if(target.equals(archonLocation)) {
             explore();
             tryToWriteTarget();
@@ -58,7 +67,6 @@ public class Miner extends RobotCommon{
         
         if(!reachedTarget && me.equals(target)) {
             reachedTarget = true;
-            // System.out.println("Reached target.");
         }
 
         if(!reachedTarget) {
@@ -70,10 +78,30 @@ public class Miner extends RobotCommon{
 
     // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
     public void explore() throws GameActionException {
-        if(rc.senseLead(me) > 1) {
-            return;
+        // stay put if you're on lattice and you can mine
+        if(Util.onLattice(Util.getIntFromLocation(me))) {
+            MapLocation loc = me;
+            if(rc.senseLead(loc) > 0) {
+                target = me;
+                return;
+            }
+            for(int i = 0; i < 8; i++) {
+                loc = new MapLocation(me.x + Util.dxDiff[i], me.y + Util.dyDiff[i]);
+                if(rc.onTheMap(loc) && rc.senseLead(loc) > 0) {
+                    target = me;
+                    return;
+                }
+            }
         }
-        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
+        // otherwise, explore with higher chance of moving away from Archon
+        int dirIndex = rng.nextInt(Util.directions.length + 4);
+        Direction dir = Direction.CENTER;
+        if(dirIndex < Util.directions.length) {
+            dir = Util.directions[dirIndex];
+        }
+        else {
+            dir = me.directionTo(archonLocation).opposite();
+        }
         if(rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();
@@ -82,7 +110,7 @@ public class Miner extends RobotCommon{
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
     public void tryToWriteTarget() throws GameActionException {
-        MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(Util.MINER_VISION_RADIUS);
+        MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
         boolean change = false;
 
@@ -101,12 +129,12 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
-                rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.getIntFromLocation(bestLoc));
+                rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
                 return;
             }
         }
 
-        MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(Util.MINER_VISION_RADIUS);
+        MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
         int numLeadLocations = leadLocations.length;
 
         if(numLeadLocations > 0) {
@@ -124,12 +152,12 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
-                rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.getIntFromLocation(bestLoc));
-                System.out.println("new target at " + bestLoc);
+                rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
             }
         }
     }
 
+    // Tries to mine in 3x3 square around Miner
     public void tryToMine() throws GameActionException {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
@@ -144,6 +172,7 @@ public class Miner extends RobotCommon{
         }
     }
 
+    // Moves toward target
     public void tryToMove() throws GameActionException {
         GreedyPathfinding gpf = new GreedyPathfinding(this);
         Direction dir = gpf.explore(target);
