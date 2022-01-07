@@ -71,7 +71,7 @@ public class Util {
     }
 
     public static MapLocation getLocationFromInt(int loc) {
-        return new MapLocation(loc - 1 / 64, loc - 1 % 64);
+        return new MapLocation((loc - 1) / 64, (loc - 1) % 64);
     }
 
     public static int getIntFromLocation(MapLocation loc) {
