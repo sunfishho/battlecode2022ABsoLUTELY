@@ -110,8 +110,8 @@ public class Archon extends RobotCommon{
             builtMinersLast = true;
         }
         else {
-            builtMinersLast = false;
             if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                builtMinersLast = false;
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }
         }

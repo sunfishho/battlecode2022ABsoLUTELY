@@ -42,7 +42,7 @@ public class Miner extends RobotCommon{
                 numMiners++;
             }
         }
-        if (numMiners > 4) {
+        if ((numMiners > 1 && rc.senseLead(rc.getLocation()) == 0) || numMiners > 3) {
             rc.disintegrate();
             return;
         }
