@@ -71,8 +71,8 @@ public abstract class RobotCommon {
 
     public static MapLocation chooseRandomInitialDestination(){
         int[] initialDestinationPossibilities = new int[] {0, 1, 2, 3, 4};
-        int x_coord = rc.getMapWidth()/6 * (initialDestinationPossibilities[rng.nextInt(5)] + 1);
-        int y_coord = rc.getMapHeight()/6 * (initialDestinationPossibilities[rng.nextInt(5)] + 1);
+        int x_coord = rng.nextInt(rc.getMapWidth() * 9 / 10) + rc.getMapWidth() * 1 / 20;
+        int y_coord = rng.nextInt(rc.getMapHeight() * 9 / 10) + rc.getMapHeight() * 1 / 20;;
         return new MapLocation(x_coord, y_coord);
     }
 

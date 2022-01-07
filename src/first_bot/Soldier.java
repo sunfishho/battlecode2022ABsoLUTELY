@@ -37,6 +37,9 @@ public class Soldier extends RobotCommon{
 
     public void takeTurn() throws GameActionException {
         // Try to attack someone
+        if (this.me.equals(initialDestination)){
+            initialDestination = null;
+        }
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
