@@ -12,20 +12,14 @@ public class Miner extends RobotCommon{
     public Miner(RobotController rc) throws GameActionException {
         super(rc);
         //find parent archon
-        boolean foundArchon = false;
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                if(foundArchon) break;
-                MapLocation loc = new MapLocation(me.x + dx, me.y + dy);
-                for(int i = 0; i < 4; i++) {
-                    if(Util.getIntFromLocation(loc) == rc.readSharedArray(i)) {
-                        archonRank = i + 1;
-                        archonLocation = loc;
-                        target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank)));
-                        foundArchon = true;
-                        break;
-                    }
-                }
+
+        for(int i = 0; i < 4; i++) {
+            MapLocation archonLoc = Util.getLocationFromInt(rc.readSharedArray(i));
+            if(Util.abs(archonLoc.x - me.x) <= 1 && Util.abs(archonLoc.y - me.y) <= 1) {
+                archonRank = i + 1;
+                archonLocation = archonLoc;
+                target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank)));
+                return;
             }
         }
     }
