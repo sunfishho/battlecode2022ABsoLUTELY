@@ -10,11 +10,14 @@ public class Soldier extends RobotCommon{
     public static int archonRank;
     static MapLocation archonLocation, target;
     static MapLocation initialDestination;
+    static int movesSinceAction;  
 
 
     public Soldier(RobotController rc) throws GameActionException {
         super(rc); 
+        type = 1;       // Default to defensive
         initialDestination = chooseRandomInitialDestination();
+        movesSinceAction = 0;
         //find parent archon
         boolean foundArchon = false;
         for (int dx = -1; dx <= 1; dx++) {
@@ -43,33 +46,37 @@ public class Soldier extends RobotCommon{
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        // This whole block only runs if we have an enemy in sight
         if (enemies.length > 0) {
             // Choose the enemy we want to attack
             int bestType = 10;
             int lowestHealth = 100000;
             int bestIndex = -1;
+            // Go through list of enemies and find the one we want to attack the most
             for (int i = 0; i < enemies.length; i++) {
-                int type = -1;
+                int enemyType = 8;
                 for (int j = 0; j < 7; j++) {
                     if (enemies[i].getType().equals(Util.attackOrder[j])) {
-                        type = j;
+                        enemyType = j;
                         break;
                     }
                 }
-                if (type < bestType) {
-                    bestType = type;
+                if (enemyType < bestType) {
+                    bestType = enemyType;
                     lowestHealth = 100000;
                 }
                 // Tiebreak by enemy health
                 int health = enemies[i].getHealth();
-                if (bestType == type && health < lowestHealth) {
+                if (bestType == enemyType && health < lowestHealth) {
                     lowestHealth = health;
                     bestIndex = i;
                 }
             }
+            // Go to the enemy we want to attack and attack if possible
             MapLocation toAttack = enemies[bestIndex].location;
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
+                movesSinceAction = 0;
                 return;
             }
         }
@@ -105,6 +112,8 @@ public class Soldier extends RobotCommon{
                     break;
             }
         }
+        // If there's an enemy nearby target it
+        // Initialize variables for targeting enemies
         int visionRadius = rc.getType().visionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(visionRadius, opponent);
@@ -127,10 +136,21 @@ public class Soldier extends RobotCommon{
             }
             MapLocation toFollow = enemies[visionTargetIdx].location;
             dir = gpf.explore(toFollow);
-            initialDestination = null;    
+            // initialDestination = null;    
         }
+        int newX = loc.x + dir.dx;
+        int newY = loc.y + dir.dy;
+        MapLocation newLoc = new MapLocation(newX, newY);
+        rc.setIndicatorLine(loc, newLoc, 0, 99, 0);
         if (rc.canMove(dir)) {
             rc.move(dir);
+            movesSinceAction = 0;
+        } else {
+            movesSinceAction++;
+            if (movesSinceAction > 5) {
+                initialDestination = chooseRandomInitialDestination();
+                movesSinceAction = 0;
+            }
         }
     }
 }
