@@ -22,8 +22,11 @@ public class Archon extends RobotCommon{
     */
     static boolean builtMinersLast; // true if miners were built on the previous turn
 
-    public Archon(RobotController rc){
+    public Archon(RobotController rc) throws GameActionException{
         super(rc);
+        
+        //initialize the Symmetry bit
+        rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
         
         // for Util to know the width/height of the map
         Util.WIDTH = rc.getMapWidth();

@@ -7,7 +7,8 @@ public class Util {
     /*
         Shared Array:
             0-3: location of Archons 1-4
-            4-11: memory blocks
+            4-15: memory blocks
+            16: symmetry indicator (3 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 0 if rotationally symmetric)
         Indices within each memory block size correspond to:
             0: Archon writes to value (read by Miners)
             1: Miner writes to value (read by Archons)
@@ -17,6 +18,9 @@ public class Util {
     static int WALL_HEIGHT_DIFF = 30;
     static int LOC_BASE = 61;
     static int HEIGHT, WIDTH;
+    static int NUM_ARCHONS;
+    //this is for distanceMetric()
+    static double DISTANCE_WEIGHT_OTHER_COMPONENT = 0.2;
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
@@ -81,6 +85,10 @@ public class Util {
     public static int getIntFromLocation(MapLocation loc) {
         return loc.x * LOC_BASE + loc.y + 1;
     }
+    //return index of symmetry number
+    public static int getSymmetryMemoryBlock(){
+        return 7 + 3 * ARCHON_MEMORY_SIZE;
+    }
 
     public static int moveOnLattice(int intLoc) {
         MapLocation loc = getLocationFromInt(intLoc);
@@ -122,10 +130,14 @@ public class Util {
     }
 
     public static int distanceMetric(int x1, int x2, int y1, int y2){
-        return max(abs(x1 - x2), abs(y1 - y2));
+        return max(abs(x1 - x2), abs(y1 - y2)) + (int)(DISTANCE_WEIGHT_OTHER_COMPONENT * min(abs(x1 - x2), abs(y1 - y2)));
     }
 
     public static int distanceMetric(MapLocation m1, MapLocation m2){
         return max(abs(m1.x - m2.x), abs(m1.y - m2.y));
+    }
+
+    public static void markSymmetry(MapLocation mL){
+
     }
 }

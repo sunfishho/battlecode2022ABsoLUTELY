@@ -44,6 +44,7 @@ public class Miner extends RobotCommon{
     }
 
     public void doScoutRoutine() throws GameActionException{
+        tryToMine();
         GreedyPathfinding gpf = new GreedyPathfinding(this);
         Direction dir = Direction.CENTER;
         if (!hasReachedHalfway){
@@ -94,8 +95,18 @@ public class Miner extends RobotCommon{
         }
     }
 
-    public void reportSymmetryBroken(){
-        return;
+    public void reportSymmetryBroken() throws GameActionException{
+        int memoryIndex = Util.getSymmetryMemoryBlock();
+        if (scoutTravelingHorizontally){
+            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) - 1);
+            System.out.println("NEW SYMMETRY RECORDING: " + rc.readSharedArray(16));
+            return;
+        }
+        else {
+            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) - 2);
+            System.out.println("NEW SYMMETRY RECORDING: " + rc.readSharedArray(16));
+            return;
+        }
     }
     
     public void takeTurn() throws GameActionException {

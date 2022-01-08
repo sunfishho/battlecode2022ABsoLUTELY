@@ -11,6 +11,8 @@ public class Builder extends RobotCommon{
     public static int archonRank;
     public static MapLocation archonLocation;
 
+    public static boolean isSacrifice = false;
+
     public Builder(RobotController rc) throws GameActionException{
         super(rc);
 
