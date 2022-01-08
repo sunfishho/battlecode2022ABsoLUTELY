@@ -1,5 +1,5 @@
 
-package first_bot;
+package pathfinding_test_bot;
 
 import battlecode.common.*;
 
@@ -27,6 +27,8 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException{
-        rc.buildRobot(RobotType.MINER, Direction.NORTH);
+        if (rc.getRoundNum() == 1 && rc.getTeamLeadAmount(rc.getTeam()) == 200){
+            rc.buildRobot(RobotType.MINER, Direction.NORTH);
+        }
     }
 }

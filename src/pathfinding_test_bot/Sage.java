@@ -1,5 +1,5 @@
 
-package first_bot;
+package pathfinding_test_bot;
 
 import battlecode.common.*;
 

@@ -1,4 +1,4 @@
-package first_bot;
+package pathfinding_test_bot;
 import battlecode.common.*;
 
 
@@ -33,10 +33,12 @@ public class Pathfinding {
         for (int row = 0; row < 5; row++){
             for (int col = 0; col < 5; col++){
                 MapLocation mc = new MapLocation(row - 2 + robot.me.x, col - 2 + robot.me.y);
-                rubbleLevels[row][col] = robot.rc.senseRubble(mc);
                 //treat something with this rubble level as being impassable
                 if (mc.x < 0 || mc.y < 0 || mc.x >= Util.WIDTH || mc.y >= Util.HEIGHT || this.robot.rc.canSenseRobotAtLocation(mc)){
                     rubbleLevels[row][col] = 10000;
+                }
+                else{
+                    rubbleLevels[row][col] = robot.rc.senseRubble(mc);
                 }
                 if (row == 0 || row == 4 || col == 0 || col == 4){
                     distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
@@ -67,6 +69,15 @@ public class Pathfinding {
 
     public Direction findBestDirection(MapLocation target) throws GameActionException{
         populateArrays(target);
+        String str = "";
+        for (int i =0 ; i< 5; i++){
+            for (int j = 0; j< 5; j++){
+                str += (distances[i][j] + " ");
+            }
+            str += "\n";
+        }
+        System.out.println(str);
+        str = "";
         iterate(3);
         int minDistance = 1000000000;
         int bestidx = 0;
@@ -76,6 +87,13 @@ public class Pathfinding {
                 bestidx = idx;
             }
         }
+        for (int i =0 ; i< 5; i++){
+            for (int j = 0; j< 5; j++){
+                str += (distances[i][j] + " ");
+            }
+            str += "\n";
+        }
+        System.out.println(str);
         return Util.directions[bestidx];
     }
 }
