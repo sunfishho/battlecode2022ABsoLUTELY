@@ -13,7 +13,8 @@ public class Miner extends RobotCommon{
     public static boolean isScout = false;
     public static int[] rubbleSeen = new int[60];
     //if isScout is true, this stores if the scout is going horizontally or vertically
-    public static boolean scoutTravelingHorizontally;
+    public static boolean scoutTravelingHorizontally, hasReachedHalfway;
+    public static MapLocation halfTarget;
 
 
     public Miner(RobotController rc) throws GameActionException {
@@ -28,10 +29,11 @@ public class Miner extends RobotCommon{
                 if (possibleScoutingTarget != 0){
                     isScout = true;
                     target = Util.getLocationFromInt(possibleScoutingTarget);
-                    scoutTravelingHorizontally = (Util.abs(target.x - me.x) < Util.abs(target.y - me.y));
+                    scoutTravelingHorizontally = (Util.abs(target.x - me.x) > Util.abs(target.y - me.y));
                     for (int idx = 59; idx >= 0; idx--){
                         rubbleSeen[idx] = -1;
                     }
+                    halfTarget = new MapLocation((target.x + me.x)/2, (target.y + me.y)/2);
                 }
                 else{
                     target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank)));
@@ -43,15 +45,24 @@ public class Miner extends RobotCommon{
 
     public void doScoutRoutine() throws GameActionException{
         GreedyPathfinding gpf = new GreedyPathfinding(this);
-        System.out.println(target);
-        Direction dir = gpf.travelTo(target);
+        Direction dir = Direction.CENTER;
+        if (!hasReachedHalfway){
+            dir = gpf.travelTo(halfTarget);
+        }
+        else{
+            dir = gpf.travelTo(target);
+        }
+        if (me.distanceSquaredTo(halfTarget) <= 1){
+            hasReachedHalfway = true;
+        }
+        if (me.distanceSquaredTo(target) <= 1){
+            rc.disintegrate();
+        }
         rc.setIndicatorString(dir + " " + me + " " + target + isScout);
         if (rc.canMove(dir)){
             rc.move(dir);
         }
-        if (scoutTravelingHorizontally){
-            findRubbleHeightsOnLine();
-        }
+        findRubbleHeightsOnLine();
     }
 
     //this is extremely wasteful but it's a scout and can't really do much else so...
@@ -64,6 +75,7 @@ public class Miner extends RobotCommon{
                     rubbleSeen[xcoord] = rc.senseRubble(new MapLocation(xcoord, coord));
                     if (rubbleSeen[Util.WIDTH - xcoord - 1] != -1 && rubbleSeen[Util.WIDTH - xcoord - 1] != rubbleSeen[xcoord]){
                         reportSymmetryBroken();
+                        rc.disintegrate();
                     }
                 }
             }
@@ -71,10 +83,11 @@ public class Miner extends RobotCommon{
         else{
             int coord = target.x;
             for (int ycoord = 0; ycoord < Util.WIDTH; ycoord++){
-                if (rc.canSenseLocation(new MapLocation(ycoord, coord))){
-                    rubbleSeen[ycoord] = rc.senseRubble(new MapLocation(ycoord, coord));
+                if (rc.canSenseLocation(new MapLocation(coord, ycoord))){
+                    rubbleSeen[ycoord] = rc.senseRubble(new MapLocation(coord, ycoord));
                     if (rubbleSeen[Util.HEIGHT - ycoord - 1] != -1 && rubbleSeen[Util.HEIGHT - ycoord - 1] != rubbleSeen[ycoord]){
                         reportSymmetryBroken();
+                        rc.disintegrate();
                     }
                 }
             }

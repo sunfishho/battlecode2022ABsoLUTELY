@@ -46,6 +46,8 @@ public strictfp class RobotPlayer {
         }
         
         while(true){
+            Util.WIDTH = rc.getMapWidth();
+            Util.HEIGHT = rc.getMapHeight();
             robot.takeTurn();
             Clock.yield();
         }
