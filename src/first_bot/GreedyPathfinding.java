@@ -50,14 +50,14 @@ public class GreedyPathfinding {
 
 
     
-    public static int[][] narrowPossibilities = {{7, 0, 1}, 
-                                                 {0, 1, 2}, 
-                                                 {1, 2, 3}, 
-                                                 {2, 3, 4}, 
-                                                 {3, 4, 5}, 
-                                                 {4, 5, 6}, 
-                                                 {5, 6, 7}, 
-                                                 {6, 7, 0}};
+    public static int[][] narrowPossibilities = {{0, 7, 1}, 
+                                                 {1, 0, 2}, 
+                                                 {2, 1, 3}, 
+                                                 {3, 2, 4}, 
+                                                 {4, 3, 5}, 
+                                                 {5, 4, 6}, 
+                                                 {6, 5, 7}, 
+                                                 {7, 6, 0}};
 
     //Later, weight the different directions differently depending on how far you've gone/how far you have left to go
     //if there's a giant rubble-y block in front, turn in a diff direction
@@ -87,7 +87,7 @@ public class GreedyPathfinding {
         return Util.directions[bestDirectionIdx];
     }
 
-    public Direction explore(MapLocation destination){
+    public Direction travelTo(MapLocation destination){
         int avgPassingRubbleValue = 20;
         MapLocation current = robot.me;
         Direction straightDirection = robot.me.directionTo(destination);

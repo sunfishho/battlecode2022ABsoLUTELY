@@ -91,7 +91,7 @@ public class Soldier extends RobotCommon{
         GreedyPathfinding gpf = new GreedyPathfinding(this);
         Direction dir = Direction.CENTER;
         if (initialDestination != null){
-            dir = gpf.explore(initialDestination);
+            dir = gpf.travelTo(initialDestination);
         }
         // Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         MapLocation loc = rc.getLocation();
@@ -139,7 +139,7 @@ public class Soldier extends RobotCommon{
                 }
             }
             MapLocation toFollow = enemies[visionTargetIdx].location;
-            dir = gpf.explore(toFollow);
+            dir = gpf.travelTo(toFollow);
         }
         int newX = loc.x + dir.dx;
         int newY = loc.y + dir.dy;

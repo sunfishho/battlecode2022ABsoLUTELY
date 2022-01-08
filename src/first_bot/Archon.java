@@ -13,6 +13,8 @@ public class Archon extends RobotCommon{
     static int rank = -1; // 1-based
     static int[] knownMap = new int[62 * 60];
     static boolean wroteArchons;
+    static int numScoutsSent;
+    static boolean isScoutingDone = false;
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
             1-4: archons of corresponding rank
@@ -76,7 +78,6 @@ public class Archon extends RobotCommon{
 
     public void takeTurn() throws GameActionException {
         me = rc.getLocation();
-
         if(!checkedNearby){
             relocCheck();
             checkedNearby = true;
@@ -84,7 +85,7 @@ public class Archon extends RobotCommon{
 
         if(me != home){ // we should try moving to a nearby place with less rubble
             GreedyPathfinding gpf = new GreedyPathfinding(this);
-            Direction dir = gpf.explore(home);
+            Direction dir = gpf.travelTo(home);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 me = rc.getLocation();
@@ -110,6 +111,28 @@ public class Archon extends RobotCommon{
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) && !builtMinersLast) {
             rc.buildRobot(RobotType.MINER, dir);
+
+            //want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
+            if (!isScoutingDone && numScoutsSent == 2){
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, 0);
+                isScoutingDone = true;
+            }
+            if (rank == 1 && numScoutsSent < 2){
+                MapLocation minerTarget = new MapLocation(0, 0);
+                if (numScoutsSent == 0){
+                    minerTarget = new MapLocation(Util.WIDTH - me.x - 1, me.y);
+                    System.out.println(me.x + " " + me.y);
+                    System.out.println("MINER TARGET IS: " + minerTarget);
+                }
+                else{
+                    minerTarget = new MapLocation(me.x, Util.HEIGHT - me.y - 1);
+                    System.out.println(me.x + " " + me.y);
+                    System.out.println("MINER TARGET IS: " + minerTarget);
+                }
+                numScoutsSent++;
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, Util.getIntFromLocation(minerTarget));
+            }
+
             writeMinerLocation();
             builtMinersLast = true;
         }

@@ -3,7 +3,7 @@ import battlecode.common.*;
 
 public class Util {
     static int TAXICAB_WEIGHT = 30;
-    static int ARCHON_MEMORY_SIZE = 2;
+    static int ARCHON_MEMORY_SIZE = 3;
     /*
         Shared Array:
             0-3: location of Archons 1-4
