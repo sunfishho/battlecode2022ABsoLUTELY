@@ -31,7 +31,9 @@ public class Builder extends RobotCommon{
 
     //TODO
     public void takeTurn() throws GameActionException {
-
+        tryToRepair();
+        tryToBuild();
+        tryToMove();
     }
 
     //try to repair things in action radius
@@ -69,6 +71,23 @@ public class Builder extends RobotCommon{
     }
 
     public void tryToBuild() throws GameActionException {//tries to build things in action radius
+        Team us = rc.getTeam();
+        int pb = rc.getTeamLeadAmount(us);
+        int au = rc.getTeamGoldAmount(us);
+        for(Direction d : Direction.allDirections()){
+            MapLocation loc = me.add(d);
+            if (rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc, pb, au)){
+                rc.buildRobot(RobotType.WATCHTOWER, d);
+                return;
+            }
+            if (rc.canBuildRobot(RobotType.LABORATORY, d) && Util.labElig(loc, pb, au)){
+                rc.buildRobot(RobotType.LABORATORY, d);
+                return;
+            }
+        }
+    }
+
+    public void tryToMove() throws GameActionException {
 
     }
 }
