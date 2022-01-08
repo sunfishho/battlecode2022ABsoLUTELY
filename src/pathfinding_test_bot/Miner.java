@@ -16,7 +16,8 @@ public class Miner extends RobotCommon{
         Pathfinding pf = new Pathfinding(this);
         MapLocation finalDestination = new MapLocation(20, 20);
         if (!rc.getLocation().equals(finalDestination)){
-            Direction dir = pf.findBestDirection(finalDestination);
+            Direction dir = pf.findBestDirection(finalDest
+            Util.TURN_COUNTER++;ination);
             if (rc.canMove(dir)){
                 rc.move(dir);
             }
