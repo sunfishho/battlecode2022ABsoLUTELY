@@ -14,6 +14,7 @@ public class Pathfinding {
 
     static int[][] rubbleLevels = new int[5][5];
     static int[][] distances = new int[5][5];
+    static int[][] prevDistances = new int[5][5];
 
     static final int[] dx = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dy = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
@@ -34,7 +35,7 @@ public class Pathfinding {
             for (int col = 0; col < 5; col++){
                 MapLocation mc = new MapLocation(row - 2 + robot.me.x, col - 2 + robot.me.y);
                 //treat something with this rubble level as being impassable
-                if (mc.x < 0 || mc.y < 0 || mc.x >= Util.WIDTH || mc.y >= Util.HEIGHT || this.robot.rc.canSenseRobotAtLocation(mc)){
+                if (mc.x < 0 || mc.y < 0 || mc.x >= Util.WIDTH || mc.y >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc) && !(row == 2 && col == 2))){
                     rubbleLevels[row][col] = 10000;
                 }
                 else{
@@ -42,13 +43,14 @@ public class Pathfinding {
                 }
                 if (row == 0 || row == 4 || col == 0 || col == 4){
                     distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
+                    prevDistances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
                 }
                 else{
                     distances[row][col] = 1000000000;
+                    prevDistances[row][col] = 1000000000;
                 }
             }
         }
-        distances[2][2] = 0;
     }
     
     //the comparisons can definitely be optimized to apply min fewer number of times
@@ -59,25 +61,24 @@ public class Pathfinding {
                     for (int idx = 0; idx < 8; idx++){
                         if (row + dx[idx] < 5 && row + dx[idx] >= 0 && col + dy[idx] < 5 && col + dy[idx] >= 0){
                             distances[row][col] = Util.min(distances[row][col], 
-                                                           distances[row + dx[idx]][col + dy[idx]] + rubbleLevels[row + dx[idx]][col + dy[idx]]);
+                                                           prevDistances[row + dx[idx]][col + dy[idx]] + rubbleLevels[row + dx[idx]][col + dy[idx]]);
                         }
                     }
+                }
+            }
+            for (int row = 0; row < 5; row++){
+                for (int col = 0; col < 5; col++){
+                    prevDistances[row][col] = distances[row][col];
                 }
             }
         }
     }
 
     public Direction findBestDirection(MapLocation target) throws GameActionException{
-        populateArrays(target);
-        String str = "";
-        for (int i =0 ; i< 5; i++){
-            for (int j = 0; j< 5; j++){
-                str += (distances[i][j] + " ");
-            }
-            str += "\n";
+        if (robot.rc.getRoundNum() > 10){
+            robot.rc.resign();
         }
-        System.out.println(str);
-        str = "";
+        populateArrays(target);
         iterate(3);
         int minDistance = 1000000000;
         int bestidx = 0;
@@ -87,13 +88,6 @@ public class Pathfinding {
                 bestidx = idx;
             }
         }
-        for (int i =0 ; i< 5; i++){
-            for (int j = 0; j< 5; j++){
-                str += (distances[i][j] + " ");
-            }
-            str += "\n";
-        }
-        System.out.println(str);
         return Util.directions[bestidx];
     }
 }

@@ -12,6 +12,8 @@ public abstract class RobotCommon {
     public RobotCommon(RobotController rc){
         this.rc = rc;
         me = rc.getLocation();
+        Util.WIDTH = rc.getMapWidth();
+        Util.HEIGHT = rc.getMapHeight();
     }
 
     public static MapLocation nearestEnemyArchon(MapLocation loc, int sym) throws GameActionException{//returns closest enemy archon to loc if sym is determined, assuming enemy has not moved archons
