@@ -140,4 +140,14 @@ public class Util {
     public static void markSymmetry(MapLocation mL){
 
     }
+
+    //decide later
+    public static boolean watchtowerElig(MapLocation loc, int pb, int au){
+        return true;
+    }
+
+    //decide later
+    public static boolean labElig(MapLocation loc, int pb, int au){
+        return true;
+    }
 }
