@@ -4,6 +4,7 @@ import battlecode.common.*;
 public class Util {
     static int TAXICAB_WEIGHT = 30;
     static int ARCHON_MEMORY_SIZE = 3;
+    static int TURN_COUNTER = 0;
     /*
         Shared Array:
             0-3: location of Archons 1-4
@@ -129,7 +130,7 @@ public class Util {
         return a;
     }
 
-    public static int distanceMetric(int x1, int x2, int y1, int y2){
+    public static int distanceMetric(int x1, int y1, int x2, int y2){
         return max(abs(x1 - x2), abs(y1 - y2)) + (int)(DISTANCE_WEIGHT_OTHER_COMPONENT * min(abs(x1 - x2), abs(y1 - y2)));
     }
 

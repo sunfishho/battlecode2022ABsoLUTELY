@@ -6,15 +6,6 @@ import battlecode.common.*;
 
 public class Archon extends RobotCommon{
 
-    // static RobotController rc;
-
-    static boolean checkedNearby = false;
-    static MapLocation home;
-    static int rank = -1; // 1-based
-    static int[] knownMap = new int[62 * 60];
-    static boolean wroteArchons;
-    static int numScoutsSent;
-    static boolean isScoutingDone = false;
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
             1-4: archons of corresponding rank
