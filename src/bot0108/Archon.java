@@ -1,10 +1,10 @@
 
-package first_bot;
+package bot0108;
 
 import battlecode.common.*;
 
 
-public class Archon extends RobotCommon{
+public class Archon extends RobotCommon {
 
     // static RobotController rc;
     static MapLocation home;

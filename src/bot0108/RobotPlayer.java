@@ -1,6 +1,6 @@
-package first_bot;
 
 import battlecode.common.*;
+
 import java.util.Random;
 
 /**
