@@ -70,7 +70,7 @@ public class Archon extends RobotCommon{
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
 
-        if (rc.canBuildRobot(RobotType.MINER, dir) && (rc.getTeamLeadAmount(rc.getTeam()) < 200 || rc.getRoundNum() < 5) && alarm == 65535) {
+        if (rc.canBuildRobot(RobotType.MINER, dir) && rc.getTeamLeadAmount(rc.getTeam()) < 200 && alarm == 65535) {
             rc.buildRobot(RobotType.MINER, dir);
 
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
