@@ -14,13 +14,12 @@ public class Miner extends RobotCommon{
     }
     
     public void takeTurn() throws GameActionException {
-        me = rc.getLocation();
 
         rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
         observe();
 
         // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location
-        int round = rc.getRoundNum();
+        
         if(round % 50 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
             && rc.senseLead(me) == 0)) {
             rc.disintegrate();  
@@ -31,6 +30,7 @@ public class Miner extends RobotCommon{
             explore();
             tryToWriteTarget();
             tryToMine();
+            round++;
             return;
         }
         
@@ -43,6 +43,7 @@ public class Miner extends RobotCommon{
         }
 
         tryToMine();
+        round++;
     }
 
     // Observes if any enemy units nearby
@@ -50,7 +51,7 @@ public class Miner extends RobotCommon{
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
                 rc.writeSharedArray(17, Util.getIntFromLocation( robot.location));
-                rc.writeSharedArray(18, rc.getRoundNum());
+                rc.writeSharedArray(18, round);
                 return;
             }
         }

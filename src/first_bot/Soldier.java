@@ -20,7 +20,6 @@ public class Soldier extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
-        this.me = rc.getLocation();
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
@@ -56,11 +55,13 @@ public class Soldier extends RobotCommon{
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
                 movesSinceAction = 0;
+                round++;
                 return;
             }
         }
         observe();
         tryToMove();
+        round++;
     }
 
     // Observes if any enemy units nearby
@@ -68,7 +69,7 @@ public class Soldier extends RobotCommon{
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
                 rc.writeSharedArray(17, Util.getIntFromLocation( robot.location));
-                rc.writeSharedArray(18, rc.getRoundNum());
+                rc.writeSharedArray(18, round);
                 return;
             }
         }
@@ -150,5 +151,6 @@ public class Soldier extends RobotCommon{
                 movesSinceAction = 0;
             }
         }
+        me = newLoc;
     }
 }

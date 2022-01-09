@@ -30,14 +30,13 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
-        me = rc.getLocation();
 
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
-        if(rc.getRoundNum() == 1) {
+        if(round == 1) {
             establishRank();
             relocCheck();
         }
-        if(rc.getRoundNum() == 2) {
+        if(round == 2) {
             writeArchonLocations();
         }
 
@@ -62,7 +61,7 @@ public class Archon extends RobotCommon{
         
         int alarm = rc.readSharedArray(18);
 
-        if (alarm < rc.getRoundNum() - 10) {
+        if (alarm < round - 10) {
             rc.writeSharedArray(18, 65535);
             rc.writeSharedArray(17, 65535);
         }
@@ -70,7 +69,7 @@ public class Archon extends RobotCommon{
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
 
-        if (rc.canBuildRobot(RobotType.MINER, dir) && (((rc.getTeamLeadAmount(rc.getTeam()) < 200 || rc.getRoundNum() < 5) && alarm == 65535) || rc.getRoundNum() % 10 == 0)) {
+        if (rc.canBuildRobot(RobotType.MINER, dir) && (((rc.getTeamLeadAmount(rc.getTeam()) < 200 || round < 5) && alarm == 65535) || round % 10 == 0)) {
             rc.buildRobot(RobotType.MINER, dir);
 
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
@@ -104,6 +103,7 @@ public class Archon extends RobotCommon{
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }
         }
+        round++;
     }
 
     // Establish an order between the Archons by writing to the shared array.
@@ -130,12 +130,11 @@ public class Archon extends RobotCommon{
 
     //see if any nearby squares have significantly less rubble
     public void relocCheck() throws GameActionException {
-        MapLocation loc = rc.getLocation();
-        int lx = loc.x;
-        int ly = loc.y;
+        int lx = me.x;
+        int ly = me.y;
         int bestd = 0;
-        int bestr = rc.senseRubble(loc);
-        MapLocation newhome = loc;
+        int bestr = rc.senseRubble(me);
+        MapLocation newhome = me;
         for(int dx = 2; dx >= -2; dx--){
             for(int dy = 2; dy >= -2; dy--){
                 int d = Util.max(Util.abs(dx), Util.abs(dy));
