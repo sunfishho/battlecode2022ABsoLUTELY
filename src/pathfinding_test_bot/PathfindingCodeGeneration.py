@@ -54,8 +54,56 @@ for i in range(5):
             string += ("\t\t\trubbleLevels" + str(i) + str(j) + " = robot.rc.senseRubble(mc.translate(" + str(i) + ", " + str(j) + ")) + 10;\n")
             string += "\t\t\tdistances" + str(i) + str(j) + " = Util.distanceMetric(newrow, newcol, target.x, target.y) * AVG_RUBBLE;\n"
             string += ("\t\t\tprevDistances" + str(i) + str(j) + " = distances" + str(i) + str(j) + ";\n")
+string += "\t}"
         
-string += "\t}\n}"
+string +="\n\n\n"
+
+dx = [0, 1, 1, 1, 0, -1, -1, -1]
+dy = [1, 1, 0, -1, -1, -1, 0, 1]
+
+string += "\tpublic void iterate(){\n"
+for i in range(5):
+    for j in range(5):
+        string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
+        for k in range(8):
+            if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
+                string += ("\t\tdistances" + str(i) + str(j) + " = Util.min(distances" + str(i) + str(j) + ", prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ");\n")
+        string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
+for i in range(5):
+    for j in range(5):
+        string += ("\t\tprevDistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
+        for k in range(8):
+            if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
+                string += ("\t\tprevDistances" + str(i) + str(j) + " = Util.min(prevDistances" + str(i) + str(j) + ", distances" + str(i + dx[k]) + str(j+dy[k]) + ");\n")
+        string += ("\t\tprevDistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
+for i in range(5):
+    for j in range(5):
+        string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
+        for k in range(8):
+            if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
+                string += ("\t\tdistances" + str(i) + str(j) + " = Util.min(distances" + str(i) + str(j) + ", prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ");\n")
+        string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
+
+
+
+
+
+string += "\t}\n\n\n"
+
+
+string += "\tpublic Direction findBestDirection(MapLocation target) throws GameActionException{\n"
+string += "\t\tpopulateArrays(target);\n"
+string += "\t\titerate();\n"
+string += "\t\tint minDistance = 1000000000;\n"
+string += "\t\tint bestidx = 0;\n"
+for k in range(8):
+    string += "\t\tif (minDistance > distances" + str(2 + dx[k]) + str(2 + dy[k]) + "){\n"
+    string += "\t\t\tminDistance = distances" + str(2 + dx[k]) + str(2 + dy[k]) + ";\n"
+    string += "\t\t\tbestidx = " + str(k) + ";\n"
+    string += "\t\t}\n"
+string += "\t\treturn Util.directions[bestidx];\n"
+string += "\t}"
+string += "\n}"
 f.write(string)
 
 

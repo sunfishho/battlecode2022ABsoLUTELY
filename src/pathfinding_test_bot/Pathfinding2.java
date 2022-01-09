@@ -14,7 +14,7 @@ public class Pathfinding2 {
     static final int[] dy = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
 
 
-    static int AVG_RUBBLE = 101;
+    static int AVG_RUBBLE = 80;
 
     public Pathfinding2(RobotCommon robot){
         this.robot = robot;
@@ -52,28 +52,6 @@ public class Pathfinding2 {
         }
         System.out.println("end: " + Clock.getBytecodesLeft());
     }
-    // public void populateArrays2(MapLocation target) throws GameActionException{
-    //     System.out.println("start: " + Clock.getBytecodesLeft());
-    //     for (int row = 0; row < 5; row++){
-    //         for (int col = 0; col < 5; col++){
-    //             MapLocation mc = new MapLocation(row - 2 + robot.me.x, col - 2 + robot.me.y);
-    //             //treat something with this rubble level as being impassable
-    //             if (mc.x < 0 || mc.y < 0 || mc.x >= Util.WIDTH || mc.y >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc) && !(row == 2 && col == 2))){
-    //                 rubbleLevels[row][col] = 1000000000;
-    //                 distances[row][col] = 1000000000;
-    //                 prevDistances[row][col] = 1000000000;
-    //                 continue;
-    //             }
-    //             else{
-    //                 //add 10 to account for the fact that cooldown is (10 + rubble)/10 * c
-    //                 rubbleLevels[row][col] = robot.rc.senseRubble(mc) + 10;
-    //             }
-    //             distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
-    //             prevDistances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
-    //         }
-    //     }
-    //     System.out.println("end: " + Clock.getBytecodesLeft());
-    // }
     
     //the comparisons can definitely be optimized to apply min fewer number of times
     public void iterate(final int numIterations){
