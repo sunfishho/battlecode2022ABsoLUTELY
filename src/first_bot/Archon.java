@@ -21,6 +21,8 @@ public class Archon extends RobotCommon{
         
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
+        rc.writeSharedArray(17, 65535);
+        rc.writeSharedArray(18, 65535);
         
         // for Util to know the width/height of the map
         Util.WIDTH = rc.getMapWidth();
@@ -58,7 +60,17 @@ public class Archon extends RobotCommon{
             dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
         
-        if (rc.canBuildRobot(RobotType.MINER, dir)) {
+        int alarm = rc.readSharedArray(18);
+
+        if (alarm < rc.getRoundNum() - 10) {
+            rc.writeSharedArray(18, 65535);
+            rc.writeSharedArray(17, 65535);
+        }
+
+        // System.out.println("ALARM: " + alarm);
+        // System.out.println("LOCATION: " + rc.readSharedArray(17));
+
+        if (rc.canBuildRobot(RobotType.MINER, dir) && rc.getTeamLeadAmount(rc.getTeam()) < 200 && alarm == 65535) {
             rc.buildRobot(RobotType.MINER, dir);
 
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map

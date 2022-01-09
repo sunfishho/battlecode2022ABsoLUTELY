@@ -17,12 +17,13 @@ public class Miner extends RobotCommon{
         me = rc.getLocation();
 
         rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
+        observe();
 
-        // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location near Archon
+        // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location
         int round = rc.getRoundNum();
-        if(round > 500 && round % 100 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
-            || rc.senseLead(me) == 0) && me.distanceSquaredTo(archonLocation) <= round/100 * 20) {
-            rc.disintegrate();
+        if(round % 50 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
+            && rc.senseLead(me) == 0)) {
+            rc.disintegrate();  
         }
 
         // Case when Archon could not assign a Location to the Miner
@@ -42,6 +43,17 @@ public class Miner extends RobotCommon{
         }
 
         tryToMine();
+    }
+
+    // Observes if any enemy units nearby
+    public void observe() throws GameActionException {
+        for (RobotInfo robot : rc.senseNearbyRobots()) {
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location));
+                rc.writeSharedArray(18, rc.getRoundNum());
+                return;
+            }
+        }
     }
 
     // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
@@ -70,10 +82,18 @@ public class Miner extends RobotCommon{
         else {
             dir = me.directionTo(archonLocation).opposite();
         }
+        
+        Direction dirLeft = dir.rotateLeft();
+        Direction dirRight = dir.rotateRight();
+
         if(rc.canMove(dir)) {
             rc.move(dir);
-            me = rc.getLocation();
+        } else if (rc.canMove(dirLeft)) {
+            rc.move(dirLeft);
+        } else if (rc.canMove(dirRight)) {
+            rc.move(dirRight);
         }
+        me = rc.getLocation();
     }
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.

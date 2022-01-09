@@ -59,11 +59,26 @@ public class Soldier extends RobotCommon{
                 return;
             }
         }
+        observe();
         tryToMove();
     }
+
+    // Observes if any enemy units nearby
+    public void observe() throws GameActionException {
+        for (RobotInfo robot : rc.senseNearbyRobots()) {
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location));
+                rc.writeSharedArray(18, rc.getRoundNum());
+                return;
+            }
+        }
+    }
+
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove() throws GameActionException {
-        if (this.me.equals(initialDestination)){
+        if (rc.readSharedArray(17) != 65535) {
+            initialDestination = Util.getLocationFromInt(rc.readSharedArray(17));
+        }else if (this.me.equals(initialDestination)){
             initialDestination = chooseRandomInitialDestination();
             if (rc.getID() == 13087){
                 System.out.println(me + " " + rc.getLocation() + " " + initialDestination);
