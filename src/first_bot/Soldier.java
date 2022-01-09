@@ -7,34 +7,15 @@ import battlecode.common.*;
 public class Soldier extends RobotCommon{
 
     static int type;//0 = aggressive, 1 = defensive, 2 = escort?
-    public static int archonRank;
-    static MapLocation archonLocation, target;
     static MapLocation initialDestination;
     static int movesSinceAction;  
 
 
-    public Soldier(RobotController rc) throws GameActionException {
-        super(rc); 
+    public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
+        super(rc, r, loc); 
         type = 1;       // Default to defensive
         initialDestination = chooseRandomInitialDestination();
         movesSinceAction = 0;
-        //find parent archon
-        boolean foundArchon = false;
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                if(foundArchon) break;
-                MapLocation loc = new MapLocation(me.x + dx, me.y + dy);
-                for(int i = 0; i < 4; i++) {
-                    if(Util.getIntFromLocation(loc) == rc.readSharedArray(i)) {
-                        archonRank = i + 1;
-                        archonLocation = loc;
-                        //target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank)));
-                        foundArchon = true;
-                        break;
-                    }
-                }
-            }
-        }
         //do more stuff later
     }
 

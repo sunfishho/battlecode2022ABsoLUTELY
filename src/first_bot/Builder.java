@@ -13,8 +13,8 @@ public class Builder extends RobotCommon{
 
     public static boolean isSacrifice = false;
 
-    public Builder(RobotController rc) throws GameActionException{
-        super(rc);
+    public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
+        super(rc, r, loc);
 
         //find parent archon
         for(int i = 0; i < 4; i++) {

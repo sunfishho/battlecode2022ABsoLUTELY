@@ -5,148 +5,27 @@ import battlecode.common.*;
 
 
 public class Miner extends RobotCommon{
-    public static int archonRank;
-    public static MapLocation archonLocation, target;
+    public static MapLocation target;
     public static boolean reachedTarget;
 
-    //this is all only for scouts
-    public static boolean isScout = false;
-    public static int[] rubbleSeen = new int[60];
-    //if isScout is true, this stores if the scout is going horizontally or vertically
-    public static boolean scoutTravelingHorizontally, hasReachedHalfway;
-    public static MapLocation halfTarget;
-
-
-    public Miner(RobotController rc) throws GameActionException {
-        super(rc);
-        //find parent archon
-        for(int i = 0; i < 4; i++) {
-            MapLocation archonLoc = Util.getLocationFromInt(rc.readSharedArray(i));
-            if(Util.abs(archonLoc.x - me.x) <= 1 && Util.abs(archonLoc.y - me.y) <= 1) {
-                archonRank = i + 1;
-                archonLocation = archonLoc;
-                int possibleScoutingTarget = rc.readSharedArray(Util.getArchonMemoryBlock(archonRank) + 2);
-                if (possibleScoutingTarget != 0){
-                    isScout = true;
-                    target = Util.getLocationFromInt(possibleScoutingTarget);
-                    scoutTravelingHorizontally = (Util.abs(target.x - me.x) > Util.abs(target.y - me.y));
-                    for (int idx = 59; idx >= 0; idx--){
-                        rubbleSeen[idx] = -1;
-                    }
-                    halfTarget = new MapLocation((target.x + me.x)/2, (target.y + me.y)/2);
-                }
-                else{
-                    target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank)));
-                    return;
-                }
-            }
-        }
-    }
-
-    public void doScoutRoutine() throws GameActionException{
-        tryToMine();
-        GreedyPathfinding gpf = new GreedyPathfinding(this);
-        Direction dir = Direction.CENTER;
-        if (!hasReachedHalfway){
-            dir = gpf.travelTo(halfTarget);
-        }
-        else{
-            dir = gpf.travelTo(target);
-        }
-        if (me.distanceSquaredTo(halfTarget) <= 1){
-            hasReachedHalfway = true;
-        }
-        if (me.distanceSquaredTo(target) <= 1){
-            rc.disintegrate();
-        }
-        rc.setIndicatorString(dir + " " + me + " " + target + isScout);
-        if (rc.canMove(dir)){
-            rc.move(dir);
-        }
-        findRubbleHeightsOnLine();
-    }
-
-    //this is extremely wasteful but it's a scout and can't really do much else so...
-    public void findRubbleHeightsOnLine() throws GameActionException{
-        if (scoutTravelingHorizontally){
-            int coord = target.y;
-            //coord is the y coord that's fixed
-            for (int xcoord = 0; xcoord < Util.WIDTH; xcoord++){
-                if (rc.canSenseLocation(new MapLocation(xcoord, coord))){
-                    rubbleSeen[xcoord] = rc.senseRubble(new MapLocation(xcoord, coord));
-                    if (rubbleSeen[Util.WIDTH - xcoord - 1] != -1 && rubbleSeen[Util.WIDTH - xcoord - 1] != rubbleSeen[xcoord]){
-                        reportSymmetryBroken();
-                        rc.disintegrate();
-                    }
-                }
-            }
-        }
-        else{
-            int coord = target.x;
-            for (int ycoord = 0; ycoord < Util.WIDTH; ycoord++){
-                if (rc.canSenseLocation(new MapLocation(coord, ycoord))){
-                    rubbleSeen[ycoord] = rc.senseRubble(new MapLocation(coord, ycoord));
-                    if (rubbleSeen[Util.HEIGHT - ycoord - 1] != -1 && rubbleSeen[Util.HEIGHT - ycoord - 1] != rubbleSeen[ycoord]){
-                        reportSymmetryBroken();
-                        rc.disintegrate();
-                    }
-                }
-            }
-        }
-    }
-
-    public void reportSymmetryBroken() throws GameActionException{
-        int memoryIndex = Util.getSymmetryMemoryBlock();
-        if (scoutTravelingHorizontally){
-            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) - 1);
-            System.out.println("NEW SYMMETRY RECORDING: " + rc.readSharedArray(16));
-            return;
-        }
-        else {
-            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) - 2);
-            System.out.println("NEW SYMMETRY RECORDING: " + rc.readSharedArray(16));
-            return;
-        }
+    public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
+        super(rc, r, loc);
+        target = t;
     }
     
     public void takeTurn() throws GameActionException {
         me = rc.getLocation();
-        if (isScout){
-            doScoutRoutine();
-            return;
-        }
-
-        /*
-            // Suicide if too many nearby miners
-            int radius = rc.getType().actionRadiusSquared;
-            Team ourTeam = rc.getTeam();
-            RobotInfo[] enemies = rc.senseNearbyRobots(radius, ourTeam);
-            int numMiners = 0;
-            for (int i = 0; i < enemies.length; i++) {
-                if (enemies[i].getType().equals(RobotType.MINER)) {
-                    numMiners++;
-                }
-            }
-            if ((numMiners > 1 && rc.senseLead(rc.getLocation()) == 0) || numMiners > 3) {
-                rc.disintegrate();
-                return;
-            }
-        */
 
         rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
 
         // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location near Archon
         int round = rc.getRoundNum();
-        if(round > 300 && round % 100 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
+        if(round > 500 && round % 100 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
             || rc.senseLead(me) == 0) && me.distanceSquaredTo(archonLocation) <= round/100 * 20) {
             rc.disintegrate();
         }
 
         // Case when Archon could not assign a Location to the Miner
-
-        /*
-            Current goal: avoid initial miner overlap using 2x2 lattice (stay on even int locations)
-        */
         if(target.equals(archonLocation)) {
             explore();
             tryToWriteTarget();
@@ -197,7 +76,6 @@ public class Miner extends RobotCommon{
         }
     }
 
-
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
     public void tryToWriteTarget() throws GameActionException {
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
@@ -205,7 +83,7 @@ public class Miner extends RobotCommon{
         boolean change = false;
 
         if(numGoldLocations > 0) {
-            MapLocation bestLoc = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank) + 1));
+            MapLocation bestLoc = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1));
             int bestDist = bestLoc.distanceSquaredTo(archonLocation);
 
             for(int i = 0; i < numGoldLocations; i++) {
@@ -219,7 +97,7 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
-                rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
                 return;
             }
         }
@@ -228,7 +106,7 @@ public class Miner extends RobotCommon{
         int numLeadLocations = leadLocations.length;
 
         if(numLeadLocations > 0) {
-            MapLocation bestLoc = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(archonRank) + 1));
+            MapLocation bestLoc = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1));
             int bestDist = bestLoc.distanceSquaredTo(archonLocation);
 
             for(int i = 0; i < numLeadLocations; i++) {
@@ -242,7 +120,7 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
-                rc.writeSharedArray(Util.getArchonMemoryBlock(archonRank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
             }
         }
     }

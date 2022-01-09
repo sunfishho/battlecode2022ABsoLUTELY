@@ -7,11 +7,14 @@ import java.util.Random;
 public abstract class RobotCommon {
 
     static RobotController rc;
-    static MapLocation me;
+    static MapLocation me, archonLocation;
+    static int rank = -1; // for now, Archons continue with their normal rank setting algorithm, other bots will be set through constructor
 
-    public RobotCommon(RobotController rc){
-        this.rc = rc;
+    public RobotCommon(RobotController myRC, int r, MapLocation loc){
+        rc = myRC;
         me = rc.getLocation();
+        rank = r;
+        archonLocation = loc;
     }
 
     public static MapLocation nearestEnemyArchon(MapLocation loc, int sym) throws GameActionException{//returns closest enemy archon to loc if sym is determined, assuming enemy has not moved archons
@@ -56,10 +59,12 @@ public abstract class RobotCommon {
     public static int getVisionRadiusSquared(){
         switch(rc.getType()){
             case ARCHON:
+                return 34;
             case LABORATORY:
                 return 53;
             case BUILDER:
             case MINER:
+                return 20;
             case SAGE:
             case SOLDIER:
             case WATCHTOWER:

@@ -6,9 +6,8 @@ import battlecode.common.*;
 
 public class Sage extends RobotCommon{
 
-    public Sage(RobotController rc){
-        super(rc);
-        //do more stuff later
+    public Sage(RobotController rc, int r, MapLocation loc){
+        super(rc, r, loc);
     }
 
     //TODO

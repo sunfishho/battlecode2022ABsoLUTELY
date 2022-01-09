@@ -10,13 +10,15 @@ public class Util {
             4-15: memory blocks
             16: symmetry indicator (3 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 0 if rotationally symmetric)
         Indices within each memory block size correspond to:
-            0: Archon writes to value (read by Miners)
-            1: Miner writes to value (read by Archons)
+            0: Archon writes to value
+            1: Miner writes to value
+            2: unused
         Use Util.getMemoryBlock(rank) to find beginning of memory block
     */
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
     static int WALL_HEIGHT_DIFF = 30;
     static int LOC_BASE = 61;
+    static int MAX_LOC = LOC_BASE * LOC_BASE;
     static int HEIGHT, WIDTH;
     static int NUM_ARCHONS;
     //this is for distanceMetric()
@@ -92,20 +94,23 @@ public class Util {
 
     public static int moveOnLattice(int intLoc) {
         MapLocation loc = getLocationFromInt(intLoc);
-        if(loc.x % 2 == 1) {
-            if(loc.x != WIDTH) loc.translate(1, 0);
-            else loc.translate(-1, 0);
-        }
-        if(loc.y % 2 == 1) {
-            if(loc.y != WIDTH) loc.translate(0, 1);
-            else loc.translate(0, -1);
-        }
-        return getIntFromLocation(loc);
+        /*
+            move to 1 mod 3, if beyond bounds (right/top edge) then move left
+        */ 
+        int x = loc.x / 3 * 3 + 1;
+        if(x == WIDTH) x--;
+        int y = loc.y / 3 * 3 + 1;
+        if(y == HEIGHT) y--;
+        return x * LOC_BASE + y + 1;
     }
 
     public static boolean onLattice(int intLoc) {
         MapLocation loc = getLocationFromInt(intLoc);
-        return (loc.x % 2 == 0 && loc.y % 2 == 0);
+        int x = loc.x / 3 * 3 + 1;
+        if(x == WIDTH) x--;
+        int y = loc.y / 3 * 3 + 1;
+        if(y == HEIGHT) y--;
+        return (x == loc.x && y == loc.y);
     }
 
     public static int abs(int a){

@@ -10,7 +10,6 @@ public class Archon extends RobotCommon{
 
     static boolean checkedNearby = false;
     static MapLocation home;
-    static int rank = -1; // 1-based
     static int[] knownMap = new int[62 * 60];
     static boolean wroteArchons;
     static int numScoutsSent;
@@ -20,10 +19,9 @@ public class Archon extends RobotCommon{
             1-4: archons of corresponding rank
             5: miner sent to location
     */
-    static boolean builtMinersLast; // true if miners were built on the previous turn
 
-    public Archon(RobotController rc) throws GameActionException{
-        super(rc);
+    public Archon(RobotController rc, int r, MapLocation loc) throws GameActionException{
+        super(rc, r, loc);
         
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
@@ -112,35 +110,35 @@ public class Archon extends RobotCommon{
             if (rc.canBuildRobot(RobotType.MINER, dir)) break;
             dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
-        if (rc.canBuildRobot(RobotType.MINER, dir) && !builtMinersLast) {
+        if (rc.canBuildRobot(RobotType.MINER, dir)) {
             rc.buildRobot(RobotType.MINER, dir);
 
-            //want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
-            if (!isScoutingDone && numScoutsSent == 2){
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, 0);
-                isScoutingDone = true;
-            }
-            if (rank == 1 && numScoutsSent < 2){
-                MapLocation minerTarget = new MapLocation(0, 0);
-                if (numScoutsSent == 0){
-                    minerTarget = new MapLocation(Util.WIDTH - me.x - 1, me.y);
-                    System.out.println(me.x + " " + me.y);
-                    System.out.println("MINER TARGET IS: " + minerTarget);
+            /*
+                //want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
+                if (!isScoutingDone && numScoutsSent == 2){
+                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, 0);
+                    isScoutingDone = true;
                 }
-                else{
-                    minerTarget = new MapLocation(me.x, Util.HEIGHT - me.y - 1);
-                    System.out.println(me.x + " " + me.y);
-                    System.out.println("MINER TARGET IS: " + minerTarget);
+                if (rank == 1 && numScoutsSent < 2){
+                    MapLocation minerTarget = new MapLocation(0, 0);
+                    if (numScoutsSent == 0){
+                        minerTarget = new MapLocation(Util.WIDTH - me.x - 1, me.y);
+                        System.out.println(me.x + " " + me.y);
+                        System.out.println("MINER TARGET IS: " + minerTarget);
+                    }
+                    else{
+                        minerTarget = new MapLocation(me.x, Util.HEIGHT - me.y - 1);
+                        System.out.println(me.x + " " + me.y);
+                        System.out.println("MINER TARGET IS: " + minerTarget);
+                    }
+                    numScoutsSent++;
+                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, Util.getIntFromLocation(minerTarget));
                 }
-                numScoutsSent++;
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, Util.getIntFromLocation(minerTarget));
-            }
-
+            */
+            
             writeMinerLocation();
-            builtMinersLast = true;
         }
         else {
-            builtMinersLast = false;
             if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }

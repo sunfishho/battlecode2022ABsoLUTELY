@@ -6,9 +6,8 @@ import battlecode.common.*;
 
 public class Watchtower extends RobotCommon{
 
-    public Watchtower(RobotController rc){
-        super(rc);
-        //do more stuff later
+    public Watchtower(RobotController rc, int r, MapLocation loc){
+        super(rc, r, loc);
     }
 
     //TODO
