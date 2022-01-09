@@ -21,30 +21,6 @@ public strictfp class RobotPlayer {
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
         RobotCommon robot;
-<<<<<<< Updated upstream
-        switch(rc.getType()){
-            case ARCHON:
-                robot = new Archon(rc);
-                break;
-            case BUILDER:
-                robot = new Builder(rc);
-                break;
-            case LABORATORY:
-                robot = new Laboratory(rc);
-                break;
-            case MINER:
-                robot = new Miner(rc);
-                break;
-            case SAGE:
-                robot = new Sage(rc);
-                break;
-            case SOLDIER:
-                robot = new Soldier(rc);
-                break;
-            default:
-                robot = new Watchtower(rc);
-                break;
-=======
         if(rc.getType() == RobotType.ARCHON) {
             robot = new Archon(rc, -1, rc.getLocation());
         }
@@ -102,7 +78,6 @@ public strictfp class RobotPlayer {
                     robot = new Watchtower(rc, rank, archonLocation);
                     break;
             }
->>>>>>> Stashed changes
         }
         
         while(true){
