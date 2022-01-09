@@ -27,20 +27,16 @@ public class Pathfinding2 {
     //also 4800ish bytecode which is unacceptable
     //later, run this RIGHT AFTER YOU MOVE and run iterate() RIGHT BEFORE YOU MOVE AGAIN
     //cut function down to 2524 bytecode after doing loop unrolling
+    //4120 to 946 first iteration
     public void populateArrays(MapLocation target) throws GameActionException{
-        MapLocation mc = new MapLocation(robot.me.x - 3, robot.me.y + 2);
+        System.out.println("start: " + Clock.getBytecodesLeft());
+        MapLocation mc = new MapLocation(robot.me.x - 2, robot.me.y - 2);
         for (int row = 0; row < 5; row++){
             for (int col = 0; col < 5; col++){
-                // MapLocation mc = new MapLocation(row - 2 + robot.me.x, col - 2 + robot.me.y);
-                //124 bytecode per loop
-                if (col == 0){
-                    mc = mc.translate(1, -4);
-                }
-                else{
-                    mc = mc.translate(0, 1);
-                }
-                //if condition costs 13 bytecode
-                if (mc.x < 0 || mc.y < 0 || mc.x >= Util.WIDTH || mc.y >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc) && !(row == 2 && col == 2))){
+                int newrow = mc.x + row;
+                int newcol = mc.y + col;
+                //treat something with this rubble level as being impassable
+                if (newrow < 0 || newcol < 0 || newrow >= Util.WIDTH || newcol >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc.translate(row, col)) && !(row == 2 && col == 2))){
                     rubbleLevels[row][col] = 1000000000;
                     distances[row][col] = 1000000000;
                     prevDistances[row][col] = 1000000000;
@@ -48,13 +44,36 @@ public class Pathfinding2 {
                 }
                 else{
                     //add 10 to account for the fact that cooldown is (10 + rubble)/10 * c
-                    rubbleLevels[row][col] = robot.rc.senseRubble(mc) + 10;
-                    distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
+                    rubbleLevels[row][col] = robot.rc.senseRubble(mc.translate(row, col)) + 10;
+                    distances[row][col] = Util.distanceMetric(newrow, newcol, target.x, target.y) * AVG_RUBBLE;
                     prevDistances[row][col] = distances[row][col];
                 }
             }
         }
+        System.out.println("end: " + Clock.getBytecodesLeft());
     }
+    // public void populateArrays2(MapLocation target) throws GameActionException{
+    //     System.out.println("start: " + Clock.getBytecodesLeft());
+    //     for (int row = 0; row < 5; row++){
+    //         for (int col = 0; col < 5; col++){
+    //             MapLocation mc = new MapLocation(row - 2 + robot.me.x, col - 2 + robot.me.y);
+    //             //treat something with this rubble level as being impassable
+    //             if (mc.x < 0 || mc.y < 0 || mc.x >= Util.WIDTH || mc.y >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc) && !(row == 2 && col == 2))){
+    //                 rubbleLevels[row][col] = 1000000000;
+    //                 distances[row][col] = 1000000000;
+    //                 prevDistances[row][col] = 1000000000;
+    //                 continue;
+    //             }
+    //             else{
+    //                 //add 10 to account for the fact that cooldown is (10 + rubble)/10 * c
+    //                 rubbleLevels[row][col] = robot.rc.senseRubble(mc) + 10;
+    //             }
+    //             distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
+    //             prevDistances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
+    //         }
+    //     }
+    //     System.out.println("end: " + Clock.getBytecodesLeft());
+    // }
     
     //the comparisons can definitely be optimized to apply min fewer number of times
     public void iterate(final int numIterations){
@@ -83,14 +102,6 @@ public class Pathfinding2 {
         iterate(3);
         int minDistance = 1000000000;
         int bestidx = 0;
-        String str = "";
-        for (int i = 0; i < 5; i++){
-            for (int j = 0; j < 5; j++){
-                str += (distances[i][j] + " ");
-            }
-            str += "\n";
-        }
-        System.out.println(str);
         for (int idx = 0; idx < 8; idx++){
             if (minDistance > distances[2 + dx[idx]][2 + dy[idx]]){
                 minDistance = distances[2 + dx[idx]][2 + dy[idx]];

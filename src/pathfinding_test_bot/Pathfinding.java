@@ -46,9 +46,9 @@ public class Pathfinding {
                 else{
                     //add 10 to account for the fact that cooldown is (10 + rubble)/10 * c
                     rubbleLevels[row][col] = robot.rc.senseRubble(mc) + 10;
+                    distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
+                    prevDistances[row][col] = distances[row][col];
                 }
-                distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
-                prevDistances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
             }
         }
         System.out.println("end: " + Clock.getBytecodesLeft());
