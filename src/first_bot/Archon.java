@@ -148,81 +148,8 @@ public class Archon extends RobotCommon{
         home = newhome;
     }
 
-<<<<<<< Updated upstream
-    public void takeTurn() throws GameActionException {
-        me = rc.getLocation();
-        if(!checkedNearby){
-            relocCheck();
-            checkedNearby = true;
-        }
-
-        if(me != home){ // we should try moving to a nearby place with less rubble
-            GreedyPathfinding gpf = new GreedyPathfinding(this);
-            Direction dir = gpf.travelTo(home);
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                me = rc.getLocation();
-            }
-        }
-
-        // establishRank on turn 1, write archon locations on turn 2
-        if(!wroteArchons && rank == -1) {
-            int loc = Util.getIntFromLocation(me);
-            for(int i = 0; i < 4; i++) {
-                knownMap[rc.readSharedArray(i)] = i + 1;
-            }
-            wroteArchons = true;
-        }
-        if(rank == -1) establishRank();
-        rc.setIndicatorString(Integer.toString(rank));
-
-        // Try randomly to pick a direction to build in
-        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
-        for (int i = 0; i < 8; i++) {
-            if (rc.canBuildRobot(RobotType.MINER, dir)) break;
-            dir = Util.directions[rng.nextInt(Util.directions.length)];
-        }
-        if (rc.canBuildRobot(RobotType.MINER, dir)) {
-            rc.buildRobot(RobotType.MINER, dir);
-
-            /*
-                //want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
-                if (!isScoutingDone && numScoutsSent == 2){
-                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, 0);
-                    isScoutingDone = true;
-                }
-                if (rank == 1 && numScoutsSent < 2){
-                    MapLocation minerTarget = new MapLocation(0, 0);
-                    if (numScoutsSent == 0){
-                        minerTarget = new MapLocation(Util.WIDTH - me.x - 1, me.y);
-                        System.out.println(me.x + " " + me.y);
-                        System.out.println("MINER TARGET IS: " + minerTarget);
-                    }
-                    else{
-                        minerTarget = new MapLocation(me.x, Util.HEIGHT - me.y - 1);
-                        System.out.println(me.x + " " + me.y);
-                        System.out.println("MINER TARGET IS: " + minerTarget);
-                    }
-                    numScoutsSent++;
-                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 2, Util.getIntFromLocation(minerTarget));
-                }
-            */
-            
-            writeMinerLocation();
-        }
-        else {
-            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                rc.buildRobot(RobotType.SOLDIER, dir);
-            }
-        }
-    }
-
-    // Writes a new Location for the new Miner to go to, should be on-lattice
-    public void writeMinerLocation() throws GameActionException {
-=======
     // Returns nearby new locations with lead/gold (probably can remove in the future)
     public int findLocalLocation() throws GameActionException {
->>>>>>> Stashed changes
         // iterate through gold locations that have not been targets before
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         for(int i = 0; i < goldLocations.length; i++) {
