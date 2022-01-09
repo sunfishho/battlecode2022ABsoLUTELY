@@ -32,6 +32,8 @@ string += "\tpublic void populateArrays(MapLocation target) throws GameActionExc
 string += "\t\tMapLocation mc = new MapLocation(robot.me.x - 2, robot.me.y - 2);\n"
 string += "\t\tint newrow = mc.x;\n"
 string += "\t\tint newcol = mc.y;\n"
+string += "\t\tint dxDiff = 0;\n"
+string += "\t\tint dyDiff = 0;\n"
 for i in range(5):
     for j in range(5):
         if j == 0 and i > 0:
@@ -47,7 +49,47 @@ for i in range(5):
             string += "\t\t}\n"
             string += "\t\telse{\n"
             string += ("\t\t\trubbleLevels" + str(i) + str(j) + " = robot.rc.senseRubble(mc.translate(" + str(i) + ", " + str(j) + ")) + 10;\n")
-            string += "\t\t\tdistances" + str(i) + str(j) + " = Util.distanceMetric(newrow, newcol, target.x, target.y) * AVG_RUBBLE;\n"
+            string += ("\t\t\tdxDiff = newrow - target.x;\n")
+            string += ("\t\t\tdyDiff = newcol - target.y;\n")
+            string += ("\t\t\tif (dxDiff >= 0){\n")
+            string += ("\t\t\t\tif (dyDiff >= 0){\n")
+            string += ("\t\t\t\t\tif (dxDiff >= dyDiff){\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t\telse{\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t}\n")
+            string += ("\t\t\t\telse{\n")
+            string += ("\t\t\t\t\tdyDiff *= -1;\n")
+            string += ("\t\t\t\t\tif (dxDiff >= dyDiff){\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t\telse{\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t}\n")
+            string += ("\t\t\t}\n")
+            string += ("\t\t\telse{\n")
+            string += ("\t\t\t\tdxDiff *= -1;\n")
+            string += ("\t\t\t\tif (dyDiff >= 0){\n")
+            string += ("\t\t\t\t\tif (dxDiff >= dyDiff){\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t\telse{\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t}\n")
+            string += ("\t\t\t\telse{\n")
+            string += ("\t\t\t\t\tdyDiff *= -1;\n")
+            string += ("\t\t\t\t\tif(dxDiff >= dyDiff){\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t\telse{\n")
+            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
+            string += ("\t\t\t\t\t}\n")
+            string += ("\t\t\t\t}\n")
+            string += ("\t\t\t}\n")
             string += ("\t\t\tprevDistances" + str(i) + str(j) + " = distances" + str(i) + str(j) + ";\n")
             string += ("\t\t}\n")
         else:
@@ -67,21 +109,27 @@ for i in range(5):
         string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
             if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tdistances" + str(i) + str(j) + " = Util.min(distances" + str(i) + str(j) + ", prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ");\n")
+                string += ("\t\tif (distances" + str(i) + str(j) + " > prevDistances" + str(i + dx[k]) + str(j + dy[k]) + "){\n")
+                string += ("\t\t\tdistances" + str(i) + str(j) + " = prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ";\n")
+                string += ("\t\t}\n")
         string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 for i in range(5):
     for j in range(5):
         string += ("\t\tprevDistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
             if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tprevDistances" + str(i) + str(j) + " = Util.min(prevDistances" + str(i) + str(j) + ", distances" + str(i + dx[k]) + str(j+dy[k]) + ");\n")
+                string += ("\t\tif (prevDistances" + str(i) + str(j) + " > distances" + str(i + dx[k]) + str(j + dy[k]) + "){\n")
+                string += ("\t\t\tprevDistances" + str(i) + str(j) + " = distances" + str(i + dx[k]) + str(j+dy[k]) + ";\n")
+                string += ("\t\t}\n")
         string += ("\t\tprevDistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 for i in range(5):
     for j in range(5):
         string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
             if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tdistances" + str(i) + str(j) + " = Util.min(distances" + str(i) + str(j) + ", prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ");\n")
+                string += ("\t\tif (distances" + str(i) + str(j) + " > prevDistances" + str(i + dx[k]) + str(j + dy[k]) + "){\n")
+                string += ("\t\t\tdistances" + str(i) + str(j) + " = prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ";\n")
+                string += ("\t\t}\n")
         string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 
 

@@ -31,6 +31,7 @@ public class Pathfinding2 {
     public void populateArrays(MapLocation target) throws GameActionException{
         System.out.println("start: " + Clock.getBytecodesLeft());
         MapLocation mc = new MapLocation(robot.me.x - 2, robot.me.y - 2);
+        int dxDiff, dyDiff;
         for (int row = 0; row < 5; row++){
             for (int col = 0; col < 5; col++){
                 int newrow = mc.x + row;
@@ -45,7 +46,47 @@ public class Pathfinding2 {
                 else{
                     //add 10 to account for the fact that cooldown is (10 + rubble)/10 * c
                     rubbleLevels[row][col] = robot.rc.senseRubble(mc.translate(row, col)) + 10;
-                    distances[row][col] = Util.distanceMetric(newrow, newcol, target.x, target.y) * AVG_RUBBLE;
+                    dxDiff = newrow - target.x;
+                    dyDiff = newcol - target.y;
+                    if (dxDiff >= 0){
+                        if (dyDiff >= 0){
+                            if (dxDiff >= dyDiff){
+                                distances[row][col] = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                            else{
+                                distances[row][col] = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                        }
+                        else{
+                            dyDiff *= -1;
+                            if (dxDiff >= dyDiff){
+                                distances[row][col] = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                            else{
+                                distances[row][col] = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                        }
+                    }
+                    else{
+                        dxDiff *= -1;
+                        if (dyDiff >= 0){
+                            if (dxDiff >= dyDiff){
+                                distances[row][col] = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                            else{
+                                distances[row][col] = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                        }
+                        else{
+                            dyDiff *= -1;
+                            if (dxDiff >= dyDiff){
+                                distances[row][col] = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                            else{
+                                distances[row][col] = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+                            }
+                        }
+                    }
                     prevDistances[row][col] = distances[row][col];
                 }
             }

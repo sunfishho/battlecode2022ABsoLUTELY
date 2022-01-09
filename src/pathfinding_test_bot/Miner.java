@@ -21,8 +21,8 @@ public class Miner extends RobotCommon{
         GreedyPathfinding gpf = new GreedyPathfinding(this);
         MapLocation finalDestination = new MapLocation(0, 0);
         if (!rc.getLocation().equals(finalDestination)){
-            Direction dir = pf3.findBestDirection(finalDestination);
-            // Direction dir = gpf.travelTo(finalDestination);
+            // Direction dir = pf3.findBestDirection(finalDestination);
+            Direction dir = gpf.travelTo(finalDestination);
             if (rc.canMove(dir)){
                 Util.TURN_COUNTER++;
                 rc.move(dir);
