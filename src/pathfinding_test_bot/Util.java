@@ -21,7 +21,7 @@ public class Util {
     static int HEIGHT, WIDTH;
     static int NUM_ARCHONS;
     //this is for distanceMetric()
-    static int DISTANCE_WEIGHT_RECIPROCAL = 5;
+    static int DISTANCE_WEIGHT_RECIPROCAL = 10;
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
