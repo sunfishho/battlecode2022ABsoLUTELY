@@ -1,13 +1,7 @@
 package pathfinding_test_bot;
 import battlecode.common.*;
 
-
-
-//future optimizations:
-//hardcode in dx/dy values for each one
-//perform loop unrolling
-
-public class Pathfinding {
+public class Pathfinding2 {
     static int distanceSquared;
     RobotCommon robot;
     // static int maxStraightDistance;
@@ -22,7 +16,7 @@ public class Pathfinding {
 
     static int AVG_RUBBLE = 101;
 
-    public Pathfinding(RobotCommon robot){
+    public Pathfinding2(RobotCommon robot){
         this.robot = robot;
         distanceSquared = robot.rc.getType().visionRadiusSquared;
     }
@@ -31,12 +25,21 @@ public class Pathfinding {
     //bug: there are issues when target is at (0,0)
     //there should be an issue when target is within the 5x5 square lol
     //also 4800ish bytecode which is unacceptable
+    //later, run this RIGHT AFTER YOU MOVE and run iterate() RIGHT BEFORE YOU MOVE AGAIN
+    //cut function down to 2524 bytecode after doing loop unrolling
     public void populateArrays(MapLocation target) throws GameActionException{
-        System.out.println("start: " + Clock.getBytecodesLeft());
+        MapLocation mc = new MapLocation(robot.me.x - 3, robot.me.y + 2);
         for (int row = 0; row < 5; row++){
             for (int col = 0; col < 5; col++){
-                MapLocation mc = new MapLocation(row - 2 + robot.me.x, col - 2 + robot.me.y);
-                //treat something with this rubble level as being impassable
+                // MapLocation mc = new MapLocation(row - 2 + robot.me.x, col - 2 + robot.me.y);
+                //124 bytecode per loop
+                if (col == 0){
+                    mc = mc.translate(1, -4);
+                }
+                else{
+                    mc = mc.translate(0, 1);
+                }
+                //if condition costs 13 bytecode
                 if (mc.x < 0 || mc.y < 0 || mc.x >= Util.WIDTH || mc.y >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc) && !(row == 2 && col == 2))){
                     rubbleLevels[row][col] = 1000000000;
                     distances[row][col] = 1000000000;
@@ -46,12 +49,11 @@ public class Pathfinding {
                 else{
                     //add 10 to account for the fact that cooldown is (10 + rubble)/10 * c
                     rubbleLevels[row][col] = robot.rc.senseRubble(mc) + 10;
+                    distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
+                    prevDistances[row][col] = distances[row][col];
                 }
-                distances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
-                prevDistances[row][col] = Util.distanceMetric(mc.x, mc.y, target.x, target.y) * AVG_RUBBLE;
             }
         }
-        System.out.println("end: " + Clock.getBytecodesLeft());
     }
     
     //the comparisons can definitely be optimized to apply min fewer number of times
@@ -68,8 +70,8 @@ public class Pathfinding {
                     distances[row][col] += rubbleLevels[row][col];
                 }
             }
-            for (int row = 0; row < 5; row++){
-                for (int col = 0; col < 5; col++){
+            for (int row = 4; row >=0; row--){
+                for (int col = 4; col >= 0; col--){
                     prevDistances[row][col] = distances[row][col];
                 }
             }
