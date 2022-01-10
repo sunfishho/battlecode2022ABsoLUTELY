@@ -45,6 +45,7 @@ public class Archon extends RobotCommon{
         if(round == 1) {
             establishRank();
             relocCheck();
+            vortexRndNums = new ArrayList<Integer>();
             AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
             for (AnomalyScheduleEntry a : sched){
                 if(a.anomalyType == AnomalyType.VORTEX){
@@ -58,7 +59,7 @@ public class Archon extends RobotCommon{
 
         int alarm = rc.readSharedArray(18);
 
-        if(round == vortexRndNums.get(vortexCnt) && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
+        if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
             relocCheck();
             vortexCnt++;
         }
