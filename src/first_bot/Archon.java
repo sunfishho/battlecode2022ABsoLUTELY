@@ -13,7 +13,7 @@ public class Archon extends RobotCommon{
     static int numArchons, numScoutsSent, numForagersSent, teamLeadAmount, targetArchon;
     static ArrayList<Integer> vortexRndNums;
     static int vortexCnt = 0;
-    
+
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
             1-4: archons of corresponding rank
@@ -59,7 +59,7 @@ public class Archon extends RobotCommon{
 
         int alarm = rc.readSharedArray(18);
 
-        if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
+        if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) + 1 && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
             relocCheck();
             vortexCnt++;
         }
@@ -76,16 +76,28 @@ public class Archon extends RobotCommon{
             rc.disintegrate();
         }*/
 
-        // we should try moving to a nearby place with less rubble
-        if(me != home){
-            Pathfinding pf = new Pathfinding(this);
-            Direction dir = pf.findBestDirection(home);
+        if(me != home && rc.getMode() == RobotMode.TURRET){//we should try moving to home
+            if(rc.canTransform()) {
+                rc.transform();
+                return;
+            }
+        }
+        else if(me != home){//already on the move, keep going to home
+            //Pathfinding pf = new Pathfinding(this);
+            System.out.println("ON THE MOVE: " + me.x + " " + me.y + " ---> " + home.x + " " + home.y + rc.getRoundNum());
+            Direction dir = me.directionTo(home);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 me = rc.getLocation();
             }
+            return;
         }
-
+        else if(me == home && rc.getMode() == RobotMode.PORTABLE){//we're home, settle down
+            if(rc.canTransform()){
+                rc.transform();
+                return;
+            }
+        }
         rc.setIndicatorString(Integer.toString(rank));
 
         // Try randomly to pick a direction to build in
@@ -222,18 +234,20 @@ public class Archon extends RobotCommon{
 
     //see if any nearby squares have significantly less rubble
     public void relocCheck() throws GameActionException {
+        System.out.println("CHECKING RELOCATION AT ROUND " + rc.getRoundNum());
         int lx = me.x;
         int ly = me.y;
         int bestd = 0;
         int bestr = rc.senseRubble(me);
+        System.out.println(lx + " " + ly + " RUBBLE COUNT: " + bestr);
         MapLocation newhome = me;
-        for(int dx = 2; dx >= -2; dx--){
-            for(int dy = 2; dy >= -2; dy--){
+        for(int dx = 1; dx >= -1; dx--){
+            for(int dy = 1; dy >= -1; dy--){
                 int d = Util.max(Util.abs(dx), Util.abs(dy));
                 if(d == 0){
                     continue;
                 }
-                MapLocation mc = new MapLocation(dx - 2 + lx, dy - 2 + ly);
+                MapLocation mc = new MapLocation(dx + lx, dy + ly);
                 try{//see if mc is a viable place to move to
                     if (rc.canSenseLocation(mc)) {
                         int rub = rc.senseRubble(mc);

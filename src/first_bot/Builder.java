@@ -20,6 +20,14 @@ public class Builder extends RobotCommon{
     public Builder(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException{
         super(rc, r, loc);
         target = t;
+        System.out.println("BUILDER TARGET IS: " + t.x + " " + t.y);
+    }
+
+    public Builder(RobotController rc, int r, MapLocation loc, MapLocation t, boolean sac) throws GameActionException{
+        super(rc, r, loc);
+        target = t;
+        isSacrifice = sac;
+        System.out.println("BUILDER TARGET IS: " + t.x + " " + t.y);
     }
 
     public void takeTurn() throws GameActionException {
@@ -48,12 +56,10 @@ public class Builder extends RobotCommon{
             if(sq.getType().equals(RobotType.WATCHTOWER) && (bestType == null || !bestType.equals(RobotType.ARCHON))) {
                 bestType = RobotType.WATCHTOWER;
                 opt = loc;
-                break;
             }
             if(sq.getType().equals(RobotType.LABORATORY) && bestType == null){
                 bestType = RobotType.LABORATORY;
                 opt = loc;
-                break;
             }
         }
         while (opt != null && rc.canRepair(opt)) {
@@ -63,12 +69,12 @@ public class Builder extends RobotCommon{
 
     public void tryToBuild() throws GameActionException {//tries to build things in action radius
         // Dont build if there are prototypes nearby
+        Team us = rc.getTeam();
         for (RobotInfo sq : rc.senseNearbyRobots(5)) {
-            if (sq.team.equals(rc.getTeam()) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
+            if (sq.team.equals(us) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
                 return;
             }
         }
-        Team us = rc.getTeam();
 
         // Counter for number of towers, if too many don't build. 
         int counter = 0;
@@ -103,6 +109,7 @@ public class Builder extends RobotCommon{
             MapLocation loc = rc.getLocation();
             if(rc.senseLead(loc) == 0){
                 rc.disintegrate();
+                return;
             }
         }
         // Dont move if there are prototypes nearby

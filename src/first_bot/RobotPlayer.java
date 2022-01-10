@@ -52,7 +52,7 @@ public strictfp class RobotPlayer {
                     Util.WIDTH = rc.getMapWidth();
                     Util.HEIGHT = rc.getMapHeight();
                     //System.out.println("util width height wtf " + rc.getRoundNum() + " " + Util.WIDTH + " " + Util.HEIGHT);
-                    robot = new Builder(rc, rank, archonLocation, Util.pickBuilderTarget(archonLocation));
+                    robot = new Builder(rc, rank, archonLocation, Util.pickBuilderTarget(archonLocation), (rc.getRoundNum() % 4 != 0));
                     break;
                 case LABORATORY:
                     robot = new Laboratory(rc, rank, archonLocation);
