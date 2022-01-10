@@ -1,8 +1,7 @@
 
-package first_bot;
+package bot0109v2;
 
 import battlecode.common.*;
-import java.util.ArrayList;
 
 
 public class Archon extends RobotCommon{
@@ -11,9 +10,7 @@ public class Archon extends RobotCommon{
     static MapLocation home;
     static int[] knownMap = new int[62 * 60];
     static int numArchons, numScoutsSent, numForagersSent, teamLeadAmount, targetArchon;
-    static ArrayList<Integer> vortexRndNums;
-    static int vortexCnt = 0;
-
+    
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
             1-4: archons of corresponding rank
@@ -45,23 +42,9 @@ public class Archon extends RobotCommon{
         if(round == 1) {
             establishRank();
             relocCheck();
-            vortexRndNums = new ArrayList<Integer>();
-            AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
-            for (AnomalyScheduleEntry a : sched){
-                if(a.anomalyType == AnomalyType.VORTEX){
-                    vortexRndNums.add(a.roundNumber);
-                }
-            }
         }
         if(round == 2) {
             writeArchonLocations();
-        }
-
-        int alarm = rc.readSharedArray(18);
-
-        if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) + 1 && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
-            relocCheck();
-            vortexCnt++;
         }
         // If number of archons has decreased, shift all the archons down
         int newNumArchons = rc.getArchonCount();
@@ -75,47 +58,27 @@ public class Archon extends RobotCommon{
         /*if(round == 500) {
             rc.disintegrate();
         }*/
-        /*
-        if(me != home && rc.getMode() == RobotMode.TURRET){//we should try moving to home
-            if(rc.canTransform()) {
-                rc.transform();
-                return;
-            }
-        }
-        else if(me != home){//already on the move, keep going to home
-            //Pathfinding pf = new Pathfinding(this);
-            System.out.println("ON THE MOVE: " + me.x + " " + me.y + " ---> " + home.x + " " + home.y + rc.getRoundNum());
-            Direction dir = me.directionTo(home);
+
+        // we should try moving to a nearby place with less rubble
+        if(me != home){
+            Pathfinding pf = new Pathfinding(this);
+            Direction dir = pf.findBestDirection(home);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 me = rc.getLocation();
             }
-            return;
         }
-        else if(me == home && rc.getMode() == RobotMode.PORTABLE){//we're home, settle down
-            if(rc.canTransform()){
-                rc.transform();
-                return;
-            }
-        }
-      
-        Archon Relocation is way too slow for now oops
-         */
-        rc.setIndicatorString(Integer.toString(rank));
 
-        int numBuilders = 0;
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.BUILDER) {
-                numBuilders++;
-            }
-        }
+        rc.setIndicatorString(Integer.toString(rank));
 
         // Try randomly to pick a direction to build in
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
-        for (int i = 0; i < 15; i++) {
-            if (rc.canBuildRobot(RobotType.BUILDER, dir)) break;
+        for (int i = 0; i < 8; i++) {
+            if (rc.canBuildRobot(RobotType.MINER, dir)) break;
             dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
+        
+        int alarm = rc.readSharedArray(18);
 
         if (alarm < round - 6) {
             rc.writeSharedArray(18, 65535);
@@ -124,14 +87,8 @@ public class Archon extends RobotCommon{
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
-        if (alarm == 65535) {
-            if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
-                return;
-            }
-        } else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount <= numArchons * 50 && !observe() && rank != rc.readSharedArray(17) / 10000) {
-                return;
-            }
+        if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
+            return;
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 7 == 0)) {
@@ -140,12 +97,12 @@ public class Archon extends RobotCommon{
             if(rank == 1 && numScoutsSent < 2) { // subtype 1
                 MapLocation target = new MapLocation(0, 0);
                 if (numScoutsSent == 0){
-                    target = Util.horizontalRefl(me);
+                    target = new MapLocation(Util.WIDTH - me.x - 1, me.y);
                     System.out.println(me.x + " " + me.y);
                     System.out.println("MINER TARGET IS: " + target);
                 }
                 else{
-                    target = Util.verticalRefl(me);
+                    target = new MapLocation(me.x, Util.HEIGHT - me.y - 1);
                     System.out.println(me.x + " " + me.y);
                     System.out.println("MINER TARGET IS: " + target);
                 }
@@ -175,11 +132,7 @@ public class Archon extends RobotCommon{
                 rc.buildRobot(RobotType.MINER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
             }
-        } 
-        else if (rc.getTeamLeadAmount(rc.getTeam()) >= 400 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
-            rc.buildRobot(RobotType.BUILDER, dir);
-            rc.writeSharedArray(20, targetArchon + 1);
-        } 
+        }
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
@@ -211,21 +164,10 @@ public class Archon extends RobotCommon{
         }
     }
 
-    // Check if any aggressive enemy archons nearby
-    public boolean observe() throws GameActionException {
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
-                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
-                rc.writeSharedArray(18, round);
-                return true;
-            }
-        }
-        return false;
-    }
-
     // Guesses mirror to Archon at loc by min distance metric (note we could predict different symmetries for different archons)
     public MapLocation computeMirrorGuess(MapLocation loc) throws GameActionException {
-        MapLocation[] guesses = {Util.horizontalRefl(loc), Util.verticalRefl(loc), Util.centralRefl(loc)};
+        MapLocation[] guesses = {new MapLocation(Util.WIDTH - loc.x - 1, loc.y), new MapLocation(loc.x, Util.HEIGHT - loc.y - 1),
+            new MapLocation(Util.WIDTH - loc.x - 1, Util.HEIGHT - loc.y - 1)};
             
         int bestDist = 0;
         MapLocation bestGuess = new MapLocation(0, 0);
@@ -244,20 +186,18 @@ public class Archon extends RobotCommon{
 
     //see if any nearby squares have significantly less rubble
     public void relocCheck() throws GameActionException {
-        System.out.println("CHECKING RELOCATION AT ROUND " + rc.getRoundNum());
         int lx = me.x;
         int ly = me.y;
         int bestd = 0;
         int bestr = rc.senseRubble(me);
-        System.out.println(lx + " " + ly + " RUBBLE COUNT: " + bestr);
         MapLocation newhome = me;
-        for(int dx = 1; dx >= -1; dx--){
-            for(int dy = 1; dy >= -1; dy--){
+        for(int dx = 2; dx >= -2; dx--){
+            for(int dy = 2; dy >= -2; dy--){
                 int d = Util.max(Util.abs(dx), Util.abs(dy));
                 if(d == 0){
                     continue;
                 }
-                MapLocation mc = new MapLocation(dx + lx, dy + ly);
+                MapLocation mc = new MapLocation(dx - 2 + lx, dy - 2 + ly);
                 try{//see if mc is a viable place to move to
                     if (rc.canSenseLocation(mc)) {
                         int rub = rc.senseRubble(mc);

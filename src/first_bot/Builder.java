@@ -31,6 +31,7 @@ public class Builder extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
+        rc.setIndicatorString("Not repairing anything");
         observe();
         tryToRepair();
         tryToBuild();
@@ -43,17 +44,17 @@ public class Builder extends RobotCommon{
         Team us = rc.getTeam();
         RobotType bestType = null;
         MapLocation opt = null;
-        for (RobotInfo sq : rc.senseNearbyRobots(20)) {//builder action radius = 20
+        for (RobotInfo sq : rc.senseNearbyRobots(5)) {//builder action radius = 5
             MapLocation loc = sq.location;
-            if (sq == null) {
+            if (sq == null || sq.getTeam() != us) {
                 continue;
             }
-            if(sq.getType().equals(RobotType.ARCHON)){
+            if(sq.getType().equals(RobotType.ARCHON) && sq.getHealth() < 1000){
                 bestType = RobotType.ARCHON;
                 opt = loc;
                 break;
             }
-            if(sq.getType().equals(RobotType.WATCHTOWER) && (bestType == null || !bestType.equals(RobotType.ARCHON))) {
+            if(sq.getType().equals(RobotType.WATCHTOWER) && (bestType == null || !bestType.equals(RobotType.ARCHON)) && sq.getHealth() < 130) {
                 bestType = RobotType.WATCHTOWER;
                 opt = loc;
             }
@@ -62,9 +63,13 @@ public class Builder extends RobotCommon{
                 opt = loc;
             }
         }
-        while (opt != null && rc.canRepair(opt)) {
-            rc.repair(opt);
+        if (opt != null) {
+            rc.setIndicatorString("Repairing loc: (" + opt.x + ", " + opt.y + ")");
+            while (rc.canRepair(opt)) {
+                rc.repair(opt);
+            }
         }
+        
     }
 
     public void tryToBuild() throws GameActionException {//tries to build things in action radius

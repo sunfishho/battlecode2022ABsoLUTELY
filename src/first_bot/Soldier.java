@@ -25,6 +25,7 @@ public class Soldier extends RobotCommon{
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        observe();
         // This whole block only runs if we have an enemy in sight
         if (enemies.length > 0) {
             // Choose the enemy we want to attack
@@ -60,7 +61,6 @@ public class Soldier extends RobotCommon{
                 return;
             }
         }
-        observe();
         tryToMove();
         round++;
     }
