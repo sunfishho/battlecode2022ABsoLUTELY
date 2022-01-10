@@ -20,6 +20,7 @@ public class Soldier extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
+        me = rc.getLocation();
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
@@ -85,10 +86,10 @@ public class Soldier extends RobotCommon{
                 System.out.println(me + " " + rc.getLocation() + " " + initialDestination);
             }
         }
-        GreedyPathfinding gpf = new GreedyPathfinding(this);
+        Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
         if (initialDestination != null){
-            dir = gpf.travelTo(initialDestination);
+            dir = pf.findBestDirection(initialDestination);
         }
         // Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         MapLocation loc = rc.getLocation();
@@ -136,7 +137,7 @@ public class Soldier extends RobotCommon{
                 }
             }
             MapLocation toFollow = enemies[visionTargetIdx].location;
-            dir = gpf.travelTo(toFollow);
+            dir = pf.findBestDirection(toFollow);
         }
         int newX = loc.x + dir.dx;
         int newY = loc.y + dir.dy;
