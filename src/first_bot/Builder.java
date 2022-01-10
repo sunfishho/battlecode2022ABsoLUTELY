@@ -64,7 +64,7 @@ public class Builder extends RobotCommon{
         Team us = rc.getTeam();
         for(Direction d : Direction.allDirections()){
             MapLocation loc = me.add(d);
-            if (rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)){
+            if (rc.getTeamLeadAmount(us) > 500 && rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)){
                 rc.buildRobot(RobotType.WATCHTOWER, d);
                 return;
             }
