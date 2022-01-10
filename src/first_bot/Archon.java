@@ -33,7 +33,6 @@ public class Archon extends RobotCommon{
     public void takeTurn() throws GameActionException {
         // update variables
         round = rc.getRoundNum();
-        numArchons = rc.getArchonCount();
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
         if(round == 1) {
@@ -42,6 +41,15 @@ public class Archon extends RobotCommon{
         }
         if(round == 2) {
             writeArchonLocations();
+        }
+        // If number of archons has decreased, shift all the archons down
+        int newNumArchons = rc.getArchonCount();
+        if (newNumArchons != numArchons) {
+            numArchons = newNumArchons;
+            for (int i = rank-1; i < 4; i++) {
+                rc.writeSharedArray(i, 0);
+            }
+            establishRank();
         }
         /*if(round == 500) {
             rc.disintegrate();
@@ -79,7 +87,7 @@ public class Archon extends RobotCommon{
             return;
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 10 == 0)) {
+            && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 7 == 0)) {
 
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
             if(rank == 1 && numScoutsSent < 2) { // subtype 1
