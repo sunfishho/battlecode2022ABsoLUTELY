@@ -12,6 +12,7 @@ public class Util {
             17: alarm indicator (location)
             18: alarm indicator (round)
             19: number of foragers sent in total
+            20: targetted archon for robot production mod numArchons
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
