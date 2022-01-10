@@ -12,6 +12,7 @@ public class Watchtower extends RobotCommon{
 
     //TODO
     public void takeTurn() throws GameActionException {
+        rc.setIndicatorString(rc.getMode().toString());
         if (rc.getMode().equals(RobotMode.PORTABLE) && rc.canTransform()) {
             rc.transform();
         }

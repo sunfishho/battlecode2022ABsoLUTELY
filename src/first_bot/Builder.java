@@ -63,11 +63,8 @@ public class Builder extends RobotCommon{
 
     public void tryToBuild() throws GameActionException {//tries to build things in action radius
         // Dont build if there are prototypes nearby
-        for (RobotInfo sq : rc.senseNearbyRobots()) {
-            if (sq.team.equals(rc.getTeam()) == false) {
-                continue;
-            }
-            if(sq.getType().equals(RobotType.BUILDER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
+        for (RobotInfo sq : rc.senseNearbyRobots(5)) {
+            if (sq.team.equals(rc.getTeam()) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
                 return;
             }
         }
@@ -109,11 +106,8 @@ public class Builder extends RobotCommon{
             }
         }
         // Dont move if there are prototypes nearby
-        for (RobotInfo sq : rc.senseNearbyRobots()) {
-            if (sq.team.equals(rc.getTeam()) == false) {
-                continue;
-            }
-            if(sq.getType().equals(RobotType.BUILDER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
+        for (RobotInfo sq : rc.senseNearbyRobots(5)) {
+            if (sq.team.equals(rc.getTeam()) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
                 return;
             }
         }

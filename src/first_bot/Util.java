@@ -193,9 +193,7 @@ public class Util {
 
     public static MapLocation pickBuilderTarget(MapLocation loc){//pick target of builder spawned from loc
         //picks random location on "opposite walls" of the map
-        Random rng = new Random(seed);
-        System.out.println("huh wtf " + (WIDTH + HEIGHT - 1));
-        seed++;
+        Random rng = new Random();
         int r = rng.nextInt(WIDTH + HEIGHT - 1);
         if(r < WIDTH){//target on horizontal edge
             if(loc.y * 2 <= HEIGHT){
