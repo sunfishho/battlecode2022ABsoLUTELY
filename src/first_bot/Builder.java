@@ -13,6 +13,8 @@ public class Builder extends RobotCommon{
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
+        
+        rc.transform();
     }
 
     public Builder(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException{
@@ -32,34 +34,28 @@ public class Builder extends RobotCommon{
         Team us = rc.getTeam();
         RobotType bestType = null;
         MapLocation opt = null;
-        for (int dx = 2; dx >= -2; dx--){
-            for (int dy = 2; dy >= -2; dy--) {
-                if(dx * dx + dy * dy == 8){//out of range
-                    continue;
-                }
-                MapLocation loc = new MapLocation(me.x + dx, me.y + dy);
-                RobotInfo sq = rc.senseRobotAtLocation(loc);
-                if (sq.getTeam() != us){
-                    continue;
-                }
-                if(sq.getType() == RobotType.ARCHON){
-                    bestType = RobotType.ARCHON;
-                    opt = loc;
-                    break;
-                }
-                if(sq.getType() == RobotType.WATCHTOWER && bestType != RobotType.ARCHON){
-                    bestType = RobotType.WATCHTOWER;
-                    opt = loc;
-                    break;
-                }
-                if(sq.getType() == RobotType.LABORATORY && bestType == null){
-                    bestType = RobotType.LABORATORY;
-                    opt = loc;
-                    break;
-                }
+        for (RobotInfo sq : rc.senseNearbyRobots()) {
+            MapLocation loc = sq.location;
+            if (sq == null) {
+                continue;
+            }
+            if(sq.getType().equals(RobotType.ARCHON)){
+                bestType = RobotType.ARCHON;
+                opt = loc;
+                break;
+            }
+            if(sq.getType().equals(RobotType.WATCHTOWER) && (bestType == null || !bestType.equals(RobotType.ARCHON))) {
+                bestType = RobotType.WATCHTOWER;
+                opt = loc;
+                break;
+            }
+            if(sq.getType().equals(RobotType.LABORATORY) && bestType == null){
+                bestType = RobotType.LABORATORY;
+                opt = loc;
+                break;
             }
         }
-        if(rc.canRepair(opt)) {
+        if(opt != null && rc.canRepair(opt)) {
             rc.repair(opt);
         }
     }
