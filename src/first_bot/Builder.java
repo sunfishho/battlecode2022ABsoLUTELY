@@ -8,25 +8,10 @@ import java.awt.*;
 
 public class Builder extends RobotCommon{
 
-    public static int archonRank;
-    public static MapLocation archonLocation;
-
     public static boolean isSacrifice = false;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
-
-        //find parent archon
-        for(int i = 0; i < 4; i++) {
-            MapLocation archonLoc = Util.getLocationFromInt(rc.readSharedArray(i));
-            if(Util.abs(archonLoc.x - me.x) <= 1 && Util.abs(archonLoc.y - me.y) <= 1) {
-                archonRank = i + 1;
-                archonLocation = archonLoc;
-                return;
-            }
-        }
-
-        //do more stuff later
     }
 
     //TODO

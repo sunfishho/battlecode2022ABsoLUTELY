@@ -20,14 +20,14 @@ public class MinerScout extends Miner {
     }
 
     public void doScoutRoutine() throws GameActionException {
-        tryToMine();
-        GreedyPathfinding gpf = new GreedyPathfinding(this);
+        tryToMine(1);
+        Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
         if (!hasReachedHalfway){
-            dir = gpf.travelTo(halfTarget);
+            dir = pf.findBestDirection(halfTarget);
         }
         else{
-            dir = gpf.travelTo(target);
+            dir = pf.findBestDirection(target);
         }
         if (me.distanceSquaredTo(halfTarget) <= 1){
             hasReachedHalfway = true;
@@ -35,7 +35,7 @@ public class MinerScout extends Miner {
         if (me.distanceSquaredTo(target) <= 1){
             rc.disintegrate();
         }
-        rc.setIndicatorString(dir + " " + me + " " + target + " " + true);
+        rc.setIndicatorString("MINER SCOUT: " + dir + " " + me + " " + target + " " + true);
         if (rc.canMove(dir)){
             rc.move(dir);
         }

@@ -32,7 +32,7 @@ public strictfp class RobotPlayer {
             */
             RobotInfo archon;
             MapLocation archonLocation = new MapLocation(0, 0);
-            int rank = -1;
+            int rank = 0;
             for(RobotInfo neighbor : rc.senseNearbyRobots(2, rc.getTeam())) {
                 if(neighbor.getType() == RobotType.ARCHON) {
                     archon = neighbor;
@@ -55,13 +55,16 @@ public strictfp class RobotPlayer {
                     robot = new Laboratory(rc, rank, archonLocation);
                     break;
                 case MINER:
-                    MapLocation target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank)));
+                    MapLocation target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank)) % Util.MAX_LOC);
                     switch(subtype) {
                         case 1: 
                             robot = new MinerScout(rc, rank, archonLocation, target);
                             break;
                         case 2: 
                             robot = new MinerForager(rc, rank, archonLocation, target);
+                            break;
+                        case 3:
+                            robot = new MinerLattice(rc, rank, archonLocation, target);
                             break;
                         default:
                             robot = new Miner(rc, rank, archonLocation, target);

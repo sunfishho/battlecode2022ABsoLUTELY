@@ -14,8 +14,7 @@ public class Miner extends RobotCommon{
     }
     
     public void takeTurn() throws GameActionException {
-
-        rc.setIndicatorString(me + " " + archonLocation + " " + target + " " + reachedTarget);
+        rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         observe();
 
         // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location
@@ -29,7 +28,7 @@ public class Miner extends RobotCommon{
         if(target.equals(archonLocation)) {
             explore();
             tryToWriteTarget();
-            tryToMine();
+            tryToMine(1);
             round++;
             return;
         }
@@ -42,7 +41,7 @@ public class Miner extends RobotCommon{
             tryToMove();
         }
 
-        tryToMine();
+        tryToMine(1);
         round++;
     }
 
@@ -146,15 +145,15 @@ public class Miner extends RobotCommon{
         }
     }
 
-    // Tries to mine in 3x3 square around Miner
-    public void tryToMine() throws GameActionException {
+    // Tries to mine in 3x3 square around Miner, and leaves leaveLead amount at location
+    public void tryToMine(int leaveLead) throws GameActionException {
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
                 MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                 while (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
                     rc.mineGold(mineLocation);
                 }
-                while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) { // keep 1 lead for generation
+                while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > leaveLead) {
                     rc.mineLead(mineLocation);
                 }
             }
@@ -163,8 +162,8 @@ public class Miner extends RobotCommon{
 
     // Moves toward target
     public void tryToMove() throws GameActionException {
-        GreedyPathfinding gpf = new GreedyPathfinding(this);
-        Direction dir = gpf.travelTo(target);
+        Pathfinding pf = new Pathfinding(this);
+        Direction dir = pf.findBestDirection(target);
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();

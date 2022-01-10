@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
     // static RobotController rc;
     static MapLocation home;
     static int[] knownMap = new int[62 * 60];
-    static int numScoutsSent;
+    static int numArchons, numScoutsSent, numForagersSent;
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
             1-4: archons of corresponding rank
@@ -30,7 +30,7 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
-
+        round = rc.getRoundNum();
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
         if(round == 1) {
             establishRank();
@@ -39,11 +39,14 @@ public class Archon extends RobotCommon{
         if(round == 2) {
             writeArchonLocations();
         }
+        /*if(round == 500) {
+            rc.disintegrate();
+        }*/
 
         // we should try moving to a nearby place with less rubble
         if(me != home){
-            GreedyPathfinding gpf = new GreedyPathfinding(this);
-            Direction dir = gpf.travelTo(home);
+            Pathfinding pf = new Pathfinding(this);
+            Direction dir = pf.findBestDirection(home);
             if (rc.canMove(dir)) {
                 rc.move(dir);
                 me = rc.getLocation();
@@ -68,12 +71,11 @@ public class Archon extends RobotCommon{
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
-
-        if (rc.canBuildRobot(RobotType.MINER, dir) && (((rc.getTeamLeadAmount(rc.getTeam()) < 200 || round < 5) && alarm == 65535) || round % 10 == 0)) {
-            rc.buildRobot(RobotType.MINER, dir);
+        if (rc.canBuildRobot(RobotType.MINER, dir) 
+            && (((rc.getTeamLeadAmount(rc.getTeam()) < 200 || round < 5) && alarm == 65535) || round % 10 == 0)) {
 
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
-            if(rank == 1 && numScoutsSent < 2) {
+            if(rank == 1 && numScoutsSent < 2) { // subtype 1
                 MapLocation target = new MapLocation(0, 0);
                 if (numScoutsSent == 0){
                     target = new MapLocation(Util.WIDTH - me.x - 1, me.y);
@@ -86,9 +88,19 @@ public class Archon extends RobotCommon{
                     System.out.println("MINER TARGET IS: " + target);
                 }
                 numScoutsSent++;
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(target) + Util.MAX_LOC); // subtype 1
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(target) + Util.MAX_LOC);
+                rc.buildRobot(RobotType.MINER, dir);
             }
-            else {
+            else if(numForagersSent < numArchons) { // subtype 2
+                System.out.println(numForagersSent + " " + numArchons);
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), 
+                    Util.getIntFromLocation(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent)))) 
+                        + 2 * Util.MAX_LOC);
+                numForagersSent++;
+                rc.writeSharedArray(19, rc.readSharedArray(19) + 1); 
+                rc.buildRobot(RobotType.MINER, dir);
+            }
+            else if(rc.readSharedArray(19) == numArchons * numArchons) { // want all of the foragers to be sent first
                 int target = findLocalLocation();
                 if(target != -1) {
                     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), target);
@@ -96,6 +108,7 @@ public class Archon extends RobotCommon{
                 else {
                     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), findMinerReport());
                 }
+                rc.buildRobot(RobotType.MINER, dir);
             }
         }
         else {
@@ -103,7 +116,6 @@ public class Archon extends RobotCommon{
                 rc.buildRobot(RobotType.SOLDIER, dir);
             }
         }
-        round++;
     }
 
     // Establish an order between the Archons by writing to the shared array.
@@ -124,8 +136,31 @@ public class Archon extends RobotCommon{
     public void writeArchonLocations() throws GameActionException {
         int loc = Util.getIntFromLocation(me);
         for(int i = 0; i < 4; i++) {
-            knownMap[rc.readSharedArray(i)] = i + 1;
+            if(rc.readSharedArray(i) != 0) {
+                knownMap[rc.readSharedArray(i)] = i + 1;
+                numArchons++;
+            }
         }
+    }
+
+    // Guesses mirror to Archon at loc by min distance metric (note we could predict different symmetries for different archons)
+    public MapLocation computeMirrorGuess(MapLocation loc) throws GameActionException {
+        MapLocation[] guesses = {new MapLocation(Util.WIDTH - loc.x - 1, loc.y), new MapLocation(loc.x, Util.HEIGHT - loc.y - 1),
+            new MapLocation(Util.WIDTH - loc.x - 1, Util.HEIGHT - loc.y - 1)};
+            
+        int bestDist = 0;
+        MapLocation bestGuess = new MapLocation(0, 0);
+        for(int i = 0; i < 3; i++) {
+            int minDist = 100000;
+            for(int j = 0; j < numArchons; j++) {
+                minDist = Util.min(minDist, guesses[i].distanceSquaredTo(Util.getLocationFromInt(rc.readSharedArray(j))));
+            }
+            if(minDist > bestDist) {
+                bestDist = minDist;
+                bestGuess = guesses[i];
+            }
+        }
+        return bestGuess;
     }
 
     //see if any nearby squares have significantly less rubble

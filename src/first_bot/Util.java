@@ -11,6 +11,7 @@ public class Util {
             16: symmetry indicator (3 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 0 if rotationally symmetric)
             17: alarm indicator (location)
             18: alarm indicator (round)
+            19: number of foragers sent in total
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
@@ -59,8 +60,8 @@ public class Util {
             case SOLDIER: return 4;
             case BUILDER: return 5;
             case MINER: return 6;
+            default: return 7;
         }
-        return 7;
     }
 
     public static int getDirectionIndex(Direction d){
@@ -94,6 +95,7 @@ public class Util {
         return 7 + 3 * ARCHON_MEMORY_SIZE;
     }
 
+    // Moves an intLoc to nearby on lattice location
     public static int moveOnLattice(int intLoc) {
         MapLocation loc = getLocationFromInt(intLoc);
         /*
@@ -106,8 +108,24 @@ public class Util {
         return x * LOC_BASE + y + 1;
     }
 
+    public static MapLocation moveOnLattice(MapLocation loc) {
+        int x = loc.x / 3 * 3 + 1;
+        if(x == WIDTH) x--;
+        int y = loc.y / 3 * 3 + 1;
+        if(y == HEIGHT) y--;
+        return new MapLocation(x, y);
+    }
+
     public static boolean onLattice(int intLoc) {
         MapLocation loc = getLocationFromInt(intLoc);
+        int x = loc.x / 3 * 3 + 1;
+        if(x == WIDTH) x--;
+        int y = loc.y / 3 * 3 + 1;
+        if(y == HEIGHT) y--;
+        return (x == loc.x && y == loc.y);
+    }
+
+    public static boolean onLattice(MapLocation loc) {
         int x = loc.x / 3 * 3 + 1;
         if(x == WIDTH) x--;
         int y = loc.y / 3 * 3 + 1;
