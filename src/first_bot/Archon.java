@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
     // static RobotController rc;
     static MapLocation home;
     static int[] knownMap = new int[62 * 60];
-    static int numArchons, numScoutsSent, numForagersSent, teamLeadAmount;
+    static int numArchons, numScoutsSent, numForagersSent, teamLeadAmount, targetArchon;
     
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -19,11 +19,14 @@ public class Archon extends RobotCommon{
 
     public Archon(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
-        
+
+        numForagersSent = 0;
+
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
         rc.writeSharedArray(17, 65535);
         rc.writeSharedArray(18, 65535);
+        rc.writeSharedArray(20, 0);
         
         // for Util to know the width/height of the map
         Util.WIDTH = rc.getMapWidth();
@@ -34,6 +37,7 @@ public class Archon extends RobotCommon{
         // update variables
         round = rc.getRoundNum();
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
+        targetArchon = rc.readSharedArray(20);
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
         if(round == 1) {
             establishRank();
@@ -83,7 +87,7 @@ public class Archon extends RobotCommon{
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
-        if (teamLeadAmount <= numArchons * 50 && round % numArchons != rank % numArchons) {
+        if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
             return;
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
@@ -105,15 +109,17 @@ public class Archon extends RobotCommon{
                 numScoutsSent++;
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(target) + Util.MAX_LOC);
                 rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
             }
             else if(numForagersSent < numArchons) { // subtype 2
-                System.out.println(numForagersSent + " " + numArchons);
+                System.out.println("FORAGER: " + numForagersSent + " " + numArchons);
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), 
                     Util.getIntFromLocation(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent)))) 
                         + 2 * Util.MAX_LOC);
                 numForagersSent++;
                 rc.writeSharedArray(19, rc.readSharedArray(19) + 1); 
                 rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
             }
             else if(rc.readSharedArray(19) == numArchons * numArchons) { // want all of the foragers to be sent first
                 int target = findLocalLocation();
@@ -124,12 +130,12 @@ public class Archon extends RobotCommon{
                     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), findMinerReport());
                 }
                 rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
             }
         }
-        else {
-            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                rc.buildRobot(RobotType.SOLDIER, dir);
-            }
+        else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+            rc.buildRobot(RobotType.SOLDIER, dir);
+            rc.writeSharedArray(20, targetArchon + 1);
         }
     }
 
