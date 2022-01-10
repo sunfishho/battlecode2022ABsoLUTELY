@@ -75,7 +75,7 @@ public class Archon extends RobotCommon{
         /*if(round == 500) {
             rc.disintegrate();
         }*/
-
+        /*
         if(me != home && rc.getMode() == RobotMode.TURRET){//we should try moving to home
             if(rc.canTransform()) {
                 rc.transform();
@@ -98,6 +98,9 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
+      
+        Archon Relocation is way too slow for now oops
+         */
         rc.setIndicatorString(Integer.toString(rank));
 
         // Try randomly to pick a direction to build in
