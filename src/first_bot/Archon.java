@@ -154,16 +154,13 @@ public class Archon extends RobotCommon{
                 rc.writeSharedArray(20, targetArchon + 1);
             }
         } 
-        else if (rc.getTeamLeadAmount(rc.getTeam()) > 200 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+        else if (rc.getTeamLeadAmount(rc.getTeam()) > 400 && rc.canBuildRobot(RobotType.BUILDER, dir) && alarm == 65535) {
             rc.buildRobot(RobotType.BUILDER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         } 
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
-        }
-        else if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
-            rc.buildRobot(RobotType.BUILDER, dir);
         }
     }
 
