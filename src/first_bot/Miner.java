@@ -49,7 +49,7 @@ public class Miner extends RobotCommon{
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
-                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location));
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
                 rc.writeSharedArray(18, round);
                 return;
             }
