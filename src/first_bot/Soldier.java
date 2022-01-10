@@ -69,7 +69,7 @@ public class Soldier extends RobotCommon{
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
-                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location));
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
                 rc.writeSharedArray(18, round);
                 return;
             }
@@ -79,7 +79,7 @@ public class Soldier extends RobotCommon{
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove() throws GameActionException {
         if (rc.readSharedArray(17) != 65535) {
-            initialDestination = Util.getLocationFromInt(rc.readSharedArray(17));
+            initialDestination = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }else if (this.me.equals(initialDestination)){
             initialDestination = chooseRandomInitialDestination();
             if (rc.getID() == 13087){

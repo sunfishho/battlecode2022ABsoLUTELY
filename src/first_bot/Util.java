@@ -9,7 +9,7 @@ public class Util {
             0-3: location of Archons 1-4
             4-15: memory blocks
             16: symmetry indicator (3 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 0 if rotationally symmetric)
-            17: alarm indicator (location)
+            17: alarm indicator (location) + 10000 * rank
             18: alarm indicator (round)
             19: number of foragers sent in total
             20: targetted archon for robot production mod numArchons
@@ -177,63 +177,5 @@ public class Util {
         return true;
     }
 
-    //if we view array as 1024 bits rather than 64 ints
-
-    public static void updateBitsSharedArray(RobotController rc, int st, int en, long x) throws GameActionException{//write x into bits in [st, en]
-        for(int i = 0; i < 64; i++){
-            int a = 16 * i;
-            int b = 16 * i + 15;
-            if(a > en){
-                break;
-            }
-            if(b < st){
-                continue;
-            }
-            int am = Util.max(a, st);
-            int bm = Util.min(b, en);
-            int t = rc.readSharedArray(i);
-            for(int j = a; j <= b; j++){
-                if(j < am || j > bm){
-                    continue;
-                }
-                int k = en - j;//index of bit in x
-                int pow = (1 << (b-j));
-                if((x & (1L << k)) > 0){
-                    t |= pow;
-                }
-                else{
-                    t &= (65535 - pow);
-                }
-            }
-            rc.writeSharedArray(i, t);
-        }
-    }
-
-    public static long readBitsSharedArray(RobotController rc, int st, int en) throws GameActionException{
-        long res = 0;
-        for(int i = 0; i < 64; i++){
-            int a = 16 * i;
-            int b = 16 * i + 15;
-            if(a > en){
-                break;
-            }
-            if(b < st){
-                continue;
-            }
-            int am = Util.max(a, st);
-            int bm = Util.min(b, en);
-            int t = rc.readSharedArray(i);
-            for(int j = a; j <= b; j++){
-                if(j < am || j > bm){
-                    continue;
-                }
-                int k = en - j;//index of bit in res
-                int pow = (1 << (b-j));
-                if ((t & pow) > 0){
-                    res += (1L << k);
-                }
-            }
-        }
-        return res;
-    }
+    
 }

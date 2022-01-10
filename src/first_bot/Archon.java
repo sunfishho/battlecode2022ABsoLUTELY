@@ -101,8 +101,14 @@ public class Archon extends RobotCommon{
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
-        if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
-            return;
+        if (alarm == 65535) {
+            if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
+                return;
+            }
+        } else { // figure out where the alarm is coming from and send troops
+            if (teamLeadAmount <= numArchons * 50 && !observe() && rank != rc.readSharedArray(17) / 10000) {
+                return;
+            }
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 7 == 0)) {
@@ -179,6 +185,18 @@ public class Archon extends RobotCommon{
                 numArchons++;
             }
         }
+    }
+
+    // Check if any aggressive enemy archons nearby
+    public boolean observe() throws GameActionException {
+        for (RobotInfo robot : rc.senseNearbyRobots()) {
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
+                rc.writeSharedArray(18, round);
+                return true;
+            }
+        }
+        return false;
     }
 
     // Guesses mirror to Archon at loc by min distance metric (note we could predict different symmetries for different archons)
