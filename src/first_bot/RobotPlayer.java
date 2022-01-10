@@ -49,6 +49,9 @@ public strictfp class RobotPlayer {
             int subtype = rc.readSharedArray(Util.getArchonMemoryBlock(rank)) / Util.MAX_LOC;
             switch(rc.getType()){
                 case BUILDER:
+                    Util.WIDTH = rc.getMapWidth();
+                    Util.HEIGHT = rc.getMapHeight();
+                    //System.out.println("util width height wtf " + rc.getRoundNum() + " " + Util.WIDTH + " " + Util.HEIGHT);
                     robot = new Builder(rc, rank, archonLocation, Util.pickBuilderTarget(archonLocation));
                     break;
                 case LABORATORY:

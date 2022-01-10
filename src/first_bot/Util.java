@@ -166,15 +166,15 @@ public class Util {
     }
 
     public static MapLocation horizontalRefl(MapLocation loc){
-        return new MapLocation(Util.WIDTH - 1 - loc.x, loc.y);
+        return new MapLocation(WIDTH - 1 - loc.x, loc.y);
     }
 
     public static MapLocation verticalRefl(MapLocation loc){
-        return new MapLocation(loc.x, Util.HEIGHT - 1 - loc.y);
+        return new MapLocation(loc.x, HEIGHT - 1 - loc.y);
     }
 
     public static MapLocation centralRefl(MapLocation loc){
-        return new MapLocation(Util.WIDTH - 1 - loc.x, Util.HEIGHT - 1 - loc.y);
+        return new MapLocation(WIDTH - 1 - loc.x, HEIGHT - 1 - loc.y);
     }
 
     public static void markSymmetry(MapLocation mL){
@@ -194,22 +194,23 @@ public class Util {
     public static MapLocation pickBuilderTarget(MapLocation loc){//pick target of builder spawned from loc
         //picks random location on "opposite walls" of the map
         Random rng = new Random(seed);
+        System.out.println("huh wtf " + (WIDTH + HEIGHT - 1));
         seed++;
-        int r = rng.nextInt(Util.WIDTH + Util.HEIGHT - 1);
-        if(r < Util.WIDTH){//target on horizontal edge
-            if(loc.y * 2 <= Util.HEIGHT){
-                return new MapLocation(r, Util.HEIGHT - 1);
+        int r = rng.nextInt(WIDTH + HEIGHT - 1);
+        if(r < WIDTH){//target on horizontal edge
+            if(loc.y * 2 <= HEIGHT){
+                return new MapLocation(r, HEIGHT - 1);
             }
             else{
                 return new MapLocation(r, 0);
             }
         }
         else{//target on vertical edge
-            if(loc.x * 2 <= Util.WIDTH){
-                return new MapLocation(Util.WIDTH - 1, r - Util.WIDTH);
+            if(loc.x * 2 <= WIDTH){
+                return new MapLocation(WIDTH - 1, r - WIDTH);
             }
             else{
-                return new MapLocation(0, r - Util.WIDTH);
+                return new MapLocation(0, r - WIDTH);
             }
         }
     }

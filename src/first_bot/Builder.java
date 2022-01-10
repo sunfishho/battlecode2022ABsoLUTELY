@@ -34,7 +34,7 @@ public class Builder extends RobotCommon{
         Team us = rc.getTeam();
         RobotType bestType = null;
         MapLocation opt = null;
-        for (RobotInfo sq : rc.senseNearbyRobots()) {
+        for (RobotInfo sq : rc.senseNearbyRobots(20)) {//builder action radius = 20
             MapLocation loc = sq.location;
             if (sq == null) {
                 continue;
