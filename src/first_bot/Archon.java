@@ -89,8 +89,8 @@ public class Archon extends RobotCommon{
 
         // Try randomly to pick a direction to build in
         Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
-        for (int i = 0; i < 8; i++) {
-            if (rc.canBuildRobot(RobotType.MINER, dir)) break;
+        for (int i = 0; i < 15; i++) {
+            if (rc.canBuildRobot(RobotType.BUILDER, dir)) break;
             dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
 
@@ -152,7 +152,11 @@ public class Archon extends RobotCommon{
                 rc.buildRobot(RobotType.MINER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
             }
-        }
+        } 
+        else if (rc.getTeamLeadAmount(rc.getTeam()) > 200 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+            rc.buildRobot(RobotType.BUILDER, dir);
+            rc.writeSharedArray(20, targetArchon + 1);
+        } 
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
