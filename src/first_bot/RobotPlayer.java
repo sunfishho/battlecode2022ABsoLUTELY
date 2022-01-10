@@ -49,7 +49,7 @@ public strictfp class RobotPlayer {
             int subtype = rc.readSharedArray(Util.getArchonMemoryBlock(rank)) / Util.MAX_LOC;
             switch(rc.getType()){
                 case BUILDER:
-                    robot = new Builder(rc, rank, archonLocation);
+                    robot = new Builder(rc, rank, archonLocation, Util.pickBuilderTarget(archonLocation));
                     break;
                 case LABORATORY:
                     robot = new Laboratory(rc, rank, archonLocation);

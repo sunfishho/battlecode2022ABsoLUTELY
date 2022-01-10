@@ -117,12 +117,12 @@ public class Archon extends RobotCommon{
             if(rank == 1 && numScoutsSent < 2) { // subtype 1
                 MapLocation target = new MapLocation(0, 0);
                 if (numScoutsSent == 0){
-                    target = new MapLocation(Util.WIDTH - me.x - 1, me.y);
+                    target = Util.horizontalRefl(me);
                     System.out.println(me.x + " " + me.y);
                     System.out.println("MINER TARGET IS: " + target);
                 }
                 else{
-                    target = new MapLocation(me.x, Util.HEIGHT - me.y - 1);
+                    target = Util.verticalRefl(me);
                     System.out.println(me.x + " " + me.y);
                     System.out.println("MINER TARGET IS: " + target);
                 }
@@ -201,8 +201,7 @@ public class Archon extends RobotCommon{
 
     // Guesses mirror to Archon at loc by min distance metric (note we could predict different symmetries for different archons)
     public MapLocation computeMirrorGuess(MapLocation loc) throws GameActionException {
-        MapLocation[] guesses = {new MapLocation(Util.WIDTH - loc.x - 1, loc.y), new MapLocation(loc.x, Util.HEIGHT - loc.y - 1),
-            new MapLocation(Util.WIDTH - loc.x - 1, Util.HEIGHT - loc.y - 1)};
+        MapLocation[] guesses = {Util.horizontalRefl(loc), Util.verticalRefl(loc), Util.centralRefl(loc)};
             
         int bestDist = 0;
         MapLocation bestGuess = new MapLocation(0, 0);

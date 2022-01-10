@@ -27,19 +27,19 @@ public abstract class RobotCommon {
         int w = rc.getMapWidth();
         int h = rc.getMapHeight();
         if (sym == 1){//symmetric w.r.t. vertical midline
-            MapLocation mirror = new MapLocation(w - 1 - loc.x, loc.y);
+            MapLocation mirror = Util.horizontalRefl(loc);
             MapLocation mirrorans = nearestArchon(mirror);
-            ans = new MapLocation(w-1-mirrorans.x, mirrorans.y);
+            ans = Util.horizontalRefl(mirrorans);
         }
         if(sym == 2){//symmetric w.r.t. horizontal midline
-            MapLocation mirror = new MapLocation(loc.x, h-1-loc.y);
+            MapLocation mirror = Util.verticalRefl(loc);
             MapLocation mirrorans = nearestArchon(mirror);
-            ans = new MapLocation(mirrorans.x, h-1-mirrorans.y);
+            ans = Util.verticalRefl(mirrorans);
         }
         if(sym == 3){//symmetric w.r.t. center
-            MapLocation mirror = new MapLocation(w-1-loc.x, h-1-loc.y);
+            MapLocation mirror = Util.centralRefl(loc);
             MapLocation mirrorans = nearestArchon(mirror);
-            ans = new MapLocation(w-1-mirrorans.x, h-1-mirrorans.y);
+            ans = Util.centralRefl(mirrorans);
         }
         return ans;
     }

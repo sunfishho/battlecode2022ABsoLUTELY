@@ -1,9 +1,11 @@
 package first_bot;
 import battlecode.common.*;
+import java.util.Random;
 
 public class Util {
     static int TAXICAB_WEIGHT = 30;
     static int ARCHON_MEMORY_SIZE = 3;
+    static int seed = 69420;//random seed for rng
     /*
         Shared Array:
             0-3: location of Archons 1-4
@@ -163,19 +165,53 @@ public class Util {
         return max(abs(m1.x - m2.x), abs(m1.y - m2.y));
     }
 
+    public static MapLocation horizontalRefl(MapLocation loc){
+        return new MapLocation(Util.WIDTH - 1 - loc.x, loc.y);
+    }
+
+    public static MapLocation verticalRefl(MapLocation loc){
+        return new MapLocation(loc.x, Util.HEIGHT - 1 - loc.y);
+    }
+
+    public static MapLocation centralRefl(MapLocation loc){
+        return new MapLocation(Util.WIDTH - 1 - loc.x, Util.HEIGHT - 1 - loc.y);
+    }
+
     public static void markSymmetry(MapLocation mL){
 
     }
 
     //decide later
-    public static boolean watchtowerElig(MapLocation loc, int pb, int au){
-        return true;
+    public static boolean watchtowerElig(MapLocation loc){
+        return (loc.x % 3 == 2 && loc.y % 3 == 2);
     }
 
     //decide later
-    public static boolean labElig(MapLocation loc, int pb, int au){
-        return true;
+    public static boolean labElig(MapLocation loc){
+        return false;
     }
 
+    public static MapLocation pickBuilderTarget(MapLocation loc){//pick target of builder spawned from loc
+        //picks random location on "opposite walls" of the map
+        Random rng = new Random(seed);
+        seed++;
+        int r = rng.nextInt(Util.WIDTH + Util.HEIGHT - 1);
+        if(r < Util.WIDTH){//target on horizontal edge
+            if(loc.y * 2 <= Util.HEIGHT){
+                return new MapLocation(r, Util.HEIGHT - 1);
+            }
+            else{
+                return new MapLocation(r, 0);
+            }
+        }
+        else{//target on vertical edge
+            if(loc.x * 2 <= Util.WIDTH){
+                return new MapLocation(Util.WIDTH - 1, r - Util.WIDTH);
+            }
+            else{
+                return new MapLocation(0, r - Util.WIDTH);
+            }
+        }
+    }
     
 }
