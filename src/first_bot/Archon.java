@@ -9,7 +9,8 @@ public class Archon extends RobotCommon{
     // static RobotController rc;
     static MapLocation home;
     static int[] knownMap = new int[62 * 60];
-    static int numArchons, numScoutsSent, numForagersSent;
+    static int numArchons, numScoutsSent, numForagersSent, teamLeadAmount;
+    
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
             1-4: archons of corresponding rank
@@ -30,7 +31,10 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
+        // update variables
         round = rc.getRoundNum();
+        numArchons = rc.getArchonCount();
+        teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
         if(round == 1) {
             establishRank();
@@ -64,15 +68,18 @@ public class Archon extends RobotCommon{
         
         int alarm = rc.readSharedArray(18);
 
-        if (alarm < round - 10) {
+        if (alarm < round - 6) {
             rc.writeSharedArray(18, 65535);
             rc.writeSharedArray(17, 65535);
         }
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
+        if (teamLeadAmount <= numArchons * 50 && round % numArchons != rank % numArchons) {
+            return;
+        }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((rc.getTeamLeadAmount(rc.getTeam()) < 200 || round < 5) && alarm == 65535) || round % 10 == 0)) {
+            && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 10 == 0)) {
 
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
             if(rank == 1 && numScoutsSent < 2) { // subtype 1
