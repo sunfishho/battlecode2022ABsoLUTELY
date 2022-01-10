@@ -24,7 +24,7 @@ public class Util {
     static int HEIGHT, WIDTH;
     static int NUM_ARCHONS;
     //this is for distanceMetric()
-    static double DISTANCE_WEIGHT_OTHER_COMPONENT = 0.2;
+    static int DISTANCE_WEIGHT_RECIPROCAL = 5;
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
@@ -137,7 +137,7 @@ public class Util {
     }
 
     public static int distanceMetric(int x1, int y1, int x2, int y2){
-        return max(abs(x1 - x2), abs(y1 - y2)) + (int)(DISTANCE_WEIGHT_OTHER_COMPONENT * min(abs(x1 - x2), abs(y1 - y2)));
+        return max(abs(x1 - x2), abs(y1 - y2)) + (min(abs(x1 - x2), abs(y1 - y2)))/DISTANCE_WEIGHT_RECIPROCAL;
     }
 
     public static int distanceMetric(MapLocation m1, MapLocation m2){
