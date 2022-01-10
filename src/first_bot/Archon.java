@@ -2,6 +2,7 @@
 package first_bot;
 
 import battlecode.common.*;
+import java.util.ArrayList;
 
 
 public class Archon extends RobotCommon{
@@ -10,6 +11,8 @@ public class Archon extends RobotCommon{
     static MapLocation home;
     static int[] knownMap = new int[62 * 60];
     static int numArchons, numScoutsSent, numForagersSent, teamLeadAmount, targetArchon;
+    static ArrayList<Integer> vortexRndNums;
+    static int vortexCnt = 0;
     
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -42,9 +45,22 @@ public class Archon extends RobotCommon{
         if(round == 1) {
             establishRank();
             relocCheck();
+            AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
+            for (AnomalyScheduleEntry a : sched){
+                if(a.anomalyType == AnomalyType.VORTEX){
+                    vortexRndNums.add(a.roundNumber);
+                }
+            }
         }
         if(round == 2) {
             writeArchonLocations();
+        }
+
+        int alarm = rc.readSharedArray(18);
+
+        if(round == vortexRndNums.get(vortexCnt) && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
+            relocCheck();
+            vortexCnt++;
         }
         // If number of archons has decreased, shift all the archons down
         int newNumArchons = rc.getArchonCount();
@@ -77,8 +93,6 @@ public class Archon extends RobotCommon{
             if (rc.canBuildRobot(RobotType.MINER, dir)) break;
             dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
-        
-        int alarm = rc.readSharedArray(18);
 
         if (alarm < round - 6) {
             rc.writeSharedArray(18, 65535);
@@ -136,6 +150,9 @@ public class Archon extends RobotCommon{
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
+        }
+        else if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
+            rc.buildRobot(RobotType.BUILDER, dir);
         }
     }
 
