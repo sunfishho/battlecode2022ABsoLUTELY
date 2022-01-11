@@ -82,7 +82,7 @@ public class MinerScout extends Miner {
                     if (rubbleSeen[Util.HEIGHT - ycoord - 1] != -1 && rubbleSeen[Util.HEIGHT - ycoord - 1] != rubbleSeen[ycoord]){
                         reportSymmetryBroken();
                         //Go home, so you won't die and get harvested by the enemy
-                        retreat()
+                        retreat();
                     }
                 }
             }

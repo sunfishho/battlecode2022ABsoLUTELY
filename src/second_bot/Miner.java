@@ -15,12 +15,20 @@ public class Miner extends RobotCommon{
     
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
+        
         observe();
 
         // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location
-        
-        if(round % 50 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
-            && rc.senseLead(me) == 0)) {
+        boolean neighboringMiner = false;
+        MapLocation neighbor = Util.moveOnLattice(me);
+        if (rc.canSenseLocation(neighbor)) {
+            RobotInfo neighborRobot = rc.senseRobotAtLocation(neighbor);
+            if (neighborRobot != null && neighborRobot.getTeam().equals(rc.getTeam()) && neighborRobot.getType().equals(RobotType.MINER)) {
+                neighboringMiner = true;
+            }
+        }
+        if(round % 7 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
+            && rc.senseLead(me) == 0) && neighboringMiner) {
             rc.disintegrate();  
         }
 
@@ -35,10 +43,13 @@ public class Miner extends RobotCommon{
         
         if(!reachedTarget && me.equals(target)) {
             reachedTarget = true;
+            // somehow stay still if lots of lead
+            tryToWriteTarget();
         }
 
         if(!reachedTarget) {
             tryToMove();
+            tryToWriteTarget();
         }
         tryToMine(1);
         round++;
@@ -97,7 +108,8 @@ public class Miner extends RobotCommon{
     }
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
-    public void tryToWriteTarget() throws GameActionException {
+    // Returns if target was written
+    public boolean tryToWriteTarget() throws GameActionException {
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
         boolean change = false;
@@ -117,8 +129,12 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
+                target = bestLoc;
+                if (target.equals(me) == false) {
+                    reachedTarget = false;
+                }
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
-                return;
+                return true;
             }
         }
 
@@ -140,9 +156,24 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
+                target = bestLoc;
+                if (target.equals(me) == false) {
+                    reachedTarget = false;
+                }
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+                return true;
             }
         }
+        // Choose random location
+        if (reachedTarget) {
+            MapLocation bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
+            target = bestLoc;
+            if (target.equals(me) == false) {
+                reachedTarget = false;
+            }
+            rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+        }
+        return false;
     }
 
     // Tries to mine in 3x3 square around Miner, and leaves leaveLead amount at location
@@ -170,7 +201,9 @@ public class Miner extends RobotCommon{
         Pathfinding pf = new Pathfinding(this);
         Direction dir = pf.findBestDirection(target);
         if (rc.canMove(dir)) {
+            rc.setIndicatorLine(me, me.translate(dir.dx, dir.dy), 0, 100, 0);
             rc.move(dir);
+            
             me = rc.getLocation();
         }
     }
