@@ -33,14 +33,14 @@ public class Builder extends RobotCommon{
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("Not repairing anything");
         observe();
-        tryToRepair();
-        tryToBuild();
-        tryToMove();
+        boolean a = tryToRepair();
+        boolean b = tryToBuild();
+        boolean c = tryToMove();
     }
 
     //try to repair things in action radius
     //priority order: archon, watchtower, lab
-    public void tryToRepair() throws GameActionException {
+    public boolean tryToRepair() throws GameActionException {
         Team us = rc.getTeam();
         RobotType bestType = null;
         MapLocation opt = null;
@@ -68,59 +68,63 @@ public class Builder extends RobotCommon{
             while (rc.canRepair(opt)) {
                 rc.repair(opt);
             }
+            return true;
         }
+        return false;
         
     }
 
-    public void tryToBuild() throws GameActionException {//tries to build things in action radius
+    public boolean tryToBuild() throws GameActionException {//tries to build things in action radius
         // Dont build if there are prototypes nearby
         Team us = rc.getTeam();
         for (RobotInfo sq : rc.senseNearbyRobots(5)) {
             if (sq.team.equals(us) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
-                return;
+                return true;
             }
         }
 
         // Counter for number of towers, if too many don't build. 
-        int counter = 0;
+        // int counter = 0;
+        // for(Direction d : Direction.allDirections()){
+        //     MapLocation loc = me.add(d);
+        //     if (!rc.canSenseLocation(loc)) {
+        //         continue;
+        //     }
+        //     RobotInfo robot = rc.senseRobotAtLocation(loc);
+        //     if (robot != null && robot.getTeam().equals(rc.getTeam()) && robot.getMode().equals(RobotMode.DROID) == false) {
+        //         counter++;
+        //     }
+        // }
+        // if (counter > 10) {
+        //     return false;
+        // }
+
         for(Direction d : Direction.allDirections()){
             MapLocation loc = me.add(d);
-            if (!rc.canSenseLocation(loc)) {
-                continue;
-            }
-            RobotInfo robot = rc.senseRobotAtLocation(loc);
-            if (robot != null && robot.getTeam().equals(rc.getTeam()) && robot.getMode().equals(RobotMode.DROID) == false) {
-                counter++;
-            }
-        }
-        if (counter > 1) {
-            return;
-        }
-        for(Direction d : Direction.allDirections()){
-            MapLocation loc = me.add(d);
-            if (rc.getTeamLeadAmount(us) > 500 && rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)){
+            if (rc.getTeamLeadAmount(us) > 280 && rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)){
                 rc.buildRobot(RobotType.WATCHTOWER, d);
-                return;
+                return true;
             }
             if (rc.canBuildRobot(RobotType.LABORATORY, d) && Util.labElig(loc)){
                 rc.buildRobot(RobotType.LABORATORY, d);
-                return;
+                return true;
             }
         }
+        return false;
     }
 
-    public void tryToMove() throws GameActionException {
+    public boolean tryToMove() throws GameActionException {
         if (isSacrifice){
             MapLocation loc = rc.getLocation();
             if(rc.senseLead(loc) == 0){
                 rc.disintegrate();
-                return;
+                return false;
             }
         }
         // Dont move if there are prototypes nearby
         for (RobotInfo sq : rc.senseNearbyRobots(5)) {
             if (sq.team.equals(rc.getTeam()) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
-                return;
+                return true;
             }
         }
         Pathfinding pf = new Pathfinding(this);
@@ -128,7 +132,9 @@ public class Builder extends RobotCommon{
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();
+            return true;
         }
+        return false;
     }
     
     // Observes if any enemy units nearby

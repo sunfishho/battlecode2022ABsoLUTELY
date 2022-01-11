@@ -93,12 +93,12 @@ public class MinerScout extends Miner {
     public void reportSymmetryBroken() throws GameActionException{
         int memoryIndex = Util.getSymmetryMemoryBlock();
         if (scoutTravelingHorizontally){
-            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) - 1);
+            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) ^ 1);
             System.out.println("NEW SYMMETRY RECORDING: " + rc.readSharedArray(16));
             return;
         }
         else {
-            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) - 2);
+            rc.writeSharedArray(memoryIndex, rc.readSharedArray(memoryIndex) ^ 2);
             System.out.println("NEW SYMMETRY RECORDING: " + rc.readSharedArray(16));
             return;
         }

@@ -24,7 +24,7 @@ public class Archon extends RobotCommon{
         super(rc, r, loc);
 
         numForagersSent = 0;
-
+        numScoutsSent = 2;
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
         rc.writeSharedArray(17, 65535);
@@ -101,7 +101,7 @@ public class Archon extends RobotCommon{
       
         Archon Relocation is way too slow for now oops
          */
-        rc.setIndicatorString(Integer.toString(rank));
+        rc.setIndicatorString(rank + "");
 
         int numBuilders = 0;
         for (RobotInfo robot : rc.senseNearbyRobots()) {
@@ -117,19 +117,20 @@ public class Archon extends RobotCommon{
             dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
 
-        if (alarm < round - 6) {
+        if (alarm < round - 3) {
             rc.writeSharedArray(18, 65535);
             rc.writeSharedArray(17, 65535);
         }
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
+        boolean observation = observe();
         if (alarm == 65535) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 return;
             }
         } else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount <= numArchons * 50 && !observe() && rank != rc.readSharedArray(17) / 10000) {
+            if (teamLeadAmount <= numArchons * 50 && !observation && rank != rc.readSharedArray(17) / 10000) {
                 return;
             }
         }
@@ -187,6 +188,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         } 
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+            // System.out.println("SOLDIER on round " + round);
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
@@ -220,7 +222,7 @@ public class Archon extends RobotCommon{
     // Check if any aggressive enemy archons nearby
     public boolean observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+            if (robot.getTeam() != rc.getTeam()) {
                 rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
                 rc.writeSharedArray(18, round);
                 return true;

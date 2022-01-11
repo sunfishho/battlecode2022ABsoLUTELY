@@ -72,16 +72,9 @@ public class Miner extends RobotCommon{
         // stay put if you're on lattice and you can mine
         if(Util.onLattice(Util.getIntFromLocation(me))) {
             MapLocation loc = me;
-            if(rc.senseLead(loc) > 0) {
+            if (rc.senseNearbyLocationsWithLead(2).length > 0) {
                 target = me;
                 return;
-            }
-            for(int i = 0; i < 8; i++) {
-                loc = new MapLocation(me.x + Util.dxDiff[i], me.y + Util.dyDiff[i]);
-                if(rc.onTheMap(loc) && rc.senseLead(loc) > 0) {
-                    target = me;
-                    return;
-                }
             }
         }
         // otherwise, explore with higher chance of moving away from Archon
@@ -110,6 +103,16 @@ public class Miner extends RobotCommon{
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
     // Returns if target was written
     public boolean tryToWriteTarget() throws GameActionException {
+        // stay put if you're on lattice and you can mine
+        if(Util.onLattice(Util.getIntFromLocation(me))) {
+            MapLocation loc = me;
+            if (rc.senseNearbyLocationsWithLead(2).length > 0) {
+                target = me;
+                reachedTarget = true;
+                return true;
+            }
+        }
+        
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
         boolean change = false;
@@ -148,7 +151,8 @@ public class Miner extends RobotCommon{
             for(int i = 0; i < numLeadLocations; i++) {
                 MapLocation newLoc = leadLocations[i];
                 int newDist = archonLocation.distanceSquaredTo(newLoc);
-                if(newDist > bestDist) {
+                int numLead = rc.senseLead(newLoc);
+                if(numLead > 1 && newDist > bestDist) {
                     bestDist = newDist;
                     bestLoc = newLoc;
                     change = true;
