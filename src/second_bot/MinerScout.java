@@ -39,10 +39,10 @@ public class MinerScout extends Miner {
         Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
         if (!hasReachedHalfway){
-            dir = pf.findBestDirection(halfTarget);
+            dir = pf.findBestDirection(halfTarget, 50);
         }
         else{
-            dir = pf.findBestDirection(target);
+            dir = pf.findBestDirection(target, 50);
         }
         if (me.distanceSquaredTo(halfTarget) <= 1){
             hasReachedHalfway = true;

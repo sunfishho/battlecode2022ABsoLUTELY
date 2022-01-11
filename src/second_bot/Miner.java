@@ -203,7 +203,7 @@ public class Miner extends RobotCommon{
     // Moves toward target through pathfinding
     public void tryToMove() throws GameActionException {
         Pathfinding pf = new Pathfinding(this);
-        Direction dir = pf.findBestDirection(target);
+        Direction dir = pf.findBestDirection(target, 80);
         if (rc.canMove(dir)) {
             rc.setIndicatorLine(me, me.translate(dir.dx, dir.dy), 0, 100, 0);
             rc.move(dir);

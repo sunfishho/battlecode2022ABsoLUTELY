@@ -128,7 +128,7 @@ public class Builder extends RobotCommon{
             }
         }
         Pathfinding pf = new Pathfinding(this);
-        Direction dir = pf.findBestDirection(target);
+        Direction dir = pf.findBestDirection(target, 20);
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();

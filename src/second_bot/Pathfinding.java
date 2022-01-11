@@ -2807,8 +2807,10 @@ public class Pathfinding {
 		distances44 += rubbleLevels44;
 	}
 
-
-	public Direction findBestDirection(MapLocation target) throws GameActionException{
+//When avgDistance is high, this algorithm essentially becomes greedy
+//When avgDistance is low, we risk not finding the destination because we avoid high rubble stuff
+	public Direction findBestDirection(MapLocation target, int avgDistance) throws GameActionException{
+		AVG_RUBBLE = avgDistance;
 		populateArrays(target);
 		iterate();
 		int minDistance = 1000000000;

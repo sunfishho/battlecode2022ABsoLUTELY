@@ -21,8 +21,8 @@ public class MinerForager extends Miner {
         while(i < leadLocations.length && rc.senseLead(leadLocations[i]) <= 6) i++; 
 
         Direction dir = Direction.CENTER;
-        if(i != leadLocations.length) dir = pf.findBestDirection(leadLocations[i]);
-        else dir = pf.findBestDirection(target);
+        if(i != leadLocations.length) dir = pf.findBestDirection(leadLocations[i], 20);
+        else dir = pf.findBestDirection(target, 20);
 
         if (rc.canMove(dir)) {
             rc.move(dir);

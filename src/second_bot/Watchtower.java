@@ -81,7 +81,7 @@ public class Watchtower extends RobotCommon{
         Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
         if (initialDestination != null){
-            dir = pf.findBestDirection(initialDestination);
+            dir = pf.findBestDirection(initialDestination, 20);
         }
         // Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         MapLocation loc = rc.getLocation();
@@ -109,7 +109,7 @@ public class Watchtower extends RobotCommon{
                 }
             }
             MapLocation toFollow = enemies[visionTargetIdx].location;
-            dir = pf.findBestDirection(toFollow);
+            dir = pf.findBestDirection(toFollow, 20);
         }
         int newX = loc.x + dir.dx;
         int newY = loc.y + dir.dy;
