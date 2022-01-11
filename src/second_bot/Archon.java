@@ -136,14 +136,17 @@ public class Archon extends RobotCommon{
         if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 7 == 0)) {
 
+            //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
-            if(rank == 1 && numScoutsSent < 2) { // subtype 1
+            if(rank == 1 && numScoutsSent < 2) { // subtype 1: SCOUT
                 MapLocation target = new MapLocation(0, 0);
+                //First scout should be sent to the horizontal reflection of the current archon.
                 if (numScoutsSent == 0){
                     target = Util.horizontalRefl(me);
                     System.out.println(me.x + " " + me.y);
                     System.out.println("MINER TARGET IS: " + target);
                 }
+                //Second scout should be sent to the vertical reflection of the current archon.
                 else{
                     target = Util.verticalRefl(me);
                     System.out.println(me.x + " " + me.y);
@@ -154,7 +157,10 @@ public class Archon extends RobotCommon{
                 rc.buildRobot(RobotType.MINER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
             }
-            else if(numForagersSent < numArchons) { // subtype 2
+
+            //FORAGER CODE
+            //Foragers head to the closest guesses of where an enemy archon is.
+            else if(numForagersSent < numArchons) { // subtype 2: FORAGERS
                 System.out.println("FORAGER: " + numForagersSent + " " + numArchons);
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), 
                     Util.getIntFromLocation(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent)))) 

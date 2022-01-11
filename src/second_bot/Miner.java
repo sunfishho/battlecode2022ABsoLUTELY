@@ -40,12 +40,11 @@ public class Miner extends RobotCommon{
         if(!reachedTarget) {
             tryToMove();
         }
-
         tryToMine(1);
         round++;
     }
 
-    // Observes if any enemy units nearby
+    // Observes if any enemy non-miner units nearby
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
@@ -57,6 +56,7 @@ public class Miner extends RobotCommon{
     }
 
     // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
+    //This function should be replaced with a better exploration algorithm once we think of one
     public void explore() throws GameActionException {
         // stay put if you're on lattice and you can mine
         if(Util.onLattice(Util.getIntFromLocation(me))) {
@@ -160,7 +160,12 @@ public class Miner extends RobotCommon{
         }
     }
 
-    // Moves toward target
+    //When a miner is in danger, or it is scouting and wants to go home, it will return to its home Archon.
+    public void retreat() throws GameActionException{
+        target = archonLocation;
+    }
+
+    // Moves toward target through pathfinding
     public void tryToMove() throws GameActionException {
         Pathfinding pf = new Pathfinding(this);
         Direction dir = pf.findBestDirection(target);

@@ -17,7 +17,6 @@ public class Watchtower extends RobotCommon{
         selfAlarmCounter = 0;
     }   
 
-    //TODO
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString(rc.getMode().toString());
         me = rc.getLocation();
