@@ -104,8 +104,9 @@ public class Archon extends RobotCommon{
         rc.setIndicatorString(rank + "");
 
         int numBuilders = 0;
+        Team us = rc.getTeam();
         for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() == rc.getTeam() && robot.getType() == RobotType.BUILDER) {
+            if (robot.getTeam() == us && robot.getType() == RobotType.BUILDER) {
                 numBuilders++;
             }
         }
@@ -118,7 +119,8 @@ public class Archon extends RobotCommon{
             if (rc.canBuildRobot(RobotType.BUILDER, temp)) {
                 int rubble = rc.senseRubble(rc.getLocation().add(temp));
                 if (rubble < minRubbleCount) {
-                    rubble = minRubbleCount;
+                    minRubbleCount = rubble;
+                    dir = temp;
                 }
             }
         }
@@ -137,13 +139,13 @@ public class Archon extends RobotCommon{
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
-        boolean observation = observe();
+        boolean enemiesNear = observe();
         if (alarm == 65535) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 return;
             }
         } else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount <= numArchons * 50 && !observation && rank != rc.readSharedArray(17) / 10000) {
+            if (teamLeadAmount <= numArchons * 50 && !enemiesNear && rank != rc.readSharedArray(17) / 10000) {
                 return;
             }
         }
