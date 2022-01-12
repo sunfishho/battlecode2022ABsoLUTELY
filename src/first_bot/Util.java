@@ -44,15 +44,23 @@ public class Util {
         Direction.NORTHWEST,
     };
 
-    b
+    static final RobotType[] attackOrder = new RobotType[] {
+        RobotType.SAGE,
+        RobotType.SOLDIER,
+        RobotType.WATCHTOWER,
+        RobotType.ARCHON,
+        RobotType.LABORATORY,
+        RobotType.BUILDER,
+        RobotType.MINER
+    };
 
     static int getAttackPref(RobotType rt){
         switch (rt){
-            case ARCHON: return 0;
-            case SAGE: return 1;
-            case LABORATORY: return 2;
-            case WATCHTOWER: return 3;
-            case SOLDIER: return 4;
+            case SAGE: return 0;
+            case SOLDIER: return 1;
+            case WATCHTOWER: return 2;
+            case ARCHON: return 3;
+            case LABORATORY: return 4;
             case BUILDER: return 5;
             case MINER: return 6;
             default: return 7;
