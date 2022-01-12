@@ -111,10 +111,23 @@ public class Archon extends RobotCommon{
         }
 
         // Try randomly to pick a direction to build in
-        Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
-        for (int i = 0; i < 15; i++) {
-            if (rc.canBuildRobot(RobotType.BUILDER, dir)) break;
+        int minRubbleCount = 101;
+        Direction dir = Direction.CENTER;
+        for (int i = 0; i < Util.directions.length; i++) {
+            Direction temp = Util.directions[i];
+            if (rc.canBuildRobot(RobotType.BUILDER, temp)) {
+                int rubble = rc.senseRubble(rc.getLocation().add(temp));
+                if (rubble < minRubbleCount) {
+                    rubble = minRubbleCount;
+                }
+            }
+        }
+        if (rng.nextInt(4) == 1) {
             dir = Util.directions[rng.nextInt(Util.directions.length)];
+            for (int i = 0; i < 15; i++) {
+                if (rc.canBuildRobot(RobotType.BUILDER, dir)) break;
+                dir = Util.directions[rng.nextInt(Util.directions.length)];
+            }
         }
 
         if (alarm < round - 3) {

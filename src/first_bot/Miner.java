@@ -1,34 +1,52 @@
 
 package first_bot;
 
+import java.util.Map;
+
 import battlecode.common.*;
 
 
 public class Miner extends RobotCommon{
     public static MapLocation target;
     public static boolean reachedTarget;
+    public static boolean isRetreating; // whether retreating
+    public static int retreatCounter; // number of turns retreating for
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
+        isRetreating = false;
         target = t;
     }
     
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         
-        observe();
+        retreatCounter++;
 
-        // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location
-        boolean neighboringMiner = false;
-        MapLocation neighbor = Util.moveOnLattice(me);
-        if (rc.canSenseLocation(neighbor)) {
-            RobotInfo neighborRobot = rc.senseRobotAtLocation(neighbor);
-            if (neighborRobot != null && neighborRobot.getTeam().equals(rc.getTeam()) && neighborRobot.getType().equals(RobotType.MINER)) {
-                neighboringMiner = true;
+        observe();
+        tryToMine(1);
+        if (archonLocation.distanceSquaredTo(me) < 10 || retreatCounter == 5) {
+            isRetreating = false;
+        }
+        // If there are mineable neighboring deposits, don't keep moving
+        if (!isRetreating) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
+                    if (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
+                        round++;
+                        return;
+                    }
+                    if (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                        round++;
+                        return;
+                    }
+                }
             }
         }
+
         // Case when Archon could not assign a Location to the Miner
-        if(target.equals(archonLocation)) {
+        if(target.equals(archonLocation) && isRetreating == false) {
             explore();
             tryToWriteTarget();
             tryToMine(1);
@@ -41,11 +59,8 @@ public class Miner extends RobotCommon{
             // somehow stay still if lots of lead
             tryToWriteTarget();
         }
-
-        if(!reachedTarget) {
-            tryToMove();
-            tryToWriteTarget();
-        }
+        tryToMove();
+        tryToWriteTarget();
         tryToMine(1);
         round++;
     }
@@ -56,6 +71,7 @@ public class Miner extends RobotCommon{
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
                 rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
                 rc.writeSharedArray(18, round);
+                retreat();
                 return;
             }
         }
@@ -132,7 +148,7 @@ public class Miner extends RobotCommon{
         int numLeadLocations = leadLocations.length;
 
         if(numLeadLocations > 0) {
-            MapLocation bestLoc = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1));
+            MapLocation bestLoc = archonLocation;
             int bestDist = bestLoc.distanceSquaredTo(archonLocation);
 
             for(int i = 0; i < numLeadLocations; i++) {
@@ -162,7 +178,7 @@ public class Miner extends RobotCommon{
             if (target.equals(me) == false) {
                 reachedTarget = false;
             }
-            rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+            // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
         }
         return false;
     }
@@ -185,12 +201,19 @@ public class Miner extends RobotCommon{
     //When a miner is in danger, or it is scouting and wants to go home, it will return to its home Archon.
     public void retreat() throws GameActionException{
         target = archonLocation;
+        retreatCounter = 0;
+        isRetreating = true;
     }
 
     // Moves toward target through pathfinding
     public void tryToMove() throws GameActionException {
+        
         Pathfinding pf = new Pathfinding(this);
         Direction dir = pf.findBestDirection(target, 80);
+        if (isRetreating) {
+            dir = pf.findBestDirection(target, 10);
+        }
+        
         if (rc.canMove(dir)) {
             rc.setIndicatorLine(me, me.translate(dir.dx, dir.dy), 0, 100, 0);
             rc.move(dir);
