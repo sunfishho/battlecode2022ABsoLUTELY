@@ -23,12 +23,13 @@ public class Archon extends RobotCommon{
     public Archon(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
 
-        numForagersSent = 0;
+        numForagersSent = 100;
         numScoutsSent = 2;
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
         rc.writeSharedArray(17, 65535);
         rc.writeSharedArray(18, 65535);
+        rc.writeSharedArray(19, 100);
         rc.writeSharedArray(20, 0);
         
         // for Util to know the width/height of the map
@@ -111,7 +112,7 @@ public class Archon extends RobotCommon{
             }
         }
 
-        // Try randomly to pick a direction to build in
+        // Try to pick a direction to build in based on nearby rubble counts
         int minRubbleCount = 101;
         Direction dir = Direction.CENTER;
         for (int i = 0; i < Util.directions.length; i++) {
@@ -150,7 +151,7 @@ public class Archon extends RobotCommon{
             }
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 7 == 0)) {
+            && (((teamLeadAmount < 400 || round < 5) && alarm == 65535))) {
 
             //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
@@ -186,9 +187,9 @@ public class Archon extends RobotCommon{
                 rc.buildRobot(RobotType.MINER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
             }
-            else if(rc.readSharedArray(19) == numArchons * numArchons) { // want all of the foragers to be sent first
+            else if(rc.readSharedArray(19) >= numArchons * numArchons) { // want all of the foragers to be sent first
                 int target = findLocalLocation();
-                if(target != -1) {
+                if(target != -1 && rng.nextInt(2) == 1) {
                     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), target);
                 }
                 else {
@@ -313,10 +314,8 @@ public class Archon extends RobotCommon{
         // iterate through lead locations that have not been targets before
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
         for(int i = 0; i < leadLocations.length; i++) {
-            int loc = Util.moveOnLattice(Util.getIntFromLocation(leadLocations[i]));
-            if(knownMap[loc] == 0) {
-                knownMap[loc] = 5;
-                return loc;
+            if (rc.senseLead(leadLocations[i]) > 10) {
+                return Util.getIntFromLocation(leadLocations[i]);
             }
         }
         return -1;

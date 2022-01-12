@@ -35,9 +35,11 @@ public class Miner extends RobotCommon{
                     MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                     if (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
                         round++;
+                        // rc.setIndicatorString("SENSED GOLD");
                         return;
                     }
                     if (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                        // rc.setIndicatorString("SENSED LEAD");
                         round++;
                         return;
                     }
@@ -45,22 +47,30 @@ public class Miner extends RobotCommon{
             }
         }
 
+        if (rc.canSenseLocation(target)) {
+            RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
+            for (RobotInfo robot : robotAtTarget) {
+                if (robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID()) {
+                    tryToWriteTarget(true);
+                    break;
+                }
+            }
+        }
+
         // Case when Archon could not assign a Location to the Miner
         if(target.equals(archonLocation) && isRetreating == false) {
-            explore();
-            tryToWriteTarget();
-            tryToMine(1);
-            round++;
-            return;
+            // explore();
+            // System.out.println(rc.getID() + ": finding new location");
+            tryToWriteTarget(true);
         }
         
         if(!reachedTarget && me.equals(target)) {
-            reachedTarget = true;
             // somehow stay still if lots of lead
-            tryToWriteTarget();
+            reachedTarget = true;
+            tryToWriteTarget(true);
         }
         tryToMove();
-        tryToWriteTarget();
+        tryToWriteTarget(false);
         tryToMine(1);
         round++;
     }
@@ -113,7 +123,8 @@ public class Miner extends RobotCommon{
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
     // Returns if target was written
-    public boolean tryToWriteTarget() throws GameActionException {
+    // resetLoc is true if we want a new location even if we haven't reached the old one yet
+    public boolean tryToWriteTarget(boolean resetLoc) throws GameActionException {
         
         
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
@@ -126,6 +137,17 @@ public class Miner extends RobotCommon{
 
             for(int i = 0; i < numGoldLocations; i++) {
                 MapLocation newLoc = goldLocations[i];
+                boolean occupied = false;
+                RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
+                for (RobotInfo robot : robotAtTarget) {
+                    if (robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID()) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if (occupied) {
+                    continue;
+                }
                 int newDist = archonLocation.distanceSquaredTo(newLoc);
                 if(newDist > bestDist) {
                     bestDist = newDist;
@@ -139,20 +161,32 @@ public class Miner extends RobotCommon{
                 if (target.equals(me) == false) {
                     reachedTarget = false;
                 }
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+                // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+                // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), gold, turn " + round);
                 return true;
             }
         }
 
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
         int numLeadLocations = leadLocations.length;
-
+            
         if(numLeadLocations > 0) {
             MapLocation bestLoc = archonLocation;
             int bestDist = bestLoc.distanceSquaredTo(archonLocation);
 
             for(int i = 0; i < numLeadLocations; i++) {
                 MapLocation newLoc = leadLocations[i];
+                boolean occupied = false;
+                RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
+                for (RobotInfo robot : robotAtTarget) {
+                    if (robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID()) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if (occupied) {
+                    continue;
+                }
                 int newDist = archonLocation.distanceSquaredTo(newLoc);
                 int numLead = rc.senseLead(newLoc);
                 if(numLead > 1 && newDist > bestDist) {
@@ -167,17 +201,23 @@ public class Miner extends RobotCommon{
                 if (target.equals(me) == false) {
                     reachedTarget = false;
                 }
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+                // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
+                // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), lead, turn " + round);
                 return true;
             }
         }
         // Choose random location
-        if (reachedTarget) {
+        if (resetLoc || reachedTarget) {
             MapLocation bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
+            while (bestLoc.distanceSquaredTo(archonLocation) <= 10) {
+                bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
+            }
             target = bestLoc;
+            
             if (target.equals(me) == false) {
                 reachedTarget = false;
             }
+            // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), random, turn " + round);
             // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
         }
         return false;
