@@ -13,6 +13,7 @@ public class Soldier extends RobotCommon{
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     Pathfinding pf = new Pathfinding(this);
     static int teammateSoldiers, enemySoldiers;
+    static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
@@ -27,13 +28,10 @@ public class Soldier extends RobotCommon{
         // Try to attack someone
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
+        //reset the onOffense, onDefense flags
+        onOffense = false;
+        onDefense = false;
         observe();
-        // This whole block only runs if we have an enemy in sight
-        tryToAttackAndMove();
-        round++;
-    }
-    //right now this only deals with soldier skirmishes + archon stuff
-    public void tryToAttackAndMove() throws GameActionException{
         teammateSoldiers = 0;
         enemySoldiers = 0;
         int enemySoldierCentroidx = 0;
@@ -69,19 +67,33 @@ public class Soldier extends RobotCommon{
         }
         enemySoldierCentroidx /= enemySoldiers;
         enemySoldierCentroidy /= enemySoldiers;
+        enemySoldierCentroid = enemySoldierCentroid.translate(enemySoldierCentroidx - enemySoldierCentroid.x, enemySoldierCentroidy - enemySoldierCentroid.y);
+        rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
+
+        // This whole block only runs if we have an enemy in sight
+        tryToAttackAndMove();
+        round++;
+    }
+    //right now this only deals with soldier skirmishes + archon stuff
+    public void tryToAttackAndMove() throws GameActionException{
         if (enemySoldiers == 1 && teammateSoldiers == 0){
             rc.setIndicatorString("1 on 1 combat !");
-            oneOnOneCombat();
+            for (RobotInfo bot: nearbyBotsSeen){
+                if (bot.getType() == RobotType.SOLDIER){
+                    oneOnOneCombat(bot.getLocation());
+                    break;
+                }
+            }
             return;
         }
         else if (teammateSoldiers >= 1){
             rc.setIndicatorString("Group combat !");
-            groupCombat(teammateSoldiers, enemySoldiers, new MapLocation(enemySoldierCentroidx, enemySoldierCentroidy));
+            groupCombat(teammateSoldiers, enemySoldiers, enemySoldierCentroid);
             return;
         }
         else{
             attackValuableEnemies();
-            retreat(new MapLocation(enemySoldierCentroidx, enemySoldierCentroidy));
+            retreat(enemySoldierCentroid);
         }
     }
 
@@ -109,14 +121,16 @@ public class Soldier extends RobotCommon{
             target = archonLocation;
         }
 
-        Direction dir = pf.findBestDirection(target, 10);
+        Direction dir = pf.findBestDirection(target, 0);
         if (rc.canMove(dir)){
             rc.move(dir);
         }
     }
 
-    public void oneOnOneCombat(){
-        if (onOffense)
+    public void oneOnOneCombat(MapLocation soldierLoc) throws GameActionException{
+        //move first so cooldown is less when you attack
+        moveLowerRubble();
+        attackValuableEnemies();
         return;
     }
 
@@ -153,12 +167,16 @@ public class Soldier extends RobotCommon{
                     }
                     return;
                 }
+                //Here, we probably shouldn't go for the Archon, so we should run.
+                else{
+                    //remember, if running away, ATTACK FIRST and THEN run on a turn
+                    attackValuableEnemies();
+                    retreat(enemyCentroid);
+                }
             }
-            //Here, we probably shouldn't go for the Archon, so we should run.
             else{
-                //remember, if running away, ATTACK FIRST and THEN run on a turn
+                moveLowerRubble();
                 attackValuableEnemies();
-                retreat(enemyCentroid);
             }
         }
         else if (onDefense){
@@ -181,8 +199,10 @@ public class Soldier extends RobotCommon{
 
     //Find the enemy highest on our priority list within range and attack
     public void attackValuableEnemies() throws GameActionException{
+        enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         int bestType = 10;
-        int lowestHealth = 100000;;
+        int highestRubble = 0;
+        int lowestHealth = 100000;
         if (enemyBotsWithinRange.length == 0){
             return;
         }
@@ -194,7 +214,9 @@ public class Soldier extends RobotCommon{
             }
             if (bot.getType() == RobotType.ARCHON && bot.getHealth() < 3 * 3 * teammateSoldiers){
                 target = bot.getLocation();
-                rc.attack(target);
+                if (rc.canAttack(target)){
+                    rc.attack(target);
+                }
             }
             int enemyType = 8;
             for (int j = 0; j < 7; j++) {
@@ -205,16 +227,25 @@ public class Soldier extends RobotCommon{
             }
             if (enemyType < bestType) {
                 bestType = enemyType;
+                highestRubble = rc.senseRubble(bot.getLocation());
                 lowestHealth = bot.getHealth();
                 bestBot = bot;
                 break;
             }
-            // Tiebreak by enemy health
-            int health = bot.getHealth();
-            if (bestType == enemyType && health < lowestHealth) {
-                lowestHealth = health;
-                bestBot = bot;
+            else if (bestType == enemyType){
+                if (highestRubble < rc.senseRubble(bot.getLocation())){
+                    highestRubble = rc.senseRubble(bot.getLocation());
+                    lowestHealth = bot.getHealth();
+                    bestBot = bot;
+                }
+                else if (highestRubble == rc.senseRubble(bot.getLocation())){
+                    if (lowestHealth < bot.getHealth()){
+                        lowestHealth = bot.getHealth();
+                        bestBot = bot;
+                    }
+                }
             }
+            // Tiebreak by enemy health
         }
         //Attack if possible
         if (rc.canAttack(bestBot.getLocation())) {
@@ -226,6 +257,7 @@ public class Soldier extends RobotCommon{
     }
 
     public void moveLowerRubble() throws GameActionException{
+        rc.setIndicatorString("MOVING TO LOWER RUBBLE");
         int bestRubble = rc.senseRubble(me);
         Direction bestDir = Direction.CENTER;
         for (Direction dir: Util.directions){
