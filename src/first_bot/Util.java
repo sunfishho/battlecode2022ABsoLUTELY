@@ -44,15 +44,7 @@ public class Util {
         Direction.NORTHWEST,
     };
 
-    static final RobotType[] attackOrder = new RobotType[] {
-        RobotType.ARCHON,
-        RobotType.SAGE,
-        RobotType.LABORATORY,
-        RobotType.WATCHTOWER,
-        RobotType.SOLDIER,
-        RobotType.BUILDER,
-        RobotType.MINER
-    };
+    b
 
     static int getAttackPref(RobotType rt){
         switch (rt){
