@@ -1,6 +1,5 @@
-package first_bot;
+package bot0110;
 import battlecode.common.*;
-
 public class Pathfinding {
     static int distanceSquared;
     RobotCommon robot;
@@ -2807,10 +2806,8 @@ public class Pathfinding {
 		distances44 += rubbleLevels44;
 	}
 
-//When avgDistance is high, this algorithm essentially becomes greedy
-//When avgDistance is low, we risk not finding the destination because we avoid high rubble stuff
-	public Direction findBestDirection(MapLocation target, int avgDistance) throws GameActionException{
-		AVG_RUBBLE = avgDistance;
+
+	public Direction findBestDirection(MapLocation target) throws GameActionException{
 		populateArrays(target);
 		iterate();
 		int minDistance = 1000000000;

@@ -1,4 +1,4 @@
-package first_bot;
+package bot0110;
 import battlecode.common.*;
 
 public class Pathfinding7{
@@ -11,7 +11,7 @@ public class Pathfinding7{
     static final int[] dy = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
 
 
-    static int AVG_RUBBLE = 40;
+    static int AVG_RUBBLE = 60;
 
     public Pathfinding7(RobotCommon robot){
         this.robot = robot;
@@ -5786,7 +5786,7 @@ public class Pathfinding7{
 	}
 
 
-	public Direction findBestDirection(MapLocation target, int avgDistance) throws GameActionException{
+	public Direction findBestDirection(MapLocation target) throws GameActionException{
 		populateArrays(target);
 		iterate();
 		int minDistance = 1000000000;

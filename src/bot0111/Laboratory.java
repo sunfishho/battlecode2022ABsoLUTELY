@@ -1,12 +1,12 @@
 
-package second_bot;
+package bot0111;
 
 import battlecode.common.*;
 
 
-public class Sage extends RobotCommon{
+public class Laboratory extends RobotCommon{
 
-    public Sage(RobotController rc, int r, MapLocation loc){
+    public Laboratory(RobotController rc, int r, MapLocation loc){
         super(rc, r, loc);
     }
 

@@ -1,7 +1,8 @@
 
-package first_bot;
+package bot0110;
 
 import battlecode.common.*;
+
 import java.util.ArrayList;
 
 
@@ -24,7 +25,7 @@ public class Archon extends RobotCommon{
         super(rc, r, loc);
 
         numForagersSent = 0;
-        numScoutsSent = 2;
+
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
         rc.writeSharedArray(17, 65535);
@@ -101,7 +102,7 @@ public class Archon extends RobotCommon{
       
         Archon Relocation is way too slow for now oops
          */
-        rc.setIndicatorString(rank + "");
+        rc.setIndicatorString(Integer.toString(rank));
 
         int numBuilders = 0;
         for (RobotInfo robot : rc.senseNearbyRobots()) {
@@ -117,37 +118,33 @@ public class Archon extends RobotCommon{
             dir = Util.directions[rng.nextInt(Util.directions.length)];
         }
 
-        if (alarm < round - 3) {
+        if (alarm < round - 6) {
             rc.writeSharedArray(18, 65535);
             rc.writeSharedArray(17, 65535);
         }
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
-        boolean observation = observe();
         if (alarm == 65535) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 return;
             }
         } else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount <= numArchons * 50 && !observation && rank != rc.readSharedArray(17) / 10000) {
+            if (teamLeadAmount <= numArchons * 50 && !observe() && rank != rc.readSharedArray(17) / 10000) {
                 return;
             }
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((teamLeadAmount < 400 || round < 5) && alarm == 65535) || round % 7 == 0)) {
 
-            //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
-            if(rank == 1 && numScoutsSent < 2) { // subtype 1: SCOUT
+            if(rank == 1 && numScoutsSent < 2) { // subtype 1
                 MapLocation target = new MapLocation(0, 0);
-                //First scout should be sent to the horizontal reflection of the current archon.
                 if (numScoutsSent == 0){
                     target = Util.horizontalRefl(me);
                     System.out.println(me.x + " " + me.y);
                     System.out.println("MINER TARGET IS: " + target);
                 }
-                //Second scout should be sent to the vertical reflection of the current archon.
                 else{
                     target = Util.verticalRefl(me);
                     System.out.println(me.x + " " + me.y);
@@ -158,10 +155,7 @@ public class Archon extends RobotCommon{
                 rc.buildRobot(RobotType.MINER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
             }
-
-            //FORAGER CODE
-            //Foragers head to the closest guesses of where an enemy archon is.
-            else if(numForagersSent < numArchons) { // subtype 2: FORAGERS
+            else if(numForagersSent < numArchons) { // subtype 2
                 System.out.println("FORAGER: " + numForagersSent + " " + numArchons);
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), 
                     Util.getIntFromLocation(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent)))) 
@@ -188,7 +182,6 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         } 
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-            // System.out.println("SOLDIER on round " + round);
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
@@ -222,7 +215,7 @@ public class Archon extends RobotCommon{
     // Check if any aggressive enemy archons nearby
     public boolean observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() != rc.getTeam()) {
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
                 rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
                 rc.writeSharedArray(18, round);
                 return true;

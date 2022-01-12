@@ -1,5 +1,5 @@
 
-package second_bot;
+package bot0111;
 
 import battlecode.common.*;
 
@@ -49,12 +49,12 @@ public class Builder extends RobotCommon{
             if (sq == null || sq.getTeam() != us) {
                 continue;
             }
-            if(sq.getType().equals(RobotType.ARCHON) && sq.getHealth() < 1000){
+            if(sq.getType().equals(RobotType.ARCHON) && sq.getHealth() < 600){
                 bestType = RobotType.ARCHON;
                 opt = loc;
                 break;
             }
-            if(sq.getType().equals(RobotType.WATCHTOWER) && (bestType == null || !bestType.equals(RobotType.ARCHON)) && sq.getHealth() < 130) {
+            if(sq.getType().equals(RobotType.WATCHTOWER) && (bestType == null || !bestType.equals(RobotType.ARCHON)) && sq.getHealth() < 150) {
                 bestType = RobotType.WATCHTOWER;
                 opt = loc;
             }

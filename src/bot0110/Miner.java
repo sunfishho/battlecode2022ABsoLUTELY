@@ -1,5 +1,4 @@
-
-package second_bot;
+package bot0110;
 
 import battlecode.common.*;
 
@@ -15,18 +14,15 @@ public class Miner extends RobotCommon{
     
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
-        
         observe();
 
         // test heuristic: die every 100 rounds if you're not on lattice or you're on a zero lead location
-        boolean neighboringMiner = false;
-        MapLocation neighbor = Util.moveOnLattice(me);
-        if (rc.canSenseLocation(neighbor)) {
-            RobotInfo neighborRobot = rc.senseRobotAtLocation(neighbor);
-            if (neighborRobot != null && neighborRobot.getTeam().equals(rc.getTeam()) && neighborRobot.getType().equals(RobotType.MINER)) {
-                neighboringMiner = true;
-            }
+        
+        if(round % 50 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
+            && rc.senseLead(me) == 0)) {
+            rc.disintegrate();  
         }
+
         // Case when Archon could not assign a Location to the Miner
         if(target.equals(archonLocation)) {
             explore();
@@ -38,19 +34,17 @@ public class Miner extends RobotCommon{
         
         if(!reachedTarget && me.equals(target)) {
             reachedTarget = true;
-            // somehow stay still if lots of lead
-            tryToWriteTarget();
         }
 
         if(!reachedTarget) {
             tryToMove();
-            tryToWriteTarget();
         }
+
         tryToMine(1);
         round++;
     }
 
-    // Observes if any enemy non-miner units nearby
+    // Observes if any enemy units nearby
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
@@ -62,14 +56,20 @@ public class Miner extends RobotCommon{
     }
 
     // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
-    //This function should be replaced with a better exploration algorithm once we think of one
     public void explore() throws GameActionException {
         // stay put if you're on lattice and you can mine
         if(Util.onLattice(Util.getIntFromLocation(me))) {
             MapLocation loc = me;
-            if (rc.senseNearbyLocationsWithLead(2).length > 0) {
+            if(rc.senseLead(loc) > 0) {
                 target = me;
                 return;
+            }
+            for(int i = 0; i < 8; i++) {
+                loc = new MapLocation(me.x + Util.dxDiff[i], me.y + Util.dyDiff[i]);
+                if(rc.onTheMap(loc) && rc.senseLead(loc) > 0) {
+                    target = me;
+                    return;
+                }
             }
         }
         // otherwise, explore with higher chance of moving away from Archon
@@ -96,10 +96,7 @@ public class Miner extends RobotCommon{
     }
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
-    // Returns if target was written
-    public boolean tryToWriteTarget() throws GameActionException {
-        
-        
+    public void tryToWriteTarget() throws GameActionException {
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
         boolean change = false;
@@ -119,12 +116,8 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
-                target = bestLoc;
-                if (target.equals(me) == false) {
-                    reachedTarget = false;
-                }
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
-                return true;
+                return;
             }
         }
 
@@ -138,8 +131,7 @@ public class Miner extends RobotCommon{
             for(int i = 0; i < numLeadLocations; i++) {
                 MapLocation newLoc = leadLocations[i];
                 int newDist = archonLocation.distanceSquaredTo(newLoc);
-                int numLead = rc.senseLead(newLoc);
-                if(numLead > 1 && newDist > bestDist) {
+                if(newDist > bestDist) {
                     bestDist = newDist;
                     bestLoc = newLoc;
                     change = true;
@@ -147,24 +139,9 @@ public class Miner extends RobotCommon{
             }
 
             if(change) {
-                target = bestLoc;
-                if (target.equals(me) == false) {
-                    reachedTarget = false;
-                }
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
-                return true;
             }
         }
-        // Choose random location
-        if (reachedTarget) {
-            MapLocation bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
-            target = bestLoc;
-            if (target.equals(me) == false) {
-                reachedTarget = false;
-            }
-            rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
-        }
-        return false;
     }
 
     // Tries to mine in 3x3 square around Miner, and leaves leaveLead amount at location
@@ -182,19 +159,12 @@ public class Miner extends RobotCommon{
         }
     }
 
-    //When a miner is in danger, or it is scouting and wants to go home, it will return to its home Archon.
-    public void retreat() throws GameActionException{
-        target = archonLocation;
-    }
-
-    // Moves toward target through pathfinding
+    // Moves toward target
     public void tryToMove() throws GameActionException {
         Pathfinding pf = new Pathfinding(this);
-        Direction dir = pf.findBestDirection(target, 80);
+        Direction dir = pf.findBestDirection(target);
         if (rc.canMove(dir)) {
-            rc.setIndicatorLine(me, me.translate(dir.dx, dir.dy), 0, 100, 0);
             rc.move(dir);
-            
             me = rc.getLocation();
         }
     }

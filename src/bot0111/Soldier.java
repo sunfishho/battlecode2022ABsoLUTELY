@@ -1,29 +1,31 @@
 
-package first_bot;
+package bot0111;
 
 import battlecode.common.*;
 
 
-public class Watchtower extends RobotCommon{
+public class Soldier extends RobotCommon{
 
+    static int type;//0 = aggressive, 1 = defensive, 2 = escort?
     static MapLocation initialDestination;
     static int movesSinceAction;  
-    static int selfAlarmCounter;
 
-    public Watchtower(RobotController rc, int r, MapLocation loc){
-        super(rc, r, loc);
+
+    public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
+        super(rc, r, loc); 
+        type = 1;       // Default to defensive
         initialDestination = chooseRandomInitialDestination();
         movesSinceAction = 0;
-        selfAlarmCounter = 0;
-    }   
+        //do more stuff later
+    }
 
     public void takeTurn() throws GameActionException {
-        rc.setIndicatorString(rc.getMode().toString());
         me = rc.getLocation();
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        observe();
         // This whole block only runs if we have an enemy in sight
         if (enemies.length > 0) {
             // Choose the enemy we want to attack
@@ -54,29 +56,35 @@ public class Watchtower extends RobotCommon{
             MapLocation toAttack = enemies[bestIndex].location;
             if (rc.canAttack(toAttack)) {
                 rc.attack(toAttack);
+                movesSinceAction = 0;
                 round++;
                 return;
             }
         }
-        int visionRadius = rc.getType().actionRadiusSquared;
-        enemies = rc.senseNearbyRobots(visionRadius, opponent);
-        if (enemies.length == 0) {
-            selfAlarmCounter++;
-        } else {
-            selfAlarmCounter = 0;
-        }
-        if (selfAlarmCounter < 3 && rc.getMode().equals(RobotMode.PORTABLE) && rc.canTransform()) {
-            rc.transform();
-        } else if (selfAlarmCounter >= 3 && rc.getMode().equals(RobotMode.TURRET) && rc.canTransform()) {
-            rc.transform();
-        }
         tryToMove();
         round++;
     }
+
+    // Observes if any enemy units nearby
+    public void observe() throws GameActionException {
+        for (RobotInfo robot : rc.senseNearbyRobots()) {
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
+                rc.writeSharedArray(18, round);
+                return;
+            }
+        }
+    }
+
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove() throws GameActionException {
         if (rc.readSharedArray(17) != 65535) {
             initialDestination = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+        }else if (this.me.equals(initialDestination)){
+            initialDestination = chooseRandomInitialDestination();
+            if (rc.getID() == 13087){
+                System.out.println(me + " " + rc.getLocation() + " " + initialDestination);
+            }
         }
         Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
@@ -85,7 +93,27 @@ public class Watchtower extends RobotCommon{
         }
         // Direction dir = Util.directions[rng.nextInt(Util.directions.length)];
         MapLocation loc = rc.getLocation();
-        
+        if(type == 0){//aggressive soldier, just go in general direction of closest enemy archon
+            //fix this eventually
+            int sym = 0;
+            //int sym = rc.readSharedArray(1234);//fill with eventual location of symmetry in shared array
+            switch(sym){
+                case 0://no idea what symmetry is, so move randomly
+                    break;
+                case 1:
+                    dir = loc.directionTo(RobotCommon.nearestEnemyArchon(loc, 1));
+                    initialDestination = null;
+                    break;
+                case 2:
+                    dir = loc.directionTo(RobotCommon.nearestEnemyArchon(loc, 2));
+                    initialDestination = null;
+                    break;
+                default:
+                    dir = loc.directionTo(RobotCommon.nearestEnemyArchon(loc, 3));
+                    initialDestination = null;
+                    break;
+            }
+        }
         // If there's an enemy nearby target it
         // Initialize variables for targeting enemies
         int visionRadius = rc.getType().visionRadiusSquared;
@@ -116,6 +144,13 @@ public class Watchtower extends RobotCommon{
         MapLocation newLoc = new MapLocation(newX, newY);
         if (rc.canMove(dir)) {
             rc.move(dir);
+            movesSinceAction = 0;
+        } else {
+            movesSinceAction++;
+            if (movesSinceAction > 5) {
+                initialDestination = chooseRandomInitialDestination();
+                movesSinceAction = 0;
+            }
         }
         me = newLoc;
     }
