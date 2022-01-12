@@ -27,11 +27,6 @@ public class Miner extends RobotCommon{
                 neighboringMiner = true;
             }
         }
-        if(round % 7 == 0 && (Util.onLattice(Util.getIntFromLocation(me)) == false
-            && rc.senseLead(me) == 0) && neighboringMiner) {
-            rc.disintegrate();  
-        }
-
         // Case when Archon could not assign a Location to the Miner
         if(target.equals(archonLocation)) {
             explore();
@@ -103,15 +98,7 @@ public class Miner extends RobotCommon{
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
     // Returns if target was written
     public boolean tryToWriteTarget() throws GameActionException {
-        // stay put if you're on lattice and you can mine
-        if(Util.onLattice(Util.getIntFromLocation(me))) {
-            MapLocation loc = me;
-            if (rc.senseNearbyLocationsWithLead(2).length > 0) {
-                target = me;
-                reachedTarget = true;
-                return true;
-            }
-        }
+        
         
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
