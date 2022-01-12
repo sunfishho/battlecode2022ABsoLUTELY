@@ -188,7 +188,7 @@ public class Util {
 
     //decide later
     public static boolean labElig(MapLocation loc){
-        return false;
+        return true;
     }
 
     public static MapLocation pickBuilderTarget(MapLocation loc){//pick target of builder spawned from loc
@@ -211,6 +211,44 @@ public class Util {
                 return new MapLocation(0, r - WIDTH);
             }
         }
+    }
+
+    public static MapLocation getCorner(MapLocation loc){
+        //returns corner closest to loc
+        int x = 0;
+        int y = 0;
+        if(2 * loc.x >= WIDTH){
+            x = WIDTH - 1;
+        }
+        if(2 * loc.y >= HEIGHT){
+            y = HEIGHT - 1;
+        }
+        return new MapLocation(x, y);
+    }
+
+    public static boolean buildingHealthy(RobotType x, int hp, int level){//sees if building is healthy or not
+        if(x == RobotType.LABORATORY){
+            switch(level){
+                case 1: return (hp == 100);
+                case 2: return (hp == 180);
+                default: return (hp == 324);
+            }
+        }
+        if(x == RobotType.ARCHON){
+            switch(level){
+                case 1: return (hp == 600);
+                case 2: return (hp == 1080);
+                default: return (hp == 1944);
+            }
+        }
+        if(x == RobotType.WATCHTOWER){
+            switch(level){
+                case 1: return (hp == 150);
+                case 2: return (hp == 270);
+                default: return (hp == 486);
+            }
+        }
+        return false;
     }
     
 }
