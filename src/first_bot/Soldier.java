@@ -70,6 +70,7 @@ public class Soldier extends RobotCommon{
             }
         }
         if (enemySoldiers == 0){
+            moveLowerRubble(false);
             tryToMove();
             attackValuableEnemies();
             return;
@@ -303,11 +304,14 @@ public class Soldier extends RobotCommon{
         if (rc.readSharedArray(17) != 65535) {
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }
-        else if (this.me.equals(target) || (rc.canSenseLocation(target) && rc.senseRubble(target) > 30)){
-            target = chooseRandomInitialDestination();
-        }
         else if (target == null){
             target = chooseRandomInitialDestination();
+        }
+        else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > 30) && !onOffense){
+            target = chooseRandomInitialDestination();
+        }
+        if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
+            return;
         }
         Direction dir = Direction.CENTER;
         if (target != null){
