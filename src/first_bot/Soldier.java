@@ -80,7 +80,7 @@ public class Soldier extends RobotCommon{
             rc.setIndicatorString("1 on 1 combat !");
             for (RobotInfo bot: nearbyBotsSeen){
                 if (bot.getType() == RobotType.SOLDIER){
-                    oneOnOneCombat(bot.getLocation());
+                    oneOnOneCombat(bot);
                     break;
                 }
             }
@@ -118,7 +118,7 @@ public class Soldier extends RobotCommon{
             target = me.translate(reflectionX - me.x, reflectionY - me.y);
         }
         else{
-            target = archonLocation;
+            target = nearestArchon(me);
         }
 
         Direction dir = pf.findBestDirection(target, 0);
@@ -127,9 +127,10 @@ public class Soldier extends RobotCommon{
         }
     }
 
-    public void oneOnOneCombat(MapLocation soldierLoc) throws GameActionException{
+    public void oneOnOneCombat(RobotInfo soldier) throws GameActionException{
         //move first so cooldown is less when you attack
-        moveLowerRubble();
+        //go to your archon if your health is lower than that of your opponent's
+        moveLowerRubble(rc.getHealth() <= soldier.health);
         attackValuableEnemies();
         return;
     }
@@ -174,8 +175,9 @@ public class Soldier extends RobotCommon{
                     retreat(enemyCentroid);
                 }
             }
+            //this is if we have more soldiers than the opponent does
             else{
-                moveLowerRubble();
+                moveLowerRubble(false);
                 attackValuableEnemies();
             }
         }
@@ -183,7 +185,8 @@ public class Soldier extends RobotCommon{
             //get on low rubble ground
             //if we're defending, we can't go backwards because we're defending our archon, so we should
             //just look for a lower rubble square.
-            moveLowerRubble();
+            //don't retreat if possible
+            moveLowerRubble(false);
             attackValuableEnemies();
         }
         else if (teammateSoldiers <= enemySoldiers){
@@ -192,7 +195,7 @@ public class Soldier extends RobotCommon{
         }
         else{
             assert(teammateSoldiers > enemySoldiers);
-            moveLowerRubble();
+            moveLowerRubble(false);
             attackValuableEnemies();
         }
     }
@@ -256,14 +259,21 @@ public class Soldier extends RobotCommon{
         }
     }
 
-    public void moveLowerRubble() throws GameActionException{
+    public void moveLowerRubble(boolean toRetreat) throws GameActionException{
         rc.setIndicatorString("MOVING TO LOWER RUBBLE");
         int bestRubble = rc.senseRubble(me);
         Direction bestDir = Direction.CENTER;
         for (Direction dir: Util.directions){
-            if (rc.canMove(dir) && rc.senseRubble(me.add(dir)) < bestRubble){
+            if (rc.canMove(dir) && rc.senseRubble(me.add(dir))/10 < bestRubble/10){
                 bestDir = dir;
-                bestRubble = rc.senseRubble(me.add(dir));
+                bestRubble = rc.senseRubble(me.add(bestDir));
+            }
+            if (toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10 && rc.canMove(dir)){
+                MapLocation nearestArchonLoc = nearestArchon(me);
+                if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
+                    bestDir = dir;
+                    bestRubble = rc.senseRubble(me.add(bestDir));
+                }
             }
         }
         if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
