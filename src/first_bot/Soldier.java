@@ -297,7 +297,8 @@ public class Soldier extends RobotCommon{
     public void tryToMove() throws GameActionException {
         if (rc.readSharedArray(17) != 65535) {
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
-        }else if (this.me.equals(target)){
+        }
+        else if (this.me.equals(target) || (rc.canSenseLocation(target) && rc.senseRubble(target) > 30)){
             target = chooseRandomInitialDestination();
         }
         else if (target == null){

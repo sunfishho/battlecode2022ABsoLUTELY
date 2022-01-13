@@ -20,7 +20,9 @@ public class Miner extends RobotCommon{
     
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
-        
+        if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
+            target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
+        }
         retreatCounter++;
 
         observe();
