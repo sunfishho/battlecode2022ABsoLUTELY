@@ -66,26 +66,33 @@ public class Soldier extends RobotCommon{
                         onOffense = true;
                     }
                     break;
+                case MINER:
+                    if (bot.getTeam() != myTeam){
+                        onOffense = true;
+                    }
+                    break;
                 default:
             }
         }
         if (enemySoldiers == 0){
-            moveLowerRubble(false);
             tryToMove();
+            moveLowerRubble(false);
             attackValuableEnemies();
             return;
         }
         enemySoldierCentroidx /= enemySoldiers;
         enemySoldierCentroidy /= enemySoldiers;
         enemySoldierCentroid = enemySoldierCentroid.translate(enemySoldierCentroidx - enemySoldierCentroid.x, enemySoldierCentroidy - enemySoldierCentroid.y);
-        rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-
+        
         // This whole block only runs if we have an enemy in sight
         tryToAttackAndMove();
+        // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
         round++;
+        rc.setIndicatorString("target: " + target.x + ", " + target.y);
     }
     //right now this only deals with soldier skirmishes + archon stuff
     public void tryToAttackAndMove() throws GameActionException{
+        rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
         if (enemySoldiers == 1 && teammateSoldiers == 0){
             rc.setIndicatorString("1 on 1 combat !");
             for (RobotInfo bot: nearbyBotsSeen){
@@ -102,6 +109,7 @@ public class Soldier extends RobotCommon{
             return;
         }
         else{
+            onOffense = false;
             attackValuableEnemies();
             retreat(enemySoldierCentroid);
         }
@@ -123,16 +131,17 @@ public class Soldier extends RobotCommon{
     //Have really low rubble passability because you want to be on a low rubble square when you attack/move.
     //Actually moves, doesn't just reset target.
     public void retreat(MapLocation enemyCentroid) throws GameActionException{
-        int reflectionX = me.x * 2 + enemyCentroid.x;
-        int reflectionY = me.y * 2 + enemyCentroid.y;
-        if (reflectionX >= 0 && reflectionX <= Util.WIDTH && reflectionY >= 0 && reflectionY <= Util.HEIGHT){
+        rc.setIndicatorString("RETREATING: " + enemyCentroid.x + ", " + enemyCentroid.y);
+        int reflectionX = me.x * 2 - enemyCentroid.x;
+        int reflectionY = me.y * 2 - enemyCentroid.y;
+        if (reflectionX >= 0 && reflectionX < Util.WIDTH && reflectionY >= 0 && reflectionY < Util.HEIGHT){
             target = me.translate(reflectionX - me.x, reflectionY - me.y);
         }
         else{
             target = nearestArchon(me);
         }
 
-        Direction dir = pf.findBestDirection(target, 0);
+        Direction dir = pf.findBestDirection(target, 10);
         //check if we can move and that we're not going onto a horrible square
         if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 > 3){
             moveLowerRubble(true);
@@ -140,6 +149,7 @@ public class Soldier extends RobotCommon{
         }
         else{
             if (rc.canMove(dir)){
+                rc.setIndicatorLine(me, me.add(dir), 0, 100, 0);
                 rc.move(dir);
             }
         }
@@ -278,7 +288,7 @@ public class Soldier extends RobotCommon{
     }
 
     public void moveLowerRubble(boolean toRetreat) throws GameActionException{
-        rc.setIndicatorString("MOVING TO LOWER RUBBLE");
+        // rc.setIndicatorString("MOVING TO LOWER RUBBLE");
         int bestRubble = rc.senseRubble(me);
         Direction bestDir = Direction.CENTER;
         for (Direction dir: Util.directions){

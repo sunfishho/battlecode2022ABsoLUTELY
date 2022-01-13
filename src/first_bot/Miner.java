@@ -11,6 +11,7 @@ public class Miner extends RobotCommon{
     public static boolean reachedTarget;
     public static boolean isRetreating; // whether retreating
     public static int retreatCounter; // number of turns retreating for
+    public static RobotInfo[] robotLocations;
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
@@ -20,6 +21,7 @@ public class Miner extends RobotCommon{
     
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
+        robotLocations = rc.senseNearbyRobots();
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
         }
@@ -79,7 +81,7 @@ public class Miner extends RobotCommon{
 
     // Observes if any enemy non-miner units nearby
     public void observe() throws GameActionException {
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
+        for (RobotInfo robot : robotLocations) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
                 int rankClosest = rankOfNearestArchon(robot.location);
                 rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankClosest);
@@ -171,7 +173,7 @@ public class Miner extends RobotCommon{
         }
 
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
-        RobotInfo[] robotLocations = rc.senseNearbyRobots();
+        
         int numLeadLocations = leadLocations.length;
             
         if(numLeadLocations > 0) {
@@ -252,8 +254,10 @@ public class Miner extends RobotCommon{
     public void tryToMove() throws GameActionException {
         
         Pathfinding pf = new Pathfinding(this);
-        Direction dir = pf.findBestDirection(target, 80);
-        if (isRetreating) {
+        Direction dir = Direction.CENTER;
+        if (!isRetreating) {
+            dir = pf.findBestDirection(target, 80);
+        } else {
             dir = pf.findBestDirection(target, 10);
         }
         
