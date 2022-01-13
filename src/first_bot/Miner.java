@@ -140,7 +140,7 @@ public class Miner extends RobotCommon{
                 boolean occupied = false;
                 RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
                 for (RobotInfo robot : robotAtTarget) {
-                    if (robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID()) {
+                    if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID() && robot.getLocation().distanceSquaredTo(target) <= 2) {
                         occupied = true;
                         break;
                     }
@@ -168,6 +168,7 @@ public class Miner extends RobotCommon{
         }
 
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
+        RobotInfo[] robotLocations = rc.senseNearbyRobots();
         int numLeadLocations = leadLocations.length;
             
         if(numLeadLocations > 0) {
@@ -177,9 +178,8 @@ public class Miner extends RobotCommon{
             for(int i = 0; i < numLeadLocations; i++) {
                 MapLocation newLoc = leadLocations[i];
                 boolean occupied = false;
-                RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
-                for (RobotInfo robot : robotAtTarget) {
-                    if (robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID()) {
+                for (RobotInfo robot : robotLocations) {
+                    if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID() && robot.getLocation().distanceSquaredTo(target) <= 2) {
                         occupied = true;
                         break;
                     }
