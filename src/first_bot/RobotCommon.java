@@ -99,12 +99,12 @@ public abstract class RobotCommon {
     public static MapLocation chooseRandomInitialDestination(){
         Random rng2 = new Random(rc.getRoundNum());
         int[] initialDestinationPossibilities = new int[] {0, 1, 2, 3, 4};
-        int x_coord = rng2.nextInt(rc.getMapWidth() * 4 / 5) + rc.getMapWidth() * 1 / 10;
-        int y_coord = rng2.nextInt(rc.getMapHeight() * 4 / 5) + rc.getMapHeight() * 1 / 10;
+        int x_coord = rng2.nextInt(rc.getMapWidth() - 2) + 1;
+        int y_coord = rng2.nextInt(rc.getMapHeight() - 2) + 1;
         return new MapLocation(x_coord, y_coord);
     }
 
-    static final Random rng = new Random(6147);
+    static final Random rng = new Random(1);
 
     abstract void takeTurn() throws GameActionException;
 
