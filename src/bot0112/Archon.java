@@ -1,5 +1,4 @@
-
-package first_bot;
+package bot0112;
 
 import battlecode.common.*;
 import java.util.ArrayList;
@@ -10,10 +9,9 @@ public class Archon extends RobotCommon{
     // static RobotController rc;
     static MapLocation home;
     static int[] knownMap = new int[62 * 60];
-    static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon;
+    static int numArchons, numScoutsSent, numForagersSent, teamLeadAmount, targetArchon;
     static ArrayList<Integer> vortexRndNums;
     static int vortexCnt = 0;
-    Pathfinding pf = new Pathfinding(this);
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -25,7 +23,7 @@ public class Archon extends RobotCommon{
         super(rc, r, loc);
 
         numForagersSent = 100;
-        numScoutsSent = 0;
+        numScoutsSent = 2;
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
         rc.writeSharedArray(17, 65535);
@@ -139,30 +137,6 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(17, 65535);
         }
 
-        //going to cap it at round 180 before normal soldier production begins to happen
-        if (round % 40 == 39 && round <= 170 && alarm == 65535 && rank == 1){
-            rc.writeSharedArray(21, Util.getIntFromLocation(chooseRandomInitialDestination()) * 3 + 1);
-        }
-        int current_soldier_building_status = rc.readSharedArray(21);
-        switch(current_soldier_building_status % 3){
-            case 1: 
-                if (rc.getTeamLeadAmount(rc.getTeam()) >= 75 && rank == rankOfNearestArchon(new MapLocation(Util.WIDTH/2, Util.HEIGHT/2))){
-                    dir = pf.findBestDirection(Util.getLocationFromInt(rc.readSharedArray(21) / 3), 20);
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                    rc.writeSharedArray(21, current_soldier_building_status + 1);
-                }
-                return;
-            case 2: 
-                if (rc.getTeamLeadAmount(rc.getTeam()) >= 75 && rank == rankOfNearestArchon(new MapLocation(Util.WIDTH/2, Util.HEIGHT/2))){
-                    dir = pf.findBestDirection(Util.getLocationFromInt(rc.readSharedArray(21) / 3 - 1), 20);
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                    rc.writeSharedArray(21, current_soldier_building_status + 1);
-                }
-                return;
-            case 0:
-                break;
-        }
-
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
         boolean enemiesNear = observe();
@@ -175,41 +149,39 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
-
         if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((teamLeadAmount < 400 || round < 5) && alarm == 65535))) {
 
             //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
-            // if(rank == 1 && numScoutsSent < 2) { // subtype 1: SCOUT
-            //     MapLocation target = new MapLocation(0, 0);
-            //     //First scout should be sent to the horizontal reflection of the current archon.
-            //     if (numScoutsSent == 0){
-            //         target = Util.horizontalRefl(me);
-            //         System.out.println(me.x + " " + me.y);
-            //         System.out.println("MINER TARGET IS: " + target);
-            //     }
-            //     //Second scout should be sent to the vertical reflection of the current archon.
-            //     else{
-            //         target = Util.verticalRefl(me);
-            //         System.out.println(me.x + " " + me.y);
-            //         System.out.println("MINER TARGET IS: " + target);
-            //     }
-            //     numScoutsSent++;
-            //     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(target) + Util.MAX_LOC);
-            //     rc.buildRobot(RobotType.MINER, dir);
-            //     rc.writeSharedArray(20, targetArchon + 1);
-            // }
+            if(rank == 1 && numScoutsSent < 2) { // subtype 1: SCOUT
+                MapLocation target = new MapLocation(0, 0);
+                //First scout should be sent to the horizontal reflection of the current archon.
+                if (numScoutsSent == 0){
+                    target = Util.horizontalRefl(me);
+                    System.out.println(me.x + " " + me.y);
+                    System.out.println("MINER TARGET IS: " + target);
+                }
+                //Second scout should be sent to the vertical reflection of the current archon.
+                else{
+                    target = Util.verticalRefl(me);
+                    System.out.println(me.x + " " + me.y);
+                    System.out.println("MINER TARGET IS: " + target);
+                }
+                numScoutsSent++;
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(target) + Util.MAX_LOC);
+                rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
+            }
 
             //FORAGER CODE
             //Foragers head to the closest guesses of where an enemy archon is.
-            if(numForagersSent < numArchons) { // subtype 2: FORAGERS
+            else if(numForagersSent < numArchons) { // subtype 2: FORAGERS
                 System.out.println("FORAGER: " + numForagersSent + " " + numArchons);
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank), 
                     Util.getIntFromLocation(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent)))) 
                         + 2 * Util.MAX_LOC);
                 numForagersSent++;
-                dir = pf.findBestDirection(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent))), 60);
                 rc.writeSharedArray(19, rc.readSharedArray(19) + 1); 
                 rc.buildRobot(RobotType.MINER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
@@ -218,18 +190,14 @@ public class Archon extends RobotCommon{
                 int target = findLocalLocation();
                 if(target != -1 && rng.nextInt(2) == 1) {
                     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), target);
-                    dir = pf.findBestDirection(Util.getLocationFromInt(target), 60);
                 }
                 else {
-                    int minerReport = findMinerReport();
-                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank), minerReport);
-
-                    dir = pf.findBestDirection(Util.getLocationFromInt(minerReport), 60);
+                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank), findMinerReport());
                 }
                 rc.buildRobot(RobotType.MINER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
             }
-        }
+        } 
         else if (rc.getTeamLeadAmount(rc.getTeam()) >= 400 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             rc.buildRobot(RobotType.BUILDER, dir);
             rc.writeSharedArray(20, targetArchon + 1);

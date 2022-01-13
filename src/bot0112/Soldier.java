@@ -1,5 +1,4 @@
-
-package first_bot;
+package bot0112;
 
 import battlecode.common.*;
 
@@ -18,12 +17,7 @@ public class Soldier extends RobotCommon{
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
-        if (rc.readSharedArray(17) != 65535){
-            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
-        }
-        else{
-            target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
-        }
+        target = chooseRandomInitialDestination();
         movesSinceAction = 0;
         //do more stuff later
     }

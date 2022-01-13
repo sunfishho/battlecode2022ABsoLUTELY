@@ -1,4 +1,4 @@
-package first_bot;
+package bot0112;
 
 import battlecode.common.*;
 
@@ -59,20 +59,6 @@ public abstract class RobotCommon {
             if(dist < mindist){
                 mindist = dist;
                 best = archonLocation;
-            }
-        }
-        return best;
-    }
-
-    public static int rankOfNearestArchon(MapLocation loc) throws GameActionException{
-        int best = 0;
-        int mindist = 69;
-        for(int i = 0; i < rc.getArchonCount(); i++){
-            MapLocation archonLocation = Util.getLocationFromInt(rc.readSharedArray(i));
-            int dist = Util.distanceMetric(archonLocation, loc);
-            if(dist < mindist){
-                mindist = dist;
-                best = i + 1;
             }
         }
         return best;

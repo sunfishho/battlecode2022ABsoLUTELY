@@ -1,4 +1,4 @@
-package first_bot;
+package bot0112;
 import battlecode.common.*;
 import java.util.Random;
 
@@ -15,7 +15,6 @@ public class Util {
             18: alarm indicator (round)
             19: number of foragers sent in total
             20: targetted archon for robot production mod numArchons
-            21: slot to let archons know to save for soldiers
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
