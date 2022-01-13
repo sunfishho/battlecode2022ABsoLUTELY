@@ -178,10 +178,6 @@ public class Util {
         return new MapLocation(WIDTH - 1 - loc.x, HEIGHT - 1 - loc.y);
     }
 
-    public static void markSymmetry(MapLocation mL){
-
-    }
-
     //decide later
     public static boolean watchtowerElig(MapLocation loc){
         return (loc.x % 3 == 2 && loc.y % 3 == 2);

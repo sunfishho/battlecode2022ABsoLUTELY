@@ -18,8 +18,12 @@ public class Soldier extends RobotCommon{
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
-        if (rc.readSharedArray(17) != 65535){
+        //if no alarm:
+        if (rc.readSharedArray(17) < 65534){
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+        }
+        else if (rc.readSharedArray(17) == 65534){
+            target = chooseRandomInitialDestination();
         }
         else{
             target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
@@ -106,7 +110,8 @@ public class Soldier extends RobotCommon{
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
-                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
+                int rankClosest = rankOfNearestArchon(robot.getLocation());
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankClosest);
                 rc.writeSharedArray(18, round);
                 return;
             }

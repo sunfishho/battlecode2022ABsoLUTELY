@@ -81,7 +81,8 @@ public class Miner extends RobotCommon{
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
-                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
+                int rankClosest = rankOfNearestArchon(robot.location);
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankClosest);
                 rc.writeSharedArray(18, round);
                 retreat();
                 return;

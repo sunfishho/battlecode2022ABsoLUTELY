@@ -13,6 +13,8 @@ public class Archon extends RobotCommon{
     static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon;
     static ArrayList<Integer> vortexRndNums;
     static int vortexCnt = 0;
+    static int oppLeadCount = 200;
+    static int changeOppLeadCount = 0;
     Pathfinding pf = new Pathfinding(this);
 
     /*
@@ -44,6 +46,11 @@ public class Archon extends RobotCommon{
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
         targetArchon = rc.readSharedArray(20);
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
+
+        if (changeOppLeadCount > 51 && round > 10){
+            rc.writeSharedArray(17, 65534);
+        }
+
         if(round == 1) {
             establishRank();
             relocCheck();
@@ -55,7 +62,7 @@ public class Archon extends RobotCommon{
                 }
             }
         }
-        if(round == 2) {
+        if(round == 2){
             writeArchonLocations();
         }
 
@@ -166,11 +173,12 @@ public class Archon extends RobotCommon{
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
         boolean enemiesNear = observe();
-        if (alarm == 65535) {
+        if (alarm == 65535 || alarm == 65534) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 return;
             }
-        } else { // figure out where the alarm is coming from and send troops
+        }
+        else { // figure out where the alarm is coming from and send troops
             if (teamLeadAmount <= numArchons * 50 && !enemiesNear && rank != rc.readSharedArray(17) / 10000) {
                 return;
             }
@@ -241,6 +249,14 @@ public class Archon extends RobotCommon{
         }
     }
 
+    //returns the change in lead count since the last turn and updates oppLeadCount
+    public int computeDifferenceOppLeadCount(){
+        int currentOppLeadCount = rc.getTeamLeadAmount(rc.getTeam().opponent());
+        changeOppLeadCount = currentOppLeadCount - oppLeadCount;
+        oppLeadCount = currentOppLeadCount;
+        return changeOppLeadCount;
+    }
+
     // Establish an order between the Archons by writing to the shared array.
     public void establishRank() throws GameActionException {
         for(int i = 0; i < 4; i++) {
@@ -270,7 +286,8 @@ public class Archon extends RobotCommon{
     public boolean observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
             if (robot.getTeam() != rc.getTeam()) {
-                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
+                int rankClosest = rankOfNearestArchon(robot.location);
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankClosest);
                 rc.writeSharedArray(18, round);
                 return true;
             }
