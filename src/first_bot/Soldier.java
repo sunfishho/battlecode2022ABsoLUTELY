@@ -134,7 +134,7 @@ public class Soldier extends RobotCommon{
 
         Direction dir = pf.findBestDirection(target, 0);
         //check if we can move and that we're not going onto a horrible square
-        if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 < 3){
+        if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 > 3){
             moveLowerRubble(true);
             return;
         }
