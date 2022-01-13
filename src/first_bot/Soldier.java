@@ -240,7 +240,7 @@ public class Soldier extends RobotCommon{
                 highestRubble = rc.senseRubble(bot.getLocation());
                 lowestHealth = bot.getHealth();
                 bestBot = bot;
-                break;
+                continue;
             }
             else if (bestType == enemyType){
                 if (highestRubble < rc.senseRubble(bot.getLocation())){
