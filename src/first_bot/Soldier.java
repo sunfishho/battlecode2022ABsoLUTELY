@@ -122,8 +122,15 @@ public class Soldier extends RobotCommon{
         }
 
         Direction dir = pf.findBestDirection(target, 0);
-        if (rc.canMove(dir)){
-            rc.move(dir);
+        //check if we can move and that we're not going onto a horrible square
+        if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 < 3){
+            moveLowerRubble(true);
+            return;
+        }
+        else{
+            if (rc.canMove(dir)){
+                rc.move(dir);
+            }
         }
     }
 
@@ -189,12 +196,12 @@ public class Soldier extends RobotCommon{
             moveLowerRubble(false);
             attackValuableEnemies();
         }
-        else if (teammateSoldiers <= enemySoldiers){
+        else if (teammateSoldiers < enemySoldiers){
             attackValuableEnemies();
             retreat(enemyCentroid);
         }
         else{
-            assert(teammateSoldiers > enemySoldiers);
+            assert(teammateSoldiers >= enemySoldiers);
             moveLowerRubble(false);
             attackValuableEnemies();
         }
