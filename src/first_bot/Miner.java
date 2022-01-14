@@ -19,6 +19,7 @@ public class Miner extends RobotCommon{
     }
     
     public void takeTurn() throws GameActionException {
+        round = rc.getRoundNum();
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         robotLocations = rc.senseNearbyRobots();
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
@@ -37,13 +38,11 @@ public class Miner extends RobotCommon{
                 for (int dy = -1; dy <= 1; dy++) {
                     MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                     if (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
-                        round++;
                         // rc.setIndicatorString("SENSED GOLD");
                         return;
                     }
                     if (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
                         // rc.setIndicatorString("SENSED LEAD");
-                        round++;
                         return;
                     }
                 }
@@ -75,7 +74,6 @@ public class Miner extends RobotCommon{
         tryToMove();
         tryToWriteTarget(false);
         tryToMine(1);
-        round++;
     }
 
     // Observes if any enemy non-miner units nearby
