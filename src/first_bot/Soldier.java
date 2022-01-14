@@ -12,7 +12,7 @@ public class Soldier extends RobotCommon{
     static boolean onOffense, onDefense;
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     Pathfinding pf = new Pathfinding(this);
-    static double teammateSoldiers, enemySoldiers;
+    static double teammateSoldiers, enemySoldiers, numEnemies;
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 
 
@@ -43,13 +43,13 @@ public class Soldier extends RobotCommon{
         observe();
         teammateSoldiers = 0;
         enemySoldiers = 0;
-        int numEnemies = 0;
+        numEnemies = 0;
         double enemySoldierCentroidx = 0;
         double enemySoldierCentroidy = 0;
         for (RobotInfo bot : nearbyBotsSeen){
             switch(bot.getType()){
                 case SOLDIER:
-                    double weight = (bot.getHealth()/3) * (1 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
+                    double weight = (bot.getHealth()/3) / (1 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
                     if (bot.getTeam() == myTeam){
                         teammateSoldiers += weight;
                     }
@@ -96,7 +96,7 @@ public class Soldier extends RobotCommon{
     //right now this only deals with soldier skirmishes + archon stuff
     public void tryToAttackAndMove() throws GameActionException{
         rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        if (enemySoldiers < 1 && teammateSoldiers < 0.000001){
+        if (numEnemies == 1 && teammateSoldiers < 0.000001){
             rc.setIndicatorString("1 on 1 combat !");
             for (RobotInfo bot: nearbyBotsSeen){
                 if (bot.getType() == RobotType.SOLDIER){
@@ -184,7 +184,7 @@ public class Soldier extends RobotCommon{
                     }
                 }
                 //Checking if we can land a fatal blow to the enemy archon
-                if (minArchonHealth < teammateSoldiers * 3 * AVG_HITS_EXPECTED_WHEN_ATACKING){
+                if (minArchonHealth < (teammateSoldiers/16.1) * 3 * AVG_HITS_EXPECTED_WHEN_ATACKING){
                     target = archonTargetLocation;
                     //swarm the archon
                     //tbh if it's 3 hits from dying (from each teammate) you don't need to care about rubble unless it's like 100 rubble
