@@ -7,61 +7,172 @@ import java.util.Random;
 
 public class Sage extends RobotCommon{
 
-    public Sage(RobotController rc, int r, MapLocation loc){
+    private static boolean isRetreating;
+    static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
+    static MapLocation target; 
+    static double numEnemies;
+    Pathfinding pf = new Pathfinding(this);
+    static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
+
+    public Sage(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
+        isRetreating = false;
+        //if no alarm:
+        if (rc.readSharedArray(17) < 65534){
+            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+        }
+        else if (rc.readSharedArray(17) == 65534){
+            target = chooseRandomInitialDestination();
+        }
+        else{
+            target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
+        }
     }
 
     //TODO
     public void takeTurn() throws GameActionException {
+        me = rc.getLocation();
+        if (rc.getActionCooldownTurns() < 10) {
+            isRetreating = false;
+        }
+        observe();
+        nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
+        enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
+        numEnemies = 0;
+        double enemySoldierCentroidx = 0;
+        double enemySoldierCentroidy = 0;
+        for (RobotInfo bot : nearbyBotsSeen){
+            switch(bot.getType()){
+                case SOLDIER:
+                    double weight = (bot.getHealth()/3 + 5) / (10 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
+                    if (bot.getTeam() != myTeam) {
+                        MapLocation enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemySoldierCentroidy += enemyLoc.y;
+                        enemySoldierCentroidx += enemyLoc.x;
+                    }
+                    break;
+                default:
+            }
+        }
+        if (numEnemies == 0){
+            tryToMove(40);
+            moveLowerRubble(false);
+            tryToAttack();
+            rc.setIndicatorString("target: " + target.x + ", " + target.y);
+            return;
+        }
+        enemySoldierCentroidx /= numEnemies;
+        enemySoldierCentroidy /= numEnemies;
+        enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
+        
+        // This whole block only runs if we have an enemy in sight
+        tryToAttack();
+        retreat(enemySoldierCentroid);
+        // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
+        rc.setIndicatorString("target: " + target.x + ", " + target.y);
 
     }
-
+    
     public void tryToAttack() throws GameActionException {
-
+        enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
+        int bestType = 10;
+        int highestRubble = 0;
+        int highestHealth = -1;
+        if (enemyBotsWithinRange.length == 0){
+            return;
+        }
+        RobotInfo bestBot = enemyBotsWithinRange[0];
+        // Go through list of enemies and find the one we want to attack the most
+        for (RobotInfo bot: enemyBotsWithinRange) {
+            if (bot.getTeam() == myTeam){
+                continue;
+            }
+            int enemyType = 8;
+            for (int j = 0; j < 7; j++) {
+                if (bot.getType().equals(Util.attackOrder[j])) {
+                    enemyType = j;
+                    break;
+                }
+            }
+            if (enemyType < bestType) {
+                bestType = enemyType;
+                highestRubble = rc.senseRubble(bot.getLocation());
+                highestHealth = bot.getHealth();
+                bestBot = bot;
+                continue;
+            }
+            else if (bestType == enemyType){
+                if (highestRubble < rc.senseRubble(bot.getLocation())){
+                    highestRubble = rc.senseRubble(bot.getLocation());
+                    highestHealth = bot.getHealth();
+                    bestBot = bot;
+                }
+                else if (highestRubble == rc.senseRubble(bot.getLocation())){
+                    if (highestHealth > bot.getHealth()){
+                        highestHealth = bot.getHealth();
+                        bestBot = bot;
+                    }
+                }
+            }
+            // Tiebreak by enemy health
+        }
+        //Attack if possible
+        if (rc.canAttack(bestBot.getLocation()) && bestBot.getType() != RobotType.MINER) {
+            rc.attack(bestBot.getLocation());
+            isRetreating = true;
+            round++;
+            return;
+        }
     }
 
     public void tryToCastAnomaly() throws GameActionException {
 
     }
 
-    public void tryToMove() throws GameActionException {
-        //if there are enemy soldiers in attacking range that can't attack the sage, stay
-        if (threateningSoldiers() == 0 && targetSoldiers() > 0){
+    public void tryToMove(int avgRubble) throws GameActionException {
+        
+        if (rc.readSharedArray(17) != 65535) {
+            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+        }
+        else if (target == null){
+            target = chooseRandomInitialDestination();
+        }
+        else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > 30)){
+            target = chooseRandomInitialDestination();
+        }
+        if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
             return;
         }
-        //if can be attacked by >=1 enemy soldiers, run!
+        Direction dir = Direction.CENTER;
+        if (target != null){
+            dir = pf.findBestDirection(target, avgRubble);
+        }
+        if (rc.canMove(dir)){
+            rc.move(dir);
+        }
+    }
+
+    public void moveLowerRubble(boolean toRetreat) throws GameActionException{
+        // rc.setIndicatorString("MOVING TO LOWER RUBBLE");
+        int bestRubble = rc.senseRubble(me);
         Direction bestDir = Direction.CENTER;
-        if (threateningSoldiers() > 0){//find direction that minimizes new # of threatening soldiers
-            int minAttackers = 100;
-            for(Direction dir : Direction.allDirections()){
-                int attackers = threateningSoldiersIfMove(dir);
-                if(rc.canMove(dir) && attackers < minAttackers){
+        for (Direction dir: Util.directions){
+            if (rc.canMove(dir) && rc.senseRubble(me.add(dir))/10 < bestRubble/10){
+                bestDir = dir;
+                bestRubble = rc.senseRubble(me.add(bestDir));
+            }
+            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
+                MapLocation nearestArchonLoc = nearestArchon(me);
+                if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
                     bestDir = dir;
-                    minAttackers = attackers;
+                    bestRubble = rc.senseRubble(me.add(bestDir));
                 }
             }
+        }
+        if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
             rc.move(bestDir);
         }
-        if(soldiersInRange(34) > 0){//enemy soldier in sight! move to maximize # soldiers we can attack (>=1 for sure)
-            int maxTargets = 0;
-            for(Direction dir : Direction.allDirections()){
-                int targets = targetSoldiersIfMove(dir);
-                if(rc.canMove(dir) && targets < maxTargets){
-                    bestDir = dir;
-                    maxTargets = targets;
-                }
-            }
-            rc.move(bestDir);
-        }
-        //else move randomly
-        Random random = new Random(rc.getRoundNum());
-        Direction dir = Direction.allDirections()[random.nextInt(9)];
-        int resign = 50;
-        while(rc.canMove(dir) && resign > 0){
-            resign--;
-            dir = Direction.allDirections()[random.nextInt(9)];
-        }
-        rc.move(dir);
     }
 
     public int soldiersInRange(int r) throws GameActionException {//counts number of enemy soldiers within distance r
@@ -116,4 +227,53 @@ public class Sage extends RobotCommon{
     public int targetSoldiers() throws GameActionException {//counts number of enemey soldiers that we can attack
         return soldiersInRange(20);//sage attacking radius
     }
+    
+    public void retreat(MapLocation enemyCentroid) throws GameActionException{
+        rc.setIndicatorString("RETREATING: " + enemyCentroid.x + ", " + enemyCentroid.y);
+        int reflectionX = me.x * 2 - enemyCentroid.x;
+        int reflectionY = me.y * 2 - enemyCentroid.y;
+        if (reflectionX >= 0 && reflectionX < Util.WIDTH && reflectionY >= 0 && reflectionY < Util.HEIGHT){
+            target = me.translate(reflectionX - me.x, reflectionY - me.y);
+        }
+        else{
+            target = nearestArchon(me);
+        }
+
+        Direction dir = pf.findBestDirection(target, 30);
+        //check if we can move and that we're not going onto a horrible square
+        //also, if there's some alternative direction that gets us onto a much better square, take it
+        // int bestDistance = 0;
+        // Direction dirBest = dir;
+        // for (Direction dirAlt : Util.directions){
+        //     if (rc.canSenseLocation(me.add(dirAlt)) && rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me.add(dirAlt))/10 > 2 && rc.canMove(dirAlt)){
+        //         if (bestDistance < Util.distanceMetric(me.add(dirAlt), enemyCentroid)){
+        //             bestDistance = 
+        //         }
+        //     }
+        // }
+        if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 > 3){
+            moveLowerRubble(true);
+            return;
+        }
+        else{
+            if (rc.canMove(dir)){
+                rc.setIndicatorLine(me, me.add(dir), 0, 100, 0);
+                rc.move(dir);
+            }
+        }
+    }
+
+    // Observes if any enemy units nearby
+    public void observe() throws GameActionException {
+        for (RobotInfo robot : rc.senseNearbyRobots()) {
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+                int rankClosest = rankOfNearestArchon(robot.getLocation());
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankClosest);
+                rc.writeSharedArray(18, round);
+                return;
+            }
+        }
+    }
+
+    
 }

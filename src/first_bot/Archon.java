@@ -183,8 +183,11 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
-
-        if (rc.canBuildRobot(RobotType.MINER, dir) 
+        if (rc.canBuildRobot(RobotType.SAGE, dir)) {
+            rc.buildRobot(RobotType.SAGE, dir);
+            rc.writeSharedArray(20, targetArchon + 1);
+        }
+        else if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((teamLeadAmount < 400 || round < 5) && alarm == 65535))) {
 
             //SCOUT CODE
