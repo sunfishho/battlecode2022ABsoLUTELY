@@ -147,24 +147,23 @@ public class Soldier extends RobotCommon{
         Direction dir = pf.findBestDirection(target, 10);
         //check if we can move and that we're not going onto a horrible square
         //also, if there's some alternative direction that gets us onto a much better square, take it
-        int bestDistance = 0;
-        Direction dirBest = dir;
-        for (Direction dirAlt : Util.directions){
-            if (rc.canSenseLocation(me.add(dirAlt)) && rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me.add(dirAlt))/10 > 2 && rc.canMove(dirAlt)){
-                if (bestDistance < Util.distanceMetric(me.add(dirAlt), enemyCentroid)){
-                    bestDistance = Util.distanceMetric(me.add(dirAlt), enemyCentroid);
-                    dirBest = dirAlt;
-                }
-            }
-        }
-        if (rc.senseRubble(me.add(dirBest))/10 - rc.senseRubble(me)/10 > 3){
+        // int bestDistance = 0;
+        // Direction dirBest = dir;
+        // for (Direction dirAlt : Util.directions){
+        //     if (rc.canSenseLocation(me.add(dirAlt)) && rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me.add(dirAlt))/10 > 2 && rc.canMove(dirAlt)){
+        //         if (bestDistance < Util.distanceMetric(me.add(dirAlt), enemyCentroid)){
+        //             bestDistance = 
+        //         }
+        //     }
+        // }
+        if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 > 3){
             moveLowerRubble(true);
             return;
         }
         else{
-            if (rc.canMove(dirBest)){
-                rc.setIndicatorLine(me, me.add(dirBest), 0, 100, 0);
-                rc.move(dirBest);
+            if (rc.canMove(dir)){
+                rc.setIndicatorLine(me, me.add(dir), 0, 100, 0);
+                rc.move(dir);
             }
         }
     }

@@ -10,9 +10,6 @@ public class Pathfinding {
     static final int[] dx = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dy = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
 
-
-    static int AVG_RUBBLE = 101;
-
     public Pathfinding(RobotCommon robot){
         this.robot = robot;
         distanceSquared = robot.rc.getType().visionRadiusSquared;
@@ -118,7 +115,7 @@ public class Pathfinding {
 	static int prevDistances44;
 	static int rubbleLevels44;
 
-	public void populateArrays(MapLocation target) throws GameActionException{
+	public void populateArrays(MapLocation target, int avgRubble) throws GameActionException{
 		MapLocation mc = robot.me.translate(-2, -2);
 		int newrow = mc.x;
 		int newcol = mc.y;
@@ -136,19 +133,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -156,19 +153,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -187,19 +184,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -207,19 +204,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -238,19 +235,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -258,19 +255,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -289,19 +286,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -309,19 +306,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -340,19 +337,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -360,19 +357,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -392,19 +389,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -412,19 +409,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -443,19 +440,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -463,19 +460,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -494,19 +491,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -514,19 +511,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -545,19 +542,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -565,19 +562,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -596,19 +593,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -616,19 +613,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -648,19 +645,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -668,19 +665,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -699,19 +696,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -719,19 +716,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -739,7 +736,7 @@ public class Pathfinding {
 		}
 		newcol++;
 		rubbleLevels22 = robot.rc.senseRubble(mc.translate(2, 2)) + 10;
-		distances22 = Util.distanceMetric(newrow, newcol, target.x, target.y) * AVG_RUBBLE;
+		distances22 = Util.distanceMetric(newrow, newcol, target.x, target.y) * avgRubble;
 		prevDistances22 = distances22;
 		newcol++;
 		if (newrow < 0 || newcol < 0 || newrow >= Util.WIDTH || newcol >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc.translate(2, 3)))){
@@ -754,19 +751,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -774,19 +771,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -805,19 +802,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -825,19 +822,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -857,19 +854,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -877,19 +874,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -908,19 +905,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -928,19 +925,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -959,19 +956,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -979,19 +976,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1010,19 +1007,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1030,19 +1027,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1061,19 +1058,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1081,19 +1078,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1113,19 +1110,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1133,19 +1130,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1164,19 +1161,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1184,19 +1181,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1215,19 +1212,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1235,19 +1232,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1266,19 +1263,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1286,19 +1283,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1317,19 +1314,19 @@ public class Pathfinding {
 			if (dxDiff >= 0){
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if (dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -1337,19 +1334,19 @@ public class Pathfinding {
 				dxDiff *= -1;
 				if (dyDiff >= 0){
 					if (dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 				else{
 					dyDiff *= -1;
 					if(dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;
+						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
 					}
 				}
 			}
@@ -2810,8 +2807,7 @@ public class Pathfinding {
 //When avgDistance is high, this algorithm essentially becomes greedy
 //When avgDistance is low, we risk not finding the destination because we avoid high rubble stuff
 	public Direction findBestDirection(MapLocation target, int avgDistance) throws GameActionException{
-		AVG_RUBBLE = avgDistance;
-		populateArrays(target);
+		populateArrays(target, avgDistance);
 		iterate();
 		int minDistance = 1000000000;
 		int bestidx = 0;
