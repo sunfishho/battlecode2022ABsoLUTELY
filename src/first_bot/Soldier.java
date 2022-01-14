@@ -18,7 +18,6 @@ public class Soldier extends RobotCommon{
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
-        round = rc.getRoundNum();
         //if no alarm:
         if (rc.readSharedArray(17) < 65534){
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
@@ -82,7 +81,6 @@ public class Soldier extends RobotCommon{
             tryToMove(40);
             moveLowerRubble(false);
             attackValuableEnemies();
-            rc.setIndicatorString("target: " + target.x + ", " + target.y);
             return;
         }
         enemySoldierCentroidx /= numEnemies;
@@ -92,6 +90,7 @@ public class Soldier extends RobotCommon{
         // This whole block only runs if we have an enemy in sight
         tryToAttackAndMove();
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
+        round++;
         rc.setIndicatorString("target: " + target.x + ", " + target.y);
     }
     //right now this only deals with soldier skirmishes + archon stuff
@@ -219,9 +218,16 @@ public class Soldier extends RobotCommon{
             }
             //this is if we have more soldiers than the opponent does
             else{
-                target = enemyCentroid;
-                tryToMove(30);
-                attackValuableEnemies();
+                //not sure if it's better to move or attack first, i'm assuming moving first is better because of cooldown reasons
+                if (me.distanceSquaredTo(enemyCentroid) <= 13){
+                    moveLowerRubble(false);
+                    attackValuableEnemies();
+                }
+                else{
+                    target = enemyCentroid;
+                    tryToMove(30);
+                    attackValuableEnemies();
+                }
             }
         }
         else if (onDefense){
@@ -298,6 +304,7 @@ public class Soldier extends RobotCommon{
             target = bestBot.getLocation();
             rc.attack(bestBot.getLocation());
             movesSinceAction = 0;
+            round++;
             return;
         }
     }
