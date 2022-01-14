@@ -1,4 +1,3 @@
-
 package bot0113;
 
 import java.util.Map;
@@ -29,7 +28,7 @@ public class Miner extends RobotCommon{
 
         observe();
         tryToMine(1);
-        if (archonLocation.distanceSquaredTo(me) < 10 || retreatCounter == 5) {
+        if (archonLocation.distanceSquaredTo(me) < 10 || retreatCounter >= 2) {
             isRetreating = false;
         }
         // If there are mineable neighboring deposits, don't keep moving
@@ -50,7 +49,7 @@ public class Miner extends RobotCommon{
                 }
             }
         }
-
+        
         if (rc.canSenseLocation(target)) {
             RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
             for (RobotInfo robot : robotAtTarget) {
@@ -198,6 +197,7 @@ public class Miner extends RobotCommon{
                     bestDist = newDist;
                     bestLoc = newLoc;
                     change = true;
+                    break;
                 }
             }
 

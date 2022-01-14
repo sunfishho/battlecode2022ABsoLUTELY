@@ -247,5 +247,9 @@ public class Util {
         }
         return false;
     }
-    
+
+    public static boolean inGrid(MapLocation loc){
+        return (0 <= loc.x) && (loc.x < WIDTH) && (0 <= loc.y) && (loc.y < HEIGHT);
+    }
+
 }
