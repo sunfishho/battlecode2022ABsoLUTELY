@@ -78,7 +78,7 @@ public class Soldier extends RobotCommon{
             }
         }
         if (enemySoldiers < 0.000001){
-            tryToMove();
+            tryToMove(40);
             moveLowerRubble(false);
             attackValuableEnemies();
             return;
@@ -199,7 +199,7 @@ public class Soldier extends RobotCommon{
                     //swarm the archon
                     //tbh if it's 3 hits from dying (from each teammate) you don't need to care about rubble unless it's like 100 rubble
                     //and pathfinding should take care of this.
-                    tryToMove();
+                    tryToMove(40);
                     if (rc.canAttack(target)){
                         rc.attack(target);
                     }
@@ -218,7 +218,8 @@ public class Soldier extends RobotCommon{
             }
             //this is if we have more soldiers than the opponent does
             else{
-                moveLowerRubble(false);
+                target = enemyCentroid;
+                tryToMove(30);
                 attackValuableEnemies();
             }
         }
@@ -324,7 +325,7 @@ public class Soldier extends RobotCommon{
     }
 
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
-    public void tryToMove() throws GameActionException {
+    public void tryToMove(int avgRubble) throws GameActionException {
         if (rc.readSharedArray(17) != 65535) {
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }
@@ -339,7 +340,7 @@ public class Soldier extends RobotCommon{
         }
         Direction dir = Direction.CENTER;
         if (target != null){
-            dir = pf.findBestDirection(target, 40);
+            dir = pf.findBestDirection(target, avgRubble);
         }
         if (rc.canMove(dir)){
             rc.move(dir);
