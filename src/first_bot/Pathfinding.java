@@ -1,5 +1,6 @@
 package first_bot;
 import battlecode.common.*;
+import java.lang.Math;
 
 public class Pathfinding {
     static int distanceSquared;
@@ -9,6 +10,8 @@ public class Pathfinding {
 
     static final int[] dx = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dy = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
+
+
 
     public Pathfinding(RobotCommon robot){
         this.robot = robot;
@@ -128,47 +131,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels00 = robot.rc.senseRubble(mc.translate(0, 0)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances00 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances00 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances00 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels00;
 			prevDistances00 = distances00;
 		}
 		newcol++;
@@ -179,47 +144,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels01 = robot.rc.senseRubble(mc.translate(0, 1)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances01 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances01 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances01 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels01;
 			prevDistances01 = distances01;
 		}
 		newcol++;
@@ -230,47 +157,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels02 = robot.rc.senseRubble(mc.translate(0, 2)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances02 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances02 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances02 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels02;
 			prevDistances02 = distances02;
 		}
 		newcol++;
@@ -281,47 +170,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels03 = robot.rc.senseRubble(mc.translate(0, 3)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances03 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances03 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances03 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels03;
 			prevDistances03 = distances03;
 		}
 		newcol++;
@@ -332,47 +183,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels04 = robot.rc.senseRubble(mc.translate(0, 4)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances04 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances04 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances04 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels04;
 			prevDistances04 = distances04;
 		}
 		newrow++;
@@ -384,47 +197,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels10 = robot.rc.senseRubble(mc.translate(1, 0)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances10 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances10 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances10 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels10;
 			prevDistances10 = distances10;
 		}
 		newcol++;
@@ -435,47 +210,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels11 = robot.rc.senseRubble(mc.translate(1, 1)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances11 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances11 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances11 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels11;
 			prevDistances11 = distances11;
 		}
 		newcol++;
@@ -486,47 +223,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels12 = robot.rc.senseRubble(mc.translate(1, 2)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances12 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances12 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances12 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels12;
 			prevDistances12 = distances12;
 		}
 		newcol++;
@@ -537,47 +236,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels13 = robot.rc.senseRubble(mc.translate(1, 3)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances13 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances13 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances13 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels13;
 			prevDistances13 = distances13;
 		}
 		newcol++;
@@ -588,47 +249,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels14 = robot.rc.senseRubble(mc.translate(1, 4)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances14 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances14 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances14 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels14;
 			prevDistances14 = distances14;
 		}
 		newrow++;
@@ -640,47 +263,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels20 = robot.rc.senseRubble(mc.translate(2, 0)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances20 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances20 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances20 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels20;
 			prevDistances20 = distances20;
 		}
 		newcol++;
@@ -691,47 +276,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels21 = robot.rc.senseRubble(mc.translate(2, 1)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances21 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances21 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances21 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels21;
 			prevDistances21 = distances21;
 		}
 		newcol++;
@@ -746,47 +293,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels23 = robot.rc.senseRubble(mc.translate(2, 3)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances23 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances23 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances23 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels23;
 			prevDistances23 = distances23;
 		}
 		newcol++;
@@ -797,47 +306,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels24 = robot.rc.senseRubble(mc.translate(2, 4)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances24 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances24 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances24 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels24;
 			prevDistances24 = distances24;
 		}
 		newrow++;
@@ -849,47 +320,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels30 = robot.rc.senseRubble(mc.translate(3, 0)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances30 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances30 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances30 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels30;
 			prevDistances30 = distances30;
 		}
 		newcol++;
@@ -900,47 +333,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels31 = robot.rc.senseRubble(mc.translate(3, 1)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances31 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances31 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances31 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels31;
 			prevDistances31 = distances31;
 		}
 		newcol++;
@@ -951,47 +346,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels32 = robot.rc.senseRubble(mc.translate(3, 2)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances32 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances32 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances32 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels32;
 			prevDistances32 = distances32;
 		}
 		newcol++;
@@ -1002,47 +359,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels33 = robot.rc.senseRubble(mc.translate(3, 3)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances33 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances33 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances33 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels33;
 			prevDistances33 = distances33;
 		}
 		newcol++;
@@ -1053,47 +372,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels34 = robot.rc.senseRubble(mc.translate(3, 4)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances34 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances34 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances34 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels34;
 			prevDistances34 = distances34;
 		}
 		newrow++;
@@ -1105,47 +386,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels40 = robot.rc.senseRubble(mc.translate(4, 0)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances40 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances40 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances40 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels40;
 			prevDistances40 = distances40;
 		}
 		newcol++;
@@ -1156,47 +399,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels41 = robot.rc.senseRubble(mc.translate(4, 1)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances41 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances41 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances41 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels41;
 			prevDistances41 = distances41;
 		}
 		newcol++;
@@ -1207,47 +412,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels42 = robot.rc.senseRubble(mc.translate(4, 2)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances42 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances42 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances42 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels42;
 			prevDistances42 = distances42;
 		}
 		newcol++;
@@ -1258,47 +425,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels43 = robot.rc.senseRubble(mc.translate(4, 3)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances43 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances43 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances43 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels43;
 			prevDistances43 = distances43;
 		}
 		newcol++;
@@ -1309,47 +438,9 @@ public class Pathfinding {
 		}
 		else{
 			rubbleLevels44 = robot.rc.senseRubble(mc.translate(4, 4)) + 10;
-			dxDiff = newrow - target.x;
-			dyDiff = newcol - target.y;
-			if (dxDiff >= 0){
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if (dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
-			else{
-				dxDiff *= -1;
-				if (dyDiff >= 0){
-					if (dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-				else{
-					dyDiff *= -1;
-					if(dxDiff >= dyDiff){
-						distances44 = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-					else{
-						distances44 = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble;
-					}
-				}
-			}
+			dxDiff = Math.abs(newrow - target.x);
+			dyDiff = Math.abs(newcol - target.y);
+			distances44 = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels44;
 			prevDistances44 = distances44;
 		}
 	}
@@ -2804,10 +1895,9 @@ public class Pathfinding {
 		distances44 += rubbleLevels44;
 	}
 
-//When avgDistance is high, this algorithm essentially becomes greedy
-//When avgDistance is low, we risk not finding the destination because we avoid high rubble stuff
-	public Direction findBestDirection(MapLocation target, int avgDistance) throws GameActionException{
-		populateArrays(target, avgDistance);
+
+	public Direction findBestDirection(MapLocation target, int avgRubble) throws GameActionException{
+		populateArrays(target, avgRubble);
 		iterate();
 		int minDistance = 1000000000;
 		int bestidx = 0;

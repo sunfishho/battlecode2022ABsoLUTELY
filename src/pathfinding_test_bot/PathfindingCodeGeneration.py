@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-f = open("src/first_bot/Pathfinding.java", "w")
+f = open("src/pathfinding_test_bot/Pathfinding.java", "w")
 
-string = """package first_bot;
+string = """package pathfinding_test_bot;
 import battlecode.common.*;
+import java.lang.Math;
 
 public class Pathfinding {
     static int distanceSquared;
@@ -15,7 +16,6 @@ public class Pathfinding {
     static final int[] dy = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
 
 
-    static int AVG_RUBBLE = 101;
 
     public Pathfinding(RobotCommon robot){
         this.robot = robot;
@@ -28,7 +28,7 @@ for i in range (25):
     string += ("\tstatic int rubbleLevels" + str(i // 5)  + str(i % 5) + ";\n")
     string += "\n"
 
-string += "\tpublic void populateArrays(MapLocation target) throws GameActionException{\n"
+string += "\tpublic void populateArrays(MapLocation target, int avgRubble) throws GameActionException{\n"
 string += "\t\tMapLocation mc = robot.me.translate(-2, -2);\n"
 string += "\t\tint newrow = mc.x;\n"
 string += "\t\tint newcol = mc.y;\n"
@@ -49,52 +49,14 @@ for i in range(5):
             string += "\t\t}\n"
             string += "\t\telse{\n"
             string += ("\t\t\trubbleLevels" + str(i) + str(j) + " = robot.rc.senseRubble(mc.translate(" + str(i) + ", " + str(j) + ")) + 10;\n")
-            string += ("\t\t\tdxDiff = newrow - target.x;\n")
-            string += ("\t\t\tdyDiff = newcol - target.y;\n")
-            string += ("\t\t\tif (dxDiff >= 0){\n")
-            string += ("\t\t\t\tif (dyDiff >= 0){\n")
-            string += ("\t\t\t\t\tif (dxDiff >= dyDiff){\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t\telse{\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t}\n")
-            string += ("\t\t\t\telse{\n")
-            string += ("\t\t\t\t\tdyDiff *= -1;\n")
-            string += ("\t\t\t\t\tif (dxDiff >= dyDiff){\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t\telse{\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t}\n")
-            string += ("\t\t\t}\n")
-            string += ("\t\t\telse{\n")
-            string += ("\t\t\t\tdxDiff *= -1;\n")
-            string += ("\t\t\t\tif (dyDiff >= 0){\n")
-            string += ("\t\t\t\t\tif (dxDiff >= dyDiff){\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t\telse{\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t}\n")
-            string += ("\t\t\t\telse{\n")
-            string += ("\t\t\t\t\tdyDiff *= -1;\n")
-            string += ("\t\t\t\t\tif(dxDiff >= dyDiff){\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dxDiff + dyDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t\telse{\n")
-            string += ("\t\t\t\t\t\tdistances" + str(i) + str(j) + " = (dyDiff + dxDiff / Util.DISTANCE_WEIGHT_RECIPROCAL) * AVG_RUBBLE;\n")
-            string += ("\t\t\t\t\t}\n")
-            string += ("\t\t\t\t}\n")
-            string += ("\t\t\t}\n")
+            string += ("\t\t\tdxDiff = Math.abs(newrow - target.x);\n")
+            string += ("\t\t\tdyDiff = Math.abs(newcol - target.y);\n")
+            string += ("\t\t\tdistances" + str(i) + str(j) + " = (Math.max(dxDiff, dyDiff) + Math.min(dxDiff, dyDiff) / Util.DISTANCE_WEIGHT_RECIPROCAL) * avgRubble + rubbleLevels" + str(i) + str(j) + ";\n")
             string += ("\t\t\tprevDistances" + str(i) + str(j) + " = distances" + str(i) + str(j) + ";\n")
             string += ("\t\t}\n")
         else:
             string += ("\t\trubbleLevels" + str(i) + str(j) + " = robot.rc.senseRubble(mc.translate(" + str(i) + ", " + str(j) + ")) + 10;\n")
-            string += "\t\tdistances" + str(i) + str(j) + " = Util.distanceMetric(newrow, newcol, target.x, target.y) * AVG_RUBBLE;\n"
+            string += "\t\tdistances" + str(i) + str(j) + " = Util.distanceMetric(newrow, newcol, target.x, target.y) * avgRubble;\n"
             string += ("\t\tprevDistances" + str(i) + str(j) + " = distances" + str(i) + str(j) + ";\n")
 string += "\t}"
         
@@ -139,8 +101,8 @@ for i in range(5):
 string += "\t}\n\n\n"
 
 
-string += "\tpublic Direction findBestDirection(MapLocation target) throws GameActionException{\n"
-string += "\t\tpopulateArrays(target);\n"
+string += "\tpublic Direction findBestDirection(MapLocation target, int avgRubble) throws GameActionException{\n"
+string += "\t\tpopulateArrays(target, avgRubble);\n"
 string += "\t\titerate();\n"
 string += "\t\tint minDistance = 1000000000;\n"
 string += "\t\tint bestidx = 0;\n"

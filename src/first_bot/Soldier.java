@@ -144,7 +144,7 @@ public class Soldier extends RobotCommon{
             target = nearestArchon(me);
         }
 
-        Direction dir = pf.findBestDirection(target, 10);
+        Direction dir = pf.findBestDirection(target, 30);
         //check if we can move and that we're not going onto a horrible square
         //also, if there's some alternative direction that gets us onto a much better square, take it
         // int bestDistance = 0;
@@ -339,7 +339,7 @@ public class Soldier extends RobotCommon{
         }
         Direction dir = Direction.CENTER;
         if (target != null){
-            dir = pf.findBestDirection(target, 20);
+            dir = pf.findBestDirection(target, 40);
         }
         if (rc.canMove(dir)){
             rc.move(dir);
