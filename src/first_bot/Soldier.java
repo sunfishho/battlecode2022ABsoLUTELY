@@ -300,7 +300,7 @@ public class Soldier extends RobotCommon{
                 bestDir = dir;
                 bestRubble = rc.senseRubble(me.add(bestDir));
             }
-            if (toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10 && rc.canMove(dir)){
+            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
                 MapLocation nearestArchonLoc = nearestArchon(me);
                 if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
                     bestDir = dir;
