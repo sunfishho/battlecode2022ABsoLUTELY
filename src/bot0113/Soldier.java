@@ -12,7 +12,7 @@ public class Soldier extends RobotCommon{
     static boolean onOffense, onDefense;
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     Pathfinding pf = new Pathfinding(this);
-    static double teammateSoldiers, enemySoldiers;
+    static int teammateSoldiers, enemySoldiers;
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 
 
@@ -43,20 +43,17 @@ public class Soldier extends RobotCommon{
         observe();
         teammateSoldiers = 0;
         enemySoldiers = 0;
-        int numEnemies = 0;
-        double enemySoldierCentroidx = 0;
-        double enemySoldierCentroidy = 0;
+        int enemySoldierCentroidx = 0;
+        int enemySoldierCentroidy = 0;
         for (RobotInfo bot : nearbyBotsSeen){
             switch(bot.getType()){
                 case SOLDIER:
-                    double weight = (bot.getHealth()/3) * (1 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
                     if (bot.getTeam() == myTeam){
-                        teammateSoldiers += weight;
+                        teammateSoldiers++;
                     }
                     else{
-                        enemySoldiers += weight;
+                        enemySoldiers++;
                         MapLocation enemyLoc = bot.getLocation();
-                        numEnemies++;
                         enemySoldierCentroidy += enemyLoc.y;
                         enemySoldierCentroidx += enemyLoc.x;
                     }
@@ -77,15 +74,15 @@ public class Soldier extends RobotCommon{
                 default:
             }
         }
-        if (enemySoldiers < 0.000001){
+        if (enemySoldiers == 0){
             tryToMove();
             moveLowerRubble(false);
             attackValuableEnemies();
             return;
         }
-        enemySoldierCentroidx /= numEnemies;
-        enemySoldierCentroidy /= numEnemies;
-        enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
+        enemySoldierCentroidx /= enemySoldiers;
+        enemySoldierCentroidy /= enemySoldiers;
+        enemySoldierCentroid = enemySoldierCentroid.translate(enemySoldierCentroidx - enemySoldierCentroid.x, enemySoldierCentroidy - enemySoldierCentroid.y);
         
         // This whole block only runs if we have an enemy in sight
         tryToAttackAndMove();
@@ -96,7 +93,7 @@ public class Soldier extends RobotCommon{
     //right now this only deals with soldier skirmishes + archon stuff
     public void tryToAttackAndMove() throws GameActionException{
         rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        if (enemySoldiers < 1 && teammateSoldiers < 0.000001){
+        if (enemySoldiers == 1 && teammateSoldiers == 0){
             rc.setIndicatorString("1 on 1 combat !");
             for (RobotInfo bot: nearbyBotsSeen){
                 if (bot.getType() == RobotType.SOLDIER){
@@ -106,7 +103,7 @@ public class Soldier extends RobotCommon{
             }
             return;
         }
-        else if (teammateSoldiers > 0.000001){
+        else if (teammateSoldiers >= 1){
             rc.setIndicatorString("Group combat !");
             groupCombat(teammateSoldiers, enemySoldiers, enemySoldierCentroid);
             return;
@@ -167,7 +164,7 @@ public class Soldier extends RobotCommon{
     }
 
     //For when you have more than one teammate
-    public void groupCombat(double teammateSoldiers, double enemySoldiers, MapLocation enemyCentroid) throws GameActionException{
+    public void groupCombat(int teammateSoldiers, int enemySoldiers, MapLocation enemyCentroid) throws GameActionException{
         //average number of hits expected when rushing an archon before perishing
         int AVG_HITS_EXPECTED_WHEN_ATACKING = 3;
         //this is the case where we're attacking an archon but we're down in numbers
@@ -283,7 +280,6 @@ public class Soldier extends RobotCommon{
         }
         //Attack if possible
         if (rc.canAttack(bestBot.getLocation())) {
-            target = bestBot.getLocation();
             rc.attack(bestBot.getLocation());
             movesSinceAction = 0;
             round++;
@@ -300,7 +296,7 @@ public class Soldier extends RobotCommon{
                 bestDir = dir;
                 bestRubble = rc.senseRubble(me.add(bestDir));
             }
-            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
+            if (toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10 && rc.canMove(dir)){
                 MapLocation nearestArchonLoc = nearestArchon(me);
                 if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
                     bestDir = dir;

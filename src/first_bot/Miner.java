@@ -1,3 +1,4 @@
+
 package first_bot;
 
 import java.util.Map;
@@ -195,7 +196,6 @@ public class Miner extends RobotCommon{
                     bestDist = newDist;
                     bestLoc = newLoc;
                     change = true;
-                    break;
                 }
             }
 
