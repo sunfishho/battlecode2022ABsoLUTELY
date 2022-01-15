@@ -365,4 +365,21 @@ public class Soldier extends RobotCommon{
         }
 
     }
+
+    //how many enemy soldiers can attack us if we move in direction dir?
+    public int attackedBy(Direction dir) {
+        MapLocation newloc = me.add(dir);
+        int cnt = 0;
+        if(Util.inGrid(newloc)){
+            for(RobotInfo x : rc.senseNearbyRobots(20, rc.getTeam().opponent())){//vision range
+                if(x.type != RobotType.SOLDIER){//only care about soldiers here
+                    continue;
+                }
+                if(newloc.distanceSquaredTo(newloc) <= 13){//enemy soldier can attack new location
+                    cnt++;
+                }
+            }
+        }
+        return cnt;        
+    }
 }
