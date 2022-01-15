@@ -19,7 +19,9 @@ public class Miner extends RobotCommon{
     }
     
     public void takeTurn() throws GameActionException {
+        me = rc.getLocation();
         round = rc.getRoundNum();
+        archonLocation = nearestArchon(me);
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         robotLocations = rc.senseNearbyRobots();
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
