@@ -215,17 +215,15 @@ public class Soldier extends RobotCommon{
         Direction dir = findDirectionLowerRubbleSquare(rc.getHealth() <= soldier.health);
         MapLocation enemy = attackValuableEnemies(false);
         if (enemy == null){
-            if (dir == Direction.CENTER){
+            if (dir != Direction.CENTER){
+                rc.move(dir);
+            }
+            else{
                 return;
             }
             enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
-            }
-        }
-        if (enemy == null){
-            if (dir != Direction.CENTER){
-                rc.move(dir);
             }
             return;
         }
@@ -274,8 +272,14 @@ public class Soldier extends RobotCommon{
             //not sure if it's better to move or attack first, i'm assuming moving first is better because of cooldown reasons
             enemy = attackValuableEnemies(true);
             //if no enemies, try to move to your destination
-            if (enemy == null){
-                tryToMove(40);
+            //if sufficiently far we can probably traverse higher rubble without being too scared
+            if (enemy == null && me.distanceSquaredTo(target) >= 40){
+                tryToMove(50);
+                return;
+            }
+            //if not sufficiently far then we should be cautious
+            else if (enemy == null){
+                tryToMove(30);
                 return;
             }
             dir = findDirectionLowerRubbleSquare(false);
