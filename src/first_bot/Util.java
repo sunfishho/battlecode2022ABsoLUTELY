@@ -16,6 +16,9 @@ public class Util {
             19: number of foragers sent in total
             20: targetted archon for robot production mod numArchons
             21: slot to let archons know to save for soldiers
+            22: warning for locating archon
+            23: round number + 2000 * number of archons processed (used for updating rank numbers when archons die)
+            24-27: archon initial locations
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
