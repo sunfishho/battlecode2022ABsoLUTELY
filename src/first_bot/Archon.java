@@ -92,6 +92,7 @@ public class Archon extends RobotCommon{
 
 
         if (rc.readSharedArray(22) != 0 && round >= 2){
+            /*
             MapLocation archonSpotted = Util.getLocationFromInt(rc.readSharedArray(22));
             for (int archonIndex = 0; archonIndex < numArchonsAtStart; archonIndex++){
                 if (archonSpotted.equals(Util.horizontalRefl(archonLocationsInitial[archonIndex]))){
@@ -106,6 +107,7 @@ public class Archon extends RobotCommon{
                 }
                 //if none of these are true for any archonIndex we apparently have an archon walker on our hands
             }
+             */
         }
         // System.out.println("Symmetry: " + rc.readSharedArray(16));
         int alarm = rc.readSharedArray(18);
