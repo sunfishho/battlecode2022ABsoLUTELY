@@ -36,6 +36,7 @@ public class Archon extends RobotCommon{
         rc.writeSharedArray(18, 65535);
         rc.writeSharedArray(19, 100);
         rc.writeSharedArray(20, 0);
+        rc.writeSharedArray(23, 0);
         
         // for Util to know the width/height of the map
         Util.WIDTH = rc.getMapWidth();
@@ -43,19 +44,32 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
+
         // update variables
         round = rc.getRoundNum();
+        
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
         targetArchon = rc.readSharedArray(20);
-        // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
 
+        // update ranks of archons if changed
+
+        int rankInfo = rc.readSharedArray(23);
+        int newRankInfo = rankInfo + 2000;
+        if (rankInfo % 2000 != round) {
+            newRankInfo = round + 2000;
+        }
+        rc.writeSharedArray(23, newRankInfo);
+        rank = newRankInfo / 2000;
+        int loc = Util.getIntFromLocation(me);
+        rc.writeSharedArray(rank-1, loc);
+        
+        // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
 
         if (changeOppLeadCount > 51 && round > 10){
             rc.writeSharedArray(17, 65534);
         }
 
         if(round == 1) {
-            establishRank();
             relocCheck();
             vortexRndNums = new ArrayList<Integer>();
             AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
@@ -96,15 +110,6 @@ public class Archon extends RobotCommon{
             relocCheck();
             vortexCnt++;
         }
-        // If number of archons has decreased, shift all the archons down
-        int newNumArchons = rc.getArchonCount();
-        if (newNumArchons != numArchons) {
-            numArchons = newNumArchons;
-            for (int i = rank-1; i < 4; i++) {
-                rc.writeSharedArray(i, 0);
-            }
-            establishRank();
-        }
         /*if(round == 500) {
             rc.disintegrate();
         }*/
@@ -134,7 +139,7 @@ public class Archon extends RobotCommon{
       
         Archon Relocation is way too slow for now oops
          */
-        rc.setIndicatorString(rank + "");
+        rc.setIndicatorString(rank + " " + newRankInfo);
 
         int numBuilders = 0;
         Team us = rc.getTeam();
@@ -282,20 +287,6 @@ public class Archon extends RobotCommon{
         changeOppLeadCount = currentOppLeadCount - oppLeadCount;
         oppLeadCount = currentOppLeadCount;
         return changeOppLeadCount;
-    }
-
-    // Establish an order between the Archons by writing to the shared array.
-    public void establishRank() throws GameActionException {
-        for(int i = 0; i < 4; i++) {
-            if(rc.readSharedArray(i) == 0) {
-                int loc = Util.getIntFromLocation(me);
-                rc.writeSharedArray(i, loc + rc.getRoundNum());
-                System.out.println(i + " " + me);
-                rank = i + 1;
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, loc);
-                break;
-            }
-        }
     }
 
     // Writes Archon locations to knownMap
