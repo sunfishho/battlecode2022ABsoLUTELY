@@ -168,4 +168,60 @@ public abstract class RobotCommon {
         }
         return res;
     }
+
+    //if we're near a midline or the center, use rubble counts to try and infer symmetry
+    public void observeSymmetry() throws GameActionException{
+        MapLocation[] squaresToCheck = rc.getAllLocationsWithinRadiusSquared(me, visionRadius);
+        int length = squaresToCheck.length;
+        int currentSymmetry = rc.readSharedArray(16);//current knowledge about symmetry
+        //horizontal symmetry not ruled out yet
+        if(currentSymmetry % 2 == 1) {
+            for (int i = 0; i < length; i++) {
+                MapLocation sq = squaresToCheck[i];
+                if (!Util.inGrid(sq) || 2 * sq.x >= Util.WIDTH) {//suffices to check squares on one half only
+                    continue;
+                }
+                int pb = rc.senseLead(sq);
+                if (rc.canSenseLocation(Util.horizontalRefl(sq))) {
+                    if (pb != rc.senseLead(Util.horizontalRefl(sq))) {//horizontal symmetry dead
+                        currentSymmetry &= 6;//set horizontal symmetry bit to 0
+                        break;
+                    }
+                }
+            }
+        }
+        //vertical symmetry not ruled out yet
+        if((currentSymmetry & 2) > 0) {
+            for (int i = 0; i < length; i++) {
+                MapLocation sq = squaresToCheck[i];
+                if (!Util.inGrid(sq) || 2 * sq.x >= Util.WIDTH) {//suffices to check squares on one half only
+                    continue;
+                }
+                int pb = rc.senseLead(sq);
+                if (rc.canSenseLocation(Util.verticalRefl(sq))) {
+                    if (pb != rc.senseLead(Util.verticalRefl(sq))) {//horizontal symmetry dead
+                        currentSymmetry &= 5;//set vertical symmetry bit to 0
+                        break;
+                    }
+                }
+            }
+        }
+        //rotational symmetry not ruled out yet
+        if(currentSymmetry >= 4) {
+            for (int i = 0; i < length; i++) {
+                MapLocation sq = squaresToCheck[i];
+                if (!Util.inGrid(sq) || 2 * sq.x >= Util.WIDTH) {//suffices to check squares on one half only
+                    continue;
+                }
+                int pb = rc.senseLead(sq);
+                if (rc.canSenseLocation(Util.centralRefl(sq))) {
+                    if (pb != rc.senseLead(Util.centralRefl(sq))) {//horizontal symmetry dead
+                        currentSymmetry &= 3;//set rotational symmetry bit to 0
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
 }

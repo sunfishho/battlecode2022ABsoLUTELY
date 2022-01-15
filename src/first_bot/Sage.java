@@ -40,6 +40,7 @@ public class Sage extends RobotCommon{
             isRetreating = false;
         }
         observe();
+        observeSymmetry();
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         numEnemies = 0;

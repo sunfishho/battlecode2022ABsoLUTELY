@@ -10,7 +10,7 @@ public class Util {
         Shared Array:
             0-3: location of Archons 1-4
             4-15: memory blocks
-            16: symmetry indicator (0 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 3 if rotationally symmetric)
+            16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
             17: alarm indicator (location) + 10000 * rank
             18: alarm indicator (round)
             19: number of foragers sent in total

@@ -30,6 +30,7 @@ public class Miner extends RobotCommon{
         retreatCounter++;
 
         observe();
+        observeSymmetry();
         tryToMine(1);
         if (archonLocation.distanceSquaredTo(me) < 10 || retreatCounter >= 2) {
             isRetreating = false;

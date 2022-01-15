@@ -38,6 +38,7 @@ public class Builder extends RobotCommon{
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("Not repairing anything");
         observe();
+        observeSymmetry();
         boolean a = tryToRepair();
         boolean b = tryToBuild();
         boolean c = tryToMove();

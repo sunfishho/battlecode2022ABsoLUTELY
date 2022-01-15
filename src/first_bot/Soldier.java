@@ -43,6 +43,7 @@ public class Soldier extends RobotCommon{
         onOffense = false;
         onDefense = false;
         observe();
+        observeSymmetry();
         teammateSoldiers = 0;
         enemySoldiers = 0;
         numEnemies = 0;

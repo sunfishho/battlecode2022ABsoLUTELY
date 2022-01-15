@@ -71,6 +71,10 @@ public class Archon extends RobotCommon{
 
         if(round == 1) {
             relocCheck();
+            if(rc.readSharedArray(16) == 0){//array initialized to 0, but we should initialize to 7
+                rc.writeSharedArray(16, 7);
+            }
+            observeSymmetry();
             vortexRndNums = new ArrayList<Integer>();
             AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
             for (AnomalyScheduleEntry a : sched){
@@ -98,7 +102,7 @@ public class Archon extends RobotCommon{
                     rc.writeSharedArray(16, 2);
                 }
                 else if (archonSpotted.equals(Util.centralRefl(archonLocationsInitial[archonIndex]))){
-                    rc.writeSharedArray(16, 3);
+                    rc.writeSharedArray(16, 4);
                 }
                 //if none of these are true for any archonIndex we apparently have an archon walker on our hands
             }
