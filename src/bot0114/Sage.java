@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0114;
 
 import battlecode.common.*;
 import java.util.Random;
@@ -266,17 +266,11 @@ public class Sage extends RobotCommon{
     // Observes if any enemy units nearby
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
-            switch (robot.getType()){
-                case MINER: continue;
-                case ARCHON: 
-                    rc.writeSharedArray(22, Util.getIntFromLocation(robot.getLocation()));
-                    rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                    rc.writeSharedArray(18, round);
-                    break;
-                default:
-                    rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                    rc.writeSharedArray(18, round);
-                    return;
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+                int rankClosest = rankOfNearestArchon(robot.getLocation());
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankClosest);
+                rc.writeSharedArray(18, round);
+                return;
             }
         }
     }

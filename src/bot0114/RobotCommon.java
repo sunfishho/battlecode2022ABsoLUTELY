@@ -1,4 +1,4 @@
-package first_bot;
+package bot0114;
 
 import battlecode.common.*;
 
@@ -12,7 +12,6 @@ public abstract class RobotCommon {
     static int round = 0;
     static int actionRadius, visionRadius;
     Team myTeam, enemyTeam;
-    MapLocation[] archonLocationsInitial = new MapLocation[4];
 
     public RobotCommon(RobotController myRC, int r, MapLocation loc){
         rc = myRC;

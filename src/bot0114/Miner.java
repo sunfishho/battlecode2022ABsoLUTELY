@@ -1,4 +1,4 @@
-package first_bot;
+package bot0114;
 
 import java.util.Map;
 
@@ -79,20 +79,12 @@ public class Miner extends RobotCommon{
     // Observes if any enemy non-miner units nearby
     public void observe() throws GameActionException {
         for (RobotInfo robot : robotLocations) {
-            if (robot.getTeam() != myTeam){
-                switch (robot.getType()){
-                    case MINER: continue;
-                    case ARCHON: 
-                        rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.location));
-                        rc.writeSharedArray(18, round);
-                        rc.writeSharedArray(22, Util.getIntFromLocation(robot.getLocation()));
-                        retreat();
-                    default: 
-                        rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.location));
-                        rc.writeSharedArray(18, round);
-                        retreat();
-                        return;
-                }
+            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
+                int rankClosest = rankOfNearestArchon(robot.location);
+                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankClosest);
+                rc.writeSharedArray(18, round);
+                retreat();
+                return;
             }
         }
     }

@@ -1,4 +1,4 @@
-package first_bot;
+package bot0114;
 import battlecode.common.*;
 import java.util.Random;
 
@@ -10,12 +10,13 @@ public class Util {
         Shared Array:
             0-3: location of Archons 1-4
             4-15: memory blocks
-            16: symmetry indicator (0 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 3 if rotationally symmetric)
+            16: symmetry indicator (3 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 0 if rotationally symmetric)
             17: alarm indicator (location) + 10000 * rank
             18: alarm indicator (round)
             19: number of foragers sent in total
             20: targetted archon for robot production mod numArchons
             21: slot to let archons know to save for soldiers
+            22: location of archon spotted
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
