@@ -289,7 +289,7 @@ public class Archon extends RobotCommon{
         for(int i = 0; i < 4; i++) {
             if(rc.readSharedArray(i) == 0) {
                 int loc = Util.getIntFromLocation(me);
-                rc.writeSharedArray(i, loc + rc.getRoundNum());
+                rc.writeSharedArray(i, loc);
                 System.out.println(i + " " + me);
                 rank = i + 1;
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, loc);

@@ -7,7 +7,6 @@ import battlecode.common.*;
 public class Soldier extends RobotCommon{
 
     static int type;//0 = aggressive, 1 = defensive, 2 = escort?
-    static int movesSinceAction;
     static MapLocation target;  
     static boolean onOffense, onDefense;
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
@@ -28,7 +27,6 @@ public class Soldier extends RobotCommon{
         else{
             target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
         }
-        movesSinceAction = 0;
         //do more stuff later
     }
 
@@ -82,9 +80,12 @@ public class Soldier extends RobotCommon{
             }
         }
         if (enemySoldiers < 0.000001){
-            tryToMove(40);
+            tryToMove(30);
             moveLowerRubble(false);
-            attackValuableEnemies();
+            MapLocation enemy = attackValuableEnemies(false);
+            if (enemy != null){
+                rc.attack(enemy);
+            }
             return;
         }
         enemySoldierCentroidx /= numEnemies;
@@ -99,6 +100,7 @@ public class Soldier extends RobotCommon{
     //right now this only deals with soldier skirmishes + archon stuff
     public void tryToAttackAndMove() throws GameActionException{
         rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
+        //1 on 1 combat
         if (numEnemies == 1 && teammateSoldiers < 0.000001){
             rc.setIndicatorString("1 on 1 combat !");
             for (RobotInfo bot: nearbyBotsSeen){
@@ -109,21 +111,47 @@ public class Soldier extends RobotCommon{
             }
             return;
         }
+        //if we have a teammate
         else if (teammateSoldiers > 0.000001){
             rc.setIndicatorString("Group combat !");
             groupCombat(teammateSoldiers, enemySoldiers, enemySoldierCentroid);
             return;
         }
+        //it's 1vn, where n>1
         else{
             onOffense = false;
-            attackValuableEnemies();
-            retreat(enemySoldierCentroid);
+            MapLocation enemy = attackValuableEnemies(false);
+            Direction dir = retreat(enemySoldierCentroid);
+            //if stepping onto rubble is better for cooldown, do that
+            if (enemy == null){
+                if (rc.canMove(dir) && dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+            }
+            else if (rc.senseRubble(me.add(dir)) / 10 + 2 < rc.senseRubble(me) / 10 && me.add(dir).distanceSquaredTo(enemy) <= 13){
+                if (rc.canMove(dir) && dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+                //in case we have a new best enemy to attack
+                enemy = attackValuableEnemies(false);
+                if (enemy != null){
+                    rc.attack(enemy);
+                }                
+            }
+            else{
+                if (enemy != null){
+                    rc.attack(enemy);
+                }
+                if (rc.canMove(dir) && dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+            }
         }
     }
 
     // Observes if any enemy units nearby
     public void observe() throws GameActionException {
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
+        for (RobotInfo robot: rc.senseNearbyRobots()) {
             if (robot.getTeam() != myTeam){
                 switch (robot.getType()){
                     case MINER: continue;
@@ -143,8 +171,8 @@ public class Soldier extends RobotCommon{
 
     //Tries to run away. First checks the point opposite of enemy centroid, and if that's not on the map, try going to your archon.
     //Have really low rubble passability because you want to be on a low rubble square when you attack/move.
-    //Actually moves, doesn't just reset target.
-    public void retreat(MapLocation enemyCentroid) throws GameActionException{
+    //Returns the direction one should retreat in
+    public Direction retreat(MapLocation enemyCentroid) throws GameActionException{
         rc.setIndicatorString("RETREATING: " + enemyCentroid.x + ", " + enemyCentroid.y);
         int reflectionX = me.x * 2 - enemyCentroid.x;
         int reflectionY = me.y * 2 - enemyCentroid.y;
@@ -168,106 +196,152 @@ public class Soldier extends RobotCommon{
         //     }
         // }
         if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 > 3){
-            moveLowerRubble(true);
-            return;
+            return findDirectionLowerRubbleSquare(true);
         }
         else{
             if (rc.canMove(dir)){
                 rc.setIndicatorLine(me, me.add(dir), 0, 100, 0);
+                return dir;
+            }
+        }
+        return Direction.CENTER;
+    }
+
+    //logic can be improved
+    public void oneOnOneCombat(RobotInfo soldier) throws GameActionException{
+        //move first so cooldown is less when you attack
+        //go to your archon if your health is lower than that of your opponent's
+        Direction dir = findDirectionLowerRubbleSquare(rc.getHealth() <= soldier.health);
+        MapLocation enemy = attackValuableEnemies(false);
+        if (enemy == null){
+            if (dir == Direction.CENTER){
+                return;
+            }
+            enemy = attackValuableEnemies(false);
+            if (enemy != null){
+                rc.attack(enemy);
+            }
+        }
+        if (enemy == null){
+            if (dir != Direction.CENTER){
+                rc.move(dir);
+            }
+            return;
+        }
+        if (me.add(dir).distanceSquaredTo(enemy) <= 13){
+            if (dir != Direction.CENTER){
+                rc.move(dir);
+            }
+            enemy = attackValuableEnemies(false);
+            if (enemy != null){
+                rc.attack(enemy);
+            }
+        }
+        else{
+            if (enemy != null){
+                rc.attack(enemy);
+            }
+            if (dir != Direction.CENTER){
                 rc.move(dir);
             }
         }
     }
 
-    public void oneOnOneCombat(RobotInfo soldier) throws GameActionException{
-        //move first so cooldown is less when you attack
-        //go to your archon if your health is lower than that of your opponent's
-        moveLowerRubble(rc.getHealth() <= soldier.health);
-        attackValuableEnemies();
-        return;
-    }
-
     //For when you have more than one teammate
     public void groupCombat(double teammateSoldiers, double enemySoldiers, MapLocation enemyCentroid) throws GameActionException{
         //average number of hits expected when rushing an archon before perishing
-        int AVG_HITS_EXPECTED_WHEN_ATACKING = 3;
+        // int AVG_HITS_EXPECTED_WHEN_ATACKING = 3;
         //this is the case where we're attacking an archon but we're down in numbers
         //if the archon is immediately killable, go for it, otherwise, run for your lives
-        if (onOffense){
-            if (teammateSoldiers < enemySoldiers){
-                int minArchonHealth = 100000;
-                MapLocation archonTargetLocation = rc.getLocation();
-                for (RobotInfo bot: nearbyBotsSeen){
-                    if (bot.getType() == RobotType.ARCHON && bot.getTeam() == rc.getTeam().opponent() && rc.canAttack(bot.getLocation())){
-                        if (minArchonHealth > bot.getHealth()){
-                            archonTargetLocation = bot.getLocation();
-                        }
-                    }
-                }
-                //Checking if we can land a fatal blow to the enemy archon
-                if (minArchonHealth < (teammateSoldiers/16.1) * 3 * AVG_HITS_EXPECTED_WHEN_ATACKING){
-                    target = archonTargetLocation;
-                    //swarm the archon
-                    //tbh if it's 3 hits from dying (from each teammate) you don't need to care about rubble unless it's like 100 rubble
-                    //and pathfinding should take care of this.
-                    tryToMove(40);
-                    if (rc.canAttack(target)){
-                        rc.attack(target);
-                    }
-                    //if the archon isn't within range attack something else for now if you can still attack next turn
-                    else if (rc.senseRubble(me) < 10){
-                        attackValuableEnemies();
-                    }
-                    return;
-                }
-                //Here, we probably shouldn't go for the Archon, so we should run.
-                else{
-                    //remember, if running away, ATTACK FIRST and THEN run on a turn
-                    attackValuableEnemies();
-                    retreat(enemyCentroid);
-                }
-            }
-            //this is if we have more soldiers than the opponent does
-            else{
-                //not sure if it's better to move or attack first, i'm assuming moving first is better because of cooldown reasons
-                if (me.distanceSquaredTo(enemyCentroid) <= 13){
-                    moveLowerRubble(false);
-                    attackValuableEnemies();
-                }
-                else{
-                    target = enemyCentroid;
-                    tryToMove(30);
-                    attackValuableEnemies();
-                }
-            }
-        }
-        else if (onDefense){
+        MapLocation enemy;
+        Direction dir;
+        boolean pushing = teammateSoldiers >= enemySoldiers;
+        if (onDefense){
             //get on low rubble ground
             //if we're defending, we can't go backwards because we're defending our archon, so we should
             //just look for a lower rubble square.
             //don't retreat if possible
+            //always good to do it in this order
             moveLowerRubble(false);
-            attackValuableEnemies();
+            enemy = attackValuableEnemies(false);
+            if (enemy != null){
+                rc.attack(enemy);
+            }
         }
-        else if (teammateSoldiers < enemySoldiers){
-            attackValuableEnemies();
-            retreat(enemyCentroid);
+        //when we have more soldiers
+        if (pushing){    
+            //not sure if it's better to move or attack first, i'm assuming moving first is better because of cooldown reasons
+            enemy = attackValuableEnemies(true);
+            //if no enemies, try to move to your destination
+            if (enemy == null){
+                tryToMove(40);
+                return;
+            }
+            dir = findDirectionLowerRubbleSquare(false);
+            if (me.add(dir).distanceSquaredTo(enemy) <= 13){
+                if (dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+                enemy = attackValuableEnemies(false);
+                if (enemy != null){
+                    rc.attack(enemy);
+                }
+            }
+            else{
+                enemy = attackValuableEnemies(false);
+                if (enemy != null){
+                    rc.attack(enemy);
+                }
+                if (dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+            }
         }
+        //this is if we have fewer soldiers than the opponent does
         else{
-            assert(teammateSoldiers >= enemySoldiers);
-            moveLowerRubble(false);
-            attackValuableEnemies();
+            enemy = attackValuableEnemies(false);
+            dir = retreat(enemySoldierCentroid);
+            //if stepping onto rubble is better for cooldown, do that
+            if (enemy == null){
+                if (rc.canMove(dir) && dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+            }
+            else if (rc.senseRubble(me.add(dir)) / 10 + 2 < rc.senseRubble(me) / 10 && me.add(dir).distanceSquaredTo(enemy) <= 13){
+
+                if (rc.canMove(dir) && dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+                //in case we have a new best enemy to attack
+                enemy = attackValuableEnemies(false);
+                if (enemy != null){
+                    rc.attack(enemy);
+                }
+            }
+            else{
+                if (enemy != null){
+                    rc.attack(enemy);
+                }
+                if (rc.canMove(dir) && dir != Direction.CENTER){
+                    rc.move(dir);
+                }
+            }
         }
     }
 
-    //Find the enemy highest on our priority list within range and attack
-    public void attackValuableEnemies() throws GameActionException{
-        enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
+    //Find the enemy highest on our priority list within range and return its square
+    public MapLocation attackValuableEnemies(boolean inVisionNotAttack) throws GameActionException{
+        if (inVisionNotAttack){
+            enemyBotsWithinRange = rc.senseNearbyRobots(visionRadius, enemyTeam);
+        }
+        else{
+            enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
+        }
         int bestType = 10;
         int highestRubble = 0;
         int lowestHealth = 100000;
         if (enemyBotsWithinRange.length == 0){
-            return;
+            return null;
         }
         RobotInfo bestBot = enemyBotsWithinRange[0];
         // Go through list of enemies and find the one we want to attack the most
@@ -275,12 +349,12 @@ public class Soldier extends RobotCommon{
             if (bot.getTeam() == myTeam){
                 continue;
             }
-            if (bot.getType() == RobotType.ARCHON && bot.getHealth() < 3 * 3 * teammateSoldiers){
-                target = bot.getLocation();
-                if (rc.canAttack(target)){
-                    rc.attack(target);
-                }
-            }
+            // if (bot.getType() == RobotType.ARCHON && bot.getHealth() < 3 * 3 * teammateSoldiers){
+            //     target = bot.getLocation();
+            //     if (rc.canAttack(target)){
+            //         rc.attack(target);
+            //     }
+            // }
             int enemyType = 8;
             for (int j = 0; j < 7; j++) {
                 if (bot.getType().equals(Util.attackOrder[j])) {
@@ -311,14 +385,18 @@ public class Soldier extends RobotCommon{
             // Tiebreak by enemy health
         }
         //Attack if possible
+        if (inVisionNotAttack){
+            target = bestBot.getLocation();
+            return target;
+        }
         if (rc.canAttack(bestBot.getLocation())) {
             target = bestBot.getLocation();
-            rc.attack(bestBot.getLocation());
-            movesSinceAction = 0;
-            return;
+            return target;
         }
+        return null;
     }
 
+    //use this when you are certain that we actually want to move
     public void moveLowerRubble(boolean toRetreat) throws GameActionException{
         rc.setIndicatorString("MOVING TO LOWER RUBBLE, target = " + target);
         int bestRubble = rc.senseRubble(me);
@@ -339,6 +417,28 @@ public class Soldier extends RobotCommon{
         if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
             rc.move(bestDir);
         }
+    }
+
+    //use this when you want to return the best direction to a lower rubble square but are unsure about whether you
+    //want to move there just yet
+    public Direction findDirectionLowerRubbleSquare(boolean toRetreat) throws GameActionException{
+        rc.setIndicatorString("MOVING TO LOWER RUBBLE, target = " + target);
+        int bestRubble = rc.senseRubble(me);
+        Direction bestDir = Direction.CENTER;
+        for (Direction dir: Util.directions){
+            if (rc.canMove(dir) && rc.senseRubble(me.add(dir))/10 < bestRubble/10){
+                bestDir = dir;
+                bestRubble = rc.senseRubble(me.add(bestDir));
+            }
+            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
+                MapLocation nearestArchonLoc = nearestArchon(me);
+                if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
+                    bestDir = dir;
+                    bestRubble = rc.senseRubble(me.add(bestDir));
+                }
+            }
+        }
+        return bestDir;
     }
 
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
