@@ -34,6 +34,10 @@ public class Soldier extends RobotCommon{
 
     public void takeTurn() throws GameActionException {
         me = rc.getLocation();
+        round = rc.getRoundNum();
+        if (me.equals(target)){
+            target = chooseRandomInitialDestination();
+        }
         // Try to attack someone
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
@@ -90,7 +94,6 @@ public class Soldier extends RobotCommon{
         // This whole block only runs if we have an enemy in sight
         tryToAttackAndMove();
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        round++;
         rc.setIndicatorString("target: " + target.x + ", " + target.y);
     }
     //right now this only deals with soldier skirmishes + archon stuff
@@ -312,13 +315,12 @@ public class Soldier extends RobotCommon{
             target = bestBot.getLocation();
             rc.attack(bestBot.getLocation());
             movesSinceAction = 0;
-            round++;
             return;
         }
     }
 
     public void moveLowerRubble(boolean toRetreat) throws GameActionException{
-        // rc.setIndicatorString("MOVING TO LOWER RUBBLE");
+        rc.setIndicatorString("MOVING TO LOWER RUBBLE, target = " + target);
         int bestRubble = rc.senseRubble(me);
         Direction bestDir = Direction.CENTER;
         for (Direction dir: Util.directions){
@@ -341,6 +343,7 @@ public class Soldier extends RobotCommon{
 
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove(int avgRubble) throws GameActionException {
+        rc.setIndicatorString("trying to move: " + target);
         if (rc.readSharedArray(17) != 65535) {
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }

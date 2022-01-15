@@ -312,7 +312,7 @@ public class Archon extends RobotCommon{
 
     // Check if any aggressive enemy archons nearby
     public boolean observe() throws GameActionException {
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
+        for (RobotInfo robot : rc.senseNearbyRobots(34, enemyTeam)) {
             switch (robot.getType()){
                     case MINER: continue;
                     case ARCHON: 
