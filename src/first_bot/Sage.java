@@ -31,7 +31,11 @@ public class Sage extends RobotCommon{
 
     //TODO
     public void takeTurn() throws GameActionException {
+        round = rc.getRoundNum();
         me = rc.getLocation();
+        if (me.equals(target)){
+            target = chooseRandomInitialDestination();
+        }
         if (rc.getActionCooldownTurns() < 10) {
             isRetreating = false;
         }
@@ -59,7 +63,7 @@ public class Sage extends RobotCommon{
             tryToMove(40);
             moveLowerRubble(false);
             tryToAttack();
-            rc.setIndicatorString("target: " + target.x + ", " + target.y);
+            rc.setIndicatorString("target1: " + target.x + ", " + target.y);
             return;
         }
         enemySoldierCentroidx /= numEnemies;
@@ -70,7 +74,7 @@ public class Sage extends RobotCommon{
         tryToAttack();
         retreat(enemySoldierCentroid);
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        rc.setIndicatorString("target: " + target.x + ", " + target.y);
+        rc.setIndicatorString("target2: " + target.x + ", " + target.y);
 
     }
     
@@ -121,7 +125,6 @@ public class Sage extends RobotCommon{
         if (rc.canAttack(bestBot.getLocation()) && bestBot.getType() != RobotType.MINER) {
             rc.attack(bestBot.getLocation());
             isRetreating = true;
-            round++;
             return;
         }
     }
@@ -133,7 +136,7 @@ public class Sage extends RobotCommon{
     public void tryToMove(int avgRubble) throws GameActionException {
         
         if (rc.readSharedArray(17) != 65535) {
-            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+            target = Util.getLocationFromInt(rc.readSharedArray(17) / 10000);
         }
         else if (target == null){
             target = chooseRandomInitialDestination();
@@ -266,11 +269,14 @@ public class Sage extends RobotCommon{
     // Observes if any enemy units nearby
     public void observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots()) {
+            if (robot.getTeam() == myTeam){
+                return;
+            }
             switch (robot.getType()){
                 case MINER: continue;
                 case ARCHON: 
                     rc.writeSharedArray(22, Util.getIntFromLocation(robot.getLocation()));
-                    rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
+                    rc.writeSharedArray(17, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                     rc.writeSharedArray(18, round);
                     break;
                 default:
