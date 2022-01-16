@@ -213,67 +213,20 @@ public class Miner extends Unit{
         int numLeadLocations = leadLocations.length;
         int myId = rc.getID();
         if(numLeadLocations > 0) {
-            // int initialBytecode = 0;
-            // if (rc.getID() == 10080){
-            //     initialBytecode = Clock.getBytecodeNum();
-            // }
             MapLocation bestLoc = archonLocation;
             int bestDist = 0;
-            int[][] gridOfSquares = new int[9][9];
             for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
-                if (rc.senseLead(leadLocations[idx]) > 1){
-                    gridOfSquares[leadLocations[idx].x - me.x + 4][leadLocations[idx].y - me.y + 4]++;
-                }
-            }
-            for (int idx = robotLocations.length - 1; idx >= 0; idx--){
-                int robotX = robotLocations[idx].location.x - me.x + 4;
-                int robotY = robotLocations[idx].location.y - me.y + 4;
-                if (robotLocations[idx].getTeam().equals(rc.getTeam()) && robotLocations[idx].getType().equals(RobotType.MINER) && robotLocations[idx].getID() < myId){
-                    for (int dxdyIdx = 7; dxdyIdx >= 0; dxdyIdx--){
-                        int xcoord = Util.dxDiff[dxdyIdx] + robotX;
-                        int ycoord = Util.dyDiff[dxdyIdx] + robotY;
-                        if (xcoord >= 0 && xcoord <= 8 && ycoord >= 0 && ycoord <= 8){
-                            gridOfSquares[xcoord][ycoord] = 0;
-                        }
-                    }
-                    gridOfSquares[robotX][robotY] = 0;
-                }
-            }
-            for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
-                if (gridOfSquares[leadLocations[idx].x - me.x + 4][leadLocations[idx].y - me.y + 4] > 0 && bestDist < archonLocation.distanceSquaredTo(leadLocations[idx])){
+                if (rc.senseLead(leadLocations[idx]) > 1 && bestDist < archonLocation.distanceSquaredTo(leadLocations[idx])){
                     bestDist = archonLocation.distanceSquaredTo(leadLocations[idx]);
                     bestLoc = leadLocations[idx];
                     change = true;
                 }
             }
-            // for(int i = 0; i < numLeadLocations; i++) {
-            //     MapLocation newLoc = leadLocations[i];
-            //     boolean occupied = false;
-            //     for (RobotInfo robot : robotLocations) {
-            //         if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID() && robot.getLocation().distanceSquaredTo(target) <= 2) {
-            //             occupied = true;
-            //             break;
-            //         }
-            //     }
-            //     if (occupied) {
-            //         continue;
-            //     }
-            //     int newDist = archonLocation.distanceSquaredTo(newLoc);
-            //     int numLead = rc.senseLead(newLoc);
-            //     if(numLead > 1 && newDist > bestDist) {
-            //         bestDist = newDist;
-            //         bestLoc = newLoc;
-            //         change = true;
-            //         break;
-            //     }
-            // }
             if(change) {
                 target = bestLoc;
                 if (target.equals(me) == false) {
                     reachedTarget = false;
                 }
-                // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
-                // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), lead, turn " + round);
                 return true;
             }
         }
@@ -288,8 +241,6 @@ public class Miner extends Unit{
             if (target.equals(me) == false) {
                 reachedTarget = false;
             }
-            // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), random, turn " + round);
-            // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
         }
         return false;
     }
