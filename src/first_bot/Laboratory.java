@@ -12,5 +12,8 @@ public class Laboratory extends RobotCommon{
 
     //TODO
     public void takeTurn() throws GameActionException {
+        if (rc.canTransmute()) {
+            rc.transmute();
+        }
     }
 }
