@@ -53,7 +53,7 @@ public class Miner extends RobotCommon{
             }
         }
         */
-        System.out.println(round + ": " + rc.getID() + ", " + Clock.getBytecodeNum());
+        // System.out.println(round + ": " + rc.getID() + ", " + Clock.getBytecodeNum());
         if (rc.canSenseLocation(target)) {
             RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
             for (RobotInfo robot : robotAtTarget) {
