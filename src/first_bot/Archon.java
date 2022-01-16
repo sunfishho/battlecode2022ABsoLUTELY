@@ -18,6 +18,7 @@ public class Archon extends RobotCommon{
     static int changeOppLeadCount = 0;
     static MapLocation archonLocs;
     static int numMinersAlive, numSoldiersAlive;
+    static RobotInfo[] nearbyTeammatesWithinHealingRange;
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -44,6 +45,7 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
+        nearbyTeammatesWithinHealingRange = rc.senseNearbyRobots(20, myTeam);
         // update variables
         round = rc.getRoundNum();
         numArchons = rc.getArchonCount();
@@ -266,6 +268,36 @@ public class Archon extends RobotCommon{
             // System.out.println("SOLDIER on round " + round);
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
+        }
+        if (nearbyTeammatesWithinHealingRange.length != 0){
+            RobotInfo mostNeedy = null;
+
+            for (RobotInfo robot : nearbyTeammatesWithinHealingRange){
+                if (robot.health + 2 > robot.getType().health || !rc.canRepair(robot.getLocation())){
+                    continue;
+                }
+                if (mostNeedy == null){
+                    mostNeedy = robot;
+                    continue;
+                }
+                switch (robot.getType()){
+                    case SOLDIER:
+                        // check if the fraction of health is lower for this robot
+                        if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health <= mostNeedy.health * robot.getType().health){
+                            mostNeedy = robot;
+                        }
+                        break;
+                    default:
+                        if (mostNeedy.getType() != RobotType.SOLDIER && robot.health * mostNeedy.getType().health <= mostNeedy.health * robot.getType().health){
+                            mostNeedy = robot;
+                        }
+                        break;
+                }
+            }
+
+            if (mostNeedy != null){
+                rc.repair(mostNeedy.getLocation());
+            }
         }
     }
 
