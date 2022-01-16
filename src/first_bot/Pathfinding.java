@@ -929,6 +929,96 @@ public class Pathfinding {
 			distances44 = prevDistances34;
 		}
 		distances44 += rubbleLevels44;
+		prevDistances00 -= rubbleLevels00;
+		if (prevDistances00 > distances01){
+			prevDistances00 = distances01;
+		}
+		if (prevDistances00 > distances11){
+			prevDistances00 = distances11;
+		}
+		if (prevDistances00 > distances10){
+			prevDistances00 = distances10;
+		}
+		prevDistances00 += rubbleLevels00;
+		prevDistances01 -= rubbleLevels01;
+		if (prevDistances01 > distances02){
+			prevDistances01 = distances02;
+		}
+		if (prevDistances01 > distances12){
+			prevDistances01 = distances12;
+		}
+		if (prevDistances01 > distances11){
+			prevDistances01 = distances11;
+		}
+		if (prevDistances01 > distances10){
+			prevDistances01 = distances10;
+		}
+		if (prevDistances01 > distances00){
+			prevDistances01 = distances00;
+		}
+		prevDistances01 += rubbleLevels01;
+		prevDistances02 -= rubbleLevels02;
+		if (prevDistances02 > distances03){
+			prevDistances02 = distances03;
+		}
+		if (prevDistances02 > distances13){
+			prevDistances02 = distances13;
+		}
+		if (prevDistances02 > distances12){
+			prevDistances02 = distances12;
+		}
+		if (prevDistances02 > distances11){
+			prevDistances02 = distances11;
+		}
+		if (prevDistances02 > distances01){
+			prevDistances02 = distances01;
+		}
+		prevDistances02 += rubbleLevels02;
+		prevDistances03 -= rubbleLevels03;
+		if (prevDistances03 > distances04){
+			prevDistances03 = distances04;
+		}
+		if (prevDistances03 > distances14){
+			prevDistances03 = distances14;
+		}
+		if (prevDistances03 > distances13){
+			prevDistances03 = distances13;
+		}
+		if (prevDistances03 > distances12){
+			prevDistances03 = distances12;
+		}
+		if (prevDistances03 > distances02){
+			prevDistances03 = distances02;
+		}
+		prevDistances03 += rubbleLevels03;
+		prevDistances04 -= rubbleLevels04;
+		if (prevDistances04 > distances14){
+			prevDistances04 = distances14;
+		}
+		if (prevDistances04 > distances13){
+			prevDistances04 = distances13;
+		}
+		if (prevDistances04 > distances03){
+			prevDistances04 = distances03;
+		}
+		prevDistances04 += rubbleLevels04;
+		prevDistances10 -= rubbleLevels10;
+		if (prevDistances10 > distances11){
+			prevDistances10 = distances11;
+		}
+		if (prevDistances10 > distances21){
+			prevDistances10 = distances21;
+		}
+		if (prevDistances10 > distances20){
+			prevDistances10 = distances20;
+		}
+		if (prevDistances10 > distances00){
+			prevDistances10 = distances00;
+		}
+		if (prevDistances10 > distances01){
+			prevDistances10 = distances01;
+		}
+		prevDistances10 += rubbleLevels10;
 		prevDistances11 -= rubbleLevels11;
 		if (prevDistances11 > distances12){
 			prevDistances11 = distances12;
@@ -1007,6 +1097,40 @@ public class Pathfinding {
 			prevDistances13 = distances04;
 		}
 		prevDistances13 += rubbleLevels13;
+		prevDistances14 -= rubbleLevels14;
+		if (prevDistances14 > distances24){
+			prevDistances14 = distances24;
+		}
+		if (prevDistances14 > distances23){
+			prevDistances14 = distances23;
+		}
+		if (prevDistances14 > distances13){
+			prevDistances14 = distances13;
+		}
+		if (prevDistances14 > distances03){
+			prevDistances14 = distances03;
+		}
+		if (prevDistances14 > distances04){
+			prevDistances14 = distances04;
+		}
+		prevDistances14 += rubbleLevels14;
+		prevDistances20 -= rubbleLevels20;
+		if (prevDistances20 > distances21){
+			prevDistances20 = distances21;
+		}
+		if (prevDistances20 > distances31){
+			prevDistances20 = distances31;
+		}
+		if (prevDistances20 > distances30){
+			prevDistances20 = distances30;
+		}
+		if (prevDistances20 > distances10){
+			prevDistances20 = distances10;
+		}
+		if (prevDistances20 > distances11){
+			prevDistances20 = distances11;
+		}
+		prevDistances20 += rubbleLevels20;
 		prevDistances21 -= rubbleLevels21;
 		if (prevDistances21 > distances22){
 			prevDistances21 = distances22;
@@ -1085,6 +1209,40 @@ public class Pathfinding {
 			prevDistances23 = distances14;
 		}
 		prevDistances23 += rubbleLevels23;
+		prevDistances24 -= rubbleLevels24;
+		if (prevDistances24 > distances34){
+			prevDistances24 = distances34;
+		}
+		if (prevDistances24 > distances33){
+			prevDistances24 = distances33;
+		}
+		if (prevDistances24 > distances23){
+			prevDistances24 = distances23;
+		}
+		if (prevDistances24 > distances13){
+			prevDistances24 = distances13;
+		}
+		if (prevDistances24 > distances14){
+			prevDistances24 = distances14;
+		}
+		prevDistances24 += rubbleLevels24;
+		prevDistances30 -= rubbleLevels30;
+		if (prevDistances30 > distances31){
+			prevDistances30 = distances31;
+		}
+		if (prevDistances30 > distances41){
+			prevDistances30 = distances41;
+		}
+		if (prevDistances30 > distances40){
+			prevDistances30 = distances40;
+		}
+		if (prevDistances30 > distances20){
+			prevDistances30 = distances20;
+		}
+		if (prevDistances30 > distances21){
+			prevDistances30 = distances21;
+		}
+		prevDistances30 += rubbleLevels30;
 		prevDistances31 -= rubbleLevels31;
 		if (prevDistances31 > distances32){
 			prevDistances31 = distances32;
@@ -1163,6 +1321,200 @@ public class Pathfinding {
 			prevDistances33 = distances24;
 		}
 		prevDistances33 += rubbleLevels33;
+		prevDistances34 -= rubbleLevels34;
+		if (prevDistances34 > distances44){
+			prevDistances34 = distances44;
+		}
+		if (prevDistances34 > distances43){
+			prevDistances34 = distances43;
+		}
+		if (prevDistances34 > distances33){
+			prevDistances34 = distances33;
+		}
+		if (prevDistances34 > distances23){
+			prevDistances34 = distances23;
+		}
+		if (prevDistances34 > distances24){
+			prevDistances34 = distances24;
+		}
+		prevDistances34 += rubbleLevels34;
+		prevDistances40 -= rubbleLevels40;
+		if (prevDistances40 > distances41){
+			prevDistances40 = distances41;
+		}
+		if (prevDistances40 > distances30){
+			prevDistances40 = distances30;
+		}
+		if (prevDistances40 > distances31){
+			prevDistances40 = distances31;
+		}
+		prevDistances40 += rubbleLevels40;
+		prevDistances41 -= rubbleLevels41;
+		if (prevDistances41 > distances42){
+			prevDistances41 = distances42;
+		}
+		if (prevDistances41 > distances40){
+			prevDistances41 = distances40;
+		}
+		if (prevDistances41 > distances30){
+			prevDistances41 = distances30;
+		}
+		if (prevDistances41 > distances31){
+			prevDistances41 = distances31;
+		}
+		if (prevDistances41 > distances32){
+			prevDistances41 = distances32;
+		}
+		prevDistances41 += rubbleLevels41;
+		prevDistances42 -= rubbleLevels42;
+		if (prevDistances42 > distances43){
+			prevDistances42 = distances43;
+		}
+		if (prevDistances42 > distances41){
+			prevDistances42 = distances41;
+		}
+		if (prevDistances42 > distances31){
+			prevDistances42 = distances31;
+		}
+		if (prevDistances42 > distances32){
+			prevDistances42 = distances32;
+		}
+		if (prevDistances42 > distances33){
+			prevDistances42 = distances33;
+		}
+		prevDistances42 += rubbleLevels42;
+		prevDistances43 -= rubbleLevels43;
+		if (prevDistances43 > distances44){
+			prevDistances43 = distances44;
+		}
+		if (prevDistances43 > distances42){
+			prevDistances43 = distances42;
+		}
+		if (prevDistances43 > distances32){
+			prevDistances43 = distances32;
+		}
+		if (prevDistances43 > distances33){
+			prevDistances43 = distances33;
+		}
+		if (prevDistances43 > distances34){
+			prevDistances43 = distances34;
+		}
+		prevDistances43 += rubbleLevels43;
+		prevDistances44 -= rubbleLevels44;
+		if (prevDistances44 > distances43){
+			prevDistances44 = distances43;
+		}
+		if (prevDistances44 > distances33){
+			prevDistances44 = distances33;
+		}
+		if (prevDistances44 > distances34){
+			prevDistances44 = distances34;
+		}
+		prevDistances44 += rubbleLevels44;
+		distances11 -= rubbleLevels11;
+		if (distances11 > prevDistances12){
+			distances11 = prevDistances12;
+		}
+		if (distances11 > prevDistances22){
+			distances11 = prevDistances22;
+		}
+		if (distances11 > prevDistances21){
+			distances11 = prevDistances21;
+		}
+		if (distances11 > prevDistances20){
+			distances11 = prevDistances20;
+		}
+		if (distances11 > prevDistances10){
+			distances11 = prevDistances10;
+		}
+		if (distances11 > prevDistances00){
+			distances11 = prevDistances00;
+		}
+		if (distances11 > prevDistances01){
+			distances11 = prevDistances01;
+		}
+		if (distances11 > prevDistances02){
+			distances11 = prevDistances02;
+		}
+		distances11 += rubbleLevels11;
+		distances12 -= rubbleLevels12;
+		if (distances12 > prevDistances13){
+			distances12 = prevDistances13;
+		}
+		if (distances12 > prevDistances23){
+			distances12 = prevDistances23;
+		}
+		if (distances12 > prevDistances22){
+			distances12 = prevDistances22;
+		}
+		if (distances12 > prevDistances21){
+			distances12 = prevDistances21;
+		}
+		if (distances12 > prevDistances11){
+			distances12 = prevDistances11;
+		}
+		if (distances12 > prevDistances01){
+			distances12 = prevDistances01;
+		}
+		if (distances12 > prevDistances02){
+			distances12 = prevDistances02;
+		}
+		if (distances12 > prevDistances03){
+			distances12 = prevDistances03;
+		}
+		distances12 += rubbleLevels12;
+		distances13 -= rubbleLevels13;
+		if (distances13 > prevDistances14){
+			distances13 = prevDistances14;
+		}
+		if (distances13 > prevDistances24){
+			distances13 = prevDistances24;
+		}
+		if (distances13 > prevDistances23){
+			distances13 = prevDistances23;
+		}
+		if (distances13 > prevDistances22){
+			distances13 = prevDistances22;
+		}
+		if (distances13 > prevDistances12){
+			distances13 = prevDistances12;
+		}
+		if (distances13 > prevDistances02){
+			distances13 = prevDistances02;
+		}
+		if (distances13 > prevDistances03){
+			distances13 = prevDistances03;
+		}
+		if (distances13 > prevDistances04){
+			distances13 = prevDistances04;
+		}
+		distances13 += rubbleLevels13;
+		distances21 -= rubbleLevels21;
+		if (distances21 > prevDistances22){
+			distances21 = prevDistances22;
+		}
+		if (distances21 > prevDistances32){
+			distances21 = prevDistances32;
+		}
+		if (distances21 > prevDistances31){
+			distances21 = prevDistances31;
+		}
+		if (distances21 > prevDistances30){
+			distances21 = prevDistances30;
+		}
+		if (distances21 > prevDistances20){
+			distances21 = prevDistances20;
+		}
+		if (distances21 > prevDistances10){
+			distances21 = prevDistances10;
+		}
+		if (distances21 > prevDistances11){
+			distances21 = prevDistances11;
+		}
+		if (distances21 > prevDistances12){
+			distances21 = prevDistances12;
+		}
+		distances21 += rubbleLevels21;
 		distances22 -= rubbleLevels22;
 		if (distances22 > prevDistances23){
 			distances22 = prevDistances23;
@@ -1189,6 +1541,110 @@ public class Pathfinding {
 			distances22 = prevDistances13;
 		}
 		distances22 += rubbleLevels22;
+		distances23 -= rubbleLevels23;
+		if (distances23 > prevDistances24){
+			distances23 = prevDistances24;
+		}
+		if (distances23 > prevDistances34){
+			distances23 = prevDistances34;
+		}
+		if (distances23 > prevDistances33){
+			distances23 = prevDistances33;
+		}
+		if (distances23 > prevDistances32){
+			distances23 = prevDistances32;
+		}
+		if (distances23 > prevDistances22){
+			distances23 = prevDistances22;
+		}
+		if (distances23 > prevDistances12){
+			distances23 = prevDistances12;
+		}
+		if (distances23 > prevDistances13){
+			distances23 = prevDistances13;
+		}
+		if (distances23 > prevDistances14){
+			distances23 = prevDistances14;
+		}
+		distances23 += rubbleLevels23;
+		distances31 -= rubbleLevels31;
+		if (distances31 > prevDistances32){
+			distances31 = prevDistances32;
+		}
+		if (distances31 > prevDistances42){
+			distances31 = prevDistances42;
+		}
+		if (distances31 > prevDistances41){
+			distances31 = prevDistances41;
+		}
+		if (distances31 > prevDistances40){
+			distances31 = prevDistances40;
+		}
+		if (distances31 > prevDistances30){
+			distances31 = prevDistances30;
+		}
+		if (distances31 > prevDistances20){
+			distances31 = prevDistances20;
+		}
+		if (distances31 > prevDistances21){
+			distances31 = prevDistances21;
+		}
+		if (distances31 > prevDistances22){
+			distances31 = prevDistances22;
+		}
+		distances31 += rubbleLevels31;
+		distances32 -= rubbleLevels32;
+		if (distances32 > prevDistances33){
+			distances32 = prevDistances33;
+		}
+		if (distances32 > prevDistances43){
+			distances32 = prevDistances43;
+		}
+		if (distances32 > prevDistances42){
+			distances32 = prevDistances42;
+		}
+		if (distances32 > prevDistances41){
+			distances32 = prevDistances41;
+		}
+		if (distances32 > prevDistances31){
+			distances32 = prevDistances31;
+		}
+		if (distances32 > prevDistances21){
+			distances32 = prevDistances21;
+		}
+		if (distances32 > prevDistances22){
+			distances32 = prevDistances22;
+		}
+		if (distances32 > prevDistances23){
+			distances32 = prevDistances23;
+		}
+		distances32 += rubbleLevels32;
+		distances33 -= rubbleLevels33;
+		if (distances33 > prevDistances34){
+			distances33 = prevDistances34;
+		}
+		if (distances33 > prevDistances44){
+			distances33 = prevDistances44;
+		}
+		if (distances33 > prevDistances43){
+			distances33 = prevDistances43;
+		}
+		if (distances33 > prevDistances42){
+			distances33 = prevDistances42;
+		}
+		if (distances33 > prevDistances32){
+			distances33 = prevDistances32;
+		}
+		if (distances33 > prevDistances22){
+			distances33 = prevDistances22;
+		}
+		if (distances33 > prevDistances23){
+			distances33 = prevDistances23;
+		}
+		if (distances33 > prevDistances24){
+			distances33 = prevDistances24;
+		}
+		distances33 += rubbleLevels33;
 	}
 
 
