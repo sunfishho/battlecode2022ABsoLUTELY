@@ -1,3 +1,4 @@
+
 package bot0115;
 
 import battlecode.common.*;
@@ -132,8 +133,8 @@ public class Sage extends Unit {
 
     public void tryToMove(int avgRubble) throws GameActionException {
         
-        if (rc.readSharedArray(17) != 65535) {
-            target = Util.getLocationFromInt(rc.readSharedArray(17) / 10000);
+        if (rc.readSharedArray(17) < 65534) {
+            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }
         else if (target == null){
             target = chooseRandomInitialDestination();

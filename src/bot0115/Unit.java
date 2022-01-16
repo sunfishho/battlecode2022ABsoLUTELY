@@ -1,5 +1,4 @@
 package bot0115;
-
 import battlecode.common.*;
 
 public class Unit extends RobotCommon {
@@ -87,7 +86,7 @@ public class Unit extends RobotCommon {
                         if (rc.getType() == RobotType.MINER || rc.getType() == RobotType.BUILDER) {
                             isRetreating = true;
                         }
-                        return hasNearby = true;
+                        return hasNearby == true;
                     default:
                         rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                         rc.writeSharedArray(18, round);

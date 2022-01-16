@@ -31,6 +31,18 @@ public abstract class RobotCommon {
         pf = new Pathfinding(this);
     }
 
+    public static void takeAttendance() throws GameActionException{
+        switch(rc.getType()){
+            case MINER: 
+                rc.writeSharedArray(28, rc.readSharedArray(28) + 1);
+                return;
+            case SOLDIER: 
+                rc.writeSharedArray(29, rc.readSharedArray(29) + 1);
+                return;
+            default: return;
+        }
+    }
+
     public static MapLocation nearestEnemyArchon(MapLocation loc, int sym) throws GameActionException{//returns closest enemy archon to loc if sym is determined, assuming enemy has not moved archons
         MapLocation ans = new MapLocation(-1, -1);
         if(sym == 0){

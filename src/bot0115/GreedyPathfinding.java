@@ -1,5 +1,4 @@
 package bot0115;
-
 import battlecode.common.*;
 
 

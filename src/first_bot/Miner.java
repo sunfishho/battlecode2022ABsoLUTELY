@@ -62,27 +62,6 @@ public class Miner extends Unit{
         }
         observeSymmetry();
         tryToMine(1);
-        nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
-        numEnemies = 0;
-        double enemySoldierCentroidx = 0;
-        double enemySoldierCentroidy = 0;
-        for (RobotInfo bot : nearbyBotsSeen){
-            switch(bot.getType()){
-                case SOLDIER:
-                    if (bot.getTeam() != myTeam){
-                        MapLocation enemyLoc = bot.getLocation();
-                        numEnemies++;
-                        enemySoldierCentroidy += enemyLoc.y;
-                        enemySoldierCentroidx += enemyLoc.x;
-                    }
-                    break;
-                default:
-            }
-        }
-        enemySoldierCentroidx /= numEnemies;
-        enemySoldierCentroidy /= numEnemies;
-        enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
-        
         /*
         // If there are mineable neighboring deposits, don't keep moving
         if (!isRetreating) {
@@ -166,7 +145,7 @@ public class Miner extends Unit{
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
     // Returns if target was written
     // resetLoc is true if we want a new location even if we haven't reached the old one yet
-    public boolean tryToWriteTarget(boolean resetLoc) throws GameActionException {
+    public void tryToWriteTarget(boolean resetLoc) throws GameActionException {
         
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
@@ -204,11 +183,12 @@ public class Miner extends Unit{
                 }
                 // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
                 // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), gold, turn " + round);
-                return true;
+                return;
             }
         }
 
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
+        robotLocations = rc.senseNearbyRobots();
         
         int numLeadLocations = leadLocations.length;
         int myId = rc.getID();
@@ -221,7 +201,7 @@ public class Miner extends Unit{
             int bestDist = 0;
             int[][] gridOfSquares = new int[9][9];
             for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
-                if (rc.senseLead(leadLocations[idx]) > 1){
+                if (rc.senseLead(leadLocations[idx]) > 1 && leadLocations[idx].x - me.x + 4 >= 0 && leadLocations[idx].x - me.x + 4 < 9 && leadLocations[idx].y - me.y + 4 >= 0 && leadLocations[idx].y - me.y + 4 < 9){
                     gridOfSquares[leadLocations[idx].x - me.x + 4][leadLocations[idx].y - me.y + 4]++;
                 }
             }
@@ -236,37 +216,19 @@ public class Miner extends Unit{
                             gridOfSquares[xcoord][ycoord] = 0;
                         }
                     }
-                    gridOfSquares[robotX][robotY] = 0;
+                    if (robotX >= 0 && robotX < 9 && robotY >= 0 && robotY < 9){
+                        gridOfSquares[robotX][robotY] = 0;
+                    }
                 }
             }
             for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
-                if (gridOfSquares[leadLocations[idx].x - me.x + 4][leadLocations[idx].y - me.y + 4] > 0 && bestDist < archonLocation.distanceSquaredTo(leadLocations[idx])){
+                if (leadLocations[idx].x - me.x + 4 >= 0 && leadLocations[idx].x - me.x + 4 < 9 && leadLocations[idx].y - me.y + 4 >= 0 && leadLocations[idx].y - me.y + 4 < 9 && gridOfSquares[leadLocations[idx].x - me.x + 4][leadLocations[idx].y - me.y + 4] > 0 && bestDist < archonLocation.distanceSquaredTo(leadLocations[idx])){
                     bestDist = archonLocation.distanceSquaredTo(leadLocations[idx]);
                     bestLoc = leadLocations[idx];
                     change = true;
                 }
             }
-            // for(int i = 0; i < numLeadLocations; i++) {
-            //     MapLocation newLoc = leadLocations[i];
-            //     boolean occupied = false;
-            //     for (RobotInfo robot : robotLocations) {
-            //         if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID() && robot.getLocation().distanceSquaredTo(target) <= 2) {
-            //             occupied = true;
-            //             break;
-            //         }
-            //     }
-            //     if (occupied) {
-            //         continue;
-            //     }
-            //     int newDist = archonLocation.distanceSquaredTo(newLoc);
-            //     int numLead = rc.senseLead(newLoc);
-            //     if(numLead > 1 && newDist > bestDist) {
-            //         bestDist = newDist;
-            //         bestLoc = newLoc;
-            //         change = true;
-            //         break;
-            //     }
-            // }
+
             if(change) {
                 target = bestLoc;
                 if (target.equals(me) == false) {
@@ -274,8 +236,32 @@ public class Miner extends Unit{
                 }
                 // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
                 // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), lead, turn " + round);
-                return true;
+                return;
             }
+        }
+        if (rc.readSharedArray(17) == 65535 && !change){
+            MapLocation minerLoc = me;
+            int minerCentroidx = 0;
+            int minerCentroidy = 0;
+            int numMiners = 0;
+            for (int idx = robotLocations.length - 1; idx >= 0; idx--){
+                if (robotLocations[idx].getTeam() == myTeam && robotLocations[idx].getType() == RobotType.MINER){
+                    minerLoc = robotLocations[idx].getLocation();
+                    numMiners++;
+                    minerCentroidx += minerLoc.x;
+                    minerCentroidy += minerLoc.y;
+                }
+            }
+            if (numMiners != 0){
+                minerCentroidx /= numMiners;
+                minerCentroidy /= numMiners;
+                Direction dirRetreat = retreat(new MapLocation(minerCentroidx, minerCentroidy));
+                if (rc.canMove(dirRetreat)){
+                    rc.move(dirRetreat);
+                    return;
+                }
+            }
+
         }
         // Choose random location
         if (resetLoc || reachedTarget) {
@@ -291,7 +277,7 @@ public class Miner extends Unit{
             // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), random, turn " + round);
             // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
         }
-        return false;
+        return;
     }
 
     // Tries to mine in 3x3 square around Miner, and leaves leaveLead amount at location

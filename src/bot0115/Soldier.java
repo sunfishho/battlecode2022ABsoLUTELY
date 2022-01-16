@@ -1,3 +1,4 @@
+
 package bot0115;
 
 import battlecode.common.*;
@@ -29,6 +30,7 @@ public class Soldier extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
+        takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         if (me.equals(target)){
@@ -382,7 +384,7 @@ public class Soldier extends Unit {
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
-        if (rc.readSharedArray(17) != 65535) {
+        if (rc.readSharedArray(17) < 65534) {
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }
         else if (target == null){

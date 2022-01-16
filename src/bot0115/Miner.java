@@ -20,15 +20,46 @@ public class Miner extends Unit{
     }
     
     public void takeTurn() throws GameActionException {
+        takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         archonLocation = nearestArchon(me);
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
-        robotLocations = rc.senseNearbyRobots();
+        robotLocations = rc.senseNearbyRobots(20);
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
         }
-        observe();
+        if (observe()){
+            int enemyCentroidx = 0;
+            int enemyCentroidy = 0;
+            int numEnemies = 0;
+            MapLocation enemyLoc = me;
+            for (RobotInfo bot : robotLocations){
+                if (bot.getTeam() == myTeam){
+                    continue;
+                }
+                switch(bot.getType()){
+                    case SOLDIER:
+                        enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemyCentroidx += enemyLoc.x;
+                        enemyCentroidy += enemyLoc.y;
+                        break;
+                    case ARCHON:
+                        enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemyCentroidx += enemyLoc.x;
+                        enemyCentroidy += enemyLoc.y;
+                        break;
+                    default:
+                }
+            }
+            if (numEnemies != 0){
+                enemyCentroidx /= numEnemies;
+                enemyCentroidy /= numEnemies;
+                retreat(new MapLocation(enemyCentroidx, enemyCentroidy));
+            }
+        }
         observeSymmetry();
         tryToMine(1);
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
