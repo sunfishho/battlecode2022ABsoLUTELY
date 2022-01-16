@@ -11,6 +11,7 @@ public class Miner extends RobotCommon{
     public static boolean isRetreating; // whether retreating
     public static int retreatCounter; // number of turns retreating for
     public static RobotInfo[] robotLocations;
+    static int maxBytecodeUsed = 0;
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
@@ -141,11 +142,10 @@ public class Miner extends RobotCommon{
     // resetLoc is true if we want a new location even if we haven't reached the old one yet
     public boolean tryToWriteTarget(boolean resetLoc) throws GameActionException {
         
-        
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
         boolean change = false;
-
+        robotLocations = rc.senseNearbyRobots();
         if(numGoldLocations > 0) {
             MapLocation bestLoc = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1));
             int bestDist = bestLoc.distanceSquaredTo(archonLocation);
@@ -185,33 +185,62 @@ public class Miner extends RobotCommon{
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
         
         int numLeadLocations = leadLocations.length;
-            
+        int myId = rc.getID();
         if(numLeadLocations > 0) {
+            // int initialBytecode = 0;
+            // if (rc.getID() == 10080){
+            //     initialBytecode = Clock.getBytecodeNum();
+            // }
             MapLocation bestLoc = archonLocation;
-            int bestDist = bestLoc.distanceSquaredTo(archonLocation);
-
-            for(int i = 0; i < numLeadLocations; i++) {
-                MapLocation newLoc = leadLocations[i];
-                boolean occupied = false;
-                for (RobotInfo robot : robotLocations) {
-                    if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID() && robot.getLocation().distanceSquaredTo(target) <= 2) {
-                        occupied = true;
-                        break;
-                    }
-                }
-                if (occupied) {
-                    continue;
-                }
-                int newDist = archonLocation.distanceSquaredTo(newLoc);
-                int numLead = rc.senseLead(newLoc);
-                if(numLead > 1 && newDist > bestDist) {
-                    bestDist = newDist;
-                    bestLoc = newLoc;
-                    change = true;
-                    break;
+            int bestDist = 0;
+            int[][] gridOfSquares = new int[9][9];
+            for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
+                if (rc.senseLead(leadLocations[idx]) > 1){
+                    gridOfSquares[leadLocations[idx].x - me.x + 4][leadLocations[idx].y - me.y + 4]++;
                 }
             }
-
+            for (int idx = robotLocations.length - 1; idx >= 0; idx--){
+                int robotX = robotLocations[idx].location.x - me.x + 4;
+                int robotY = robotLocations[idx].location.y - me.y + 4;
+                if (robotLocations[idx].getTeam().equals(rc.getTeam()) && robotLocations[idx].getType().equals(RobotType.MINER) && robotLocations[idx].getID() < myId){
+                    for (int dxdyIdx = 7; dxdyIdx >= 0; dxdyIdx--){
+                        int xcoord = Util.dxDiff[dxdyIdx] + robotX;
+                        int ycoord = Util.dyDiff[dxdyIdx] + robotY;
+                        if (xcoord >= 0 && xcoord <= 8 && ycoord >= 0 && ycoord <= 8){
+                            gridOfSquares[xcoord][ycoord] = 0;
+                        }
+                    }
+                    gridOfSquares[robotX][robotY] = 0;
+                }
+            }
+            for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
+                if (gridOfSquares[leadLocations[idx].x - me.x + 4][leadLocations[idx].y - me.y + 4] > 0 && bestDist < archonLocation.distanceSquaredTo(leadLocations[idx])){
+                    bestDist = archonLocation.distanceSquaredTo(leadLocations[idx]);
+                    bestLoc = leadLocations[idx];
+                    change = true;
+                }
+            }
+            // for(int i = 0; i < numLeadLocations; i++) {
+            //     MapLocation newLoc = leadLocations[i];
+            //     boolean occupied = false;
+            //     for (RobotInfo robot : robotLocations) {
+            //         if (robot.getTeam().equals(rc.getTeam()) && robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID() && robot.getLocation().distanceSquaredTo(target) <= 2) {
+            //             occupied = true;
+            //             break;
+            //         }
+            //     }
+            //     if (occupied) {
+            //         continue;
+            //     }
+            //     int newDist = archonLocation.distanceSquaredTo(newLoc);
+            //     int numLead = rc.senseLead(newLoc);
+            //     if(numLead > 1 && newDist > bestDist) {
+            //         bestDist = newDist;
+            //         bestLoc = newLoc;
+            //         change = true;
+            //         break;
+            //     }
+            // }
             if(change) {
                 target = bestLoc;
                 if (target.equals(me) == false) {

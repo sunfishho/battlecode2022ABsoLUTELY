@@ -448,746 +448,298 @@ public class Pathfinding {
 
 	public void iterate(){
 		distances00 -= rubbleLevels00;
-		if (distances00 > prevDistances01){
-			distances00 = prevDistances01;
-		}
-		if (distances00 > prevDistances11){
-			distances00 = prevDistances11;
-		}
-		if (distances00 > prevDistances10){
-			distances00 = prevDistances10;
-		}
+		distances00 = Math.min(prevDistances01, distances00);
+		distances00 = Math.min(prevDistances11, distances00);
+		distances00 = Math.min(prevDistances10, distances00);
 		distances00 += rubbleLevels00;
 		distances01 -= rubbleLevels01;
-		if (distances01 > prevDistances02){
-			distances01 = prevDistances02;
-		}
-		if (distances01 > prevDistances12){
-			distances01 = prevDistances12;
-		}
-		if (distances01 > prevDistances11){
-			distances01 = prevDistances11;
-		}
-		if (distances01 > prevDistances10){
-			distances01 = prevDistances10;
-		}
-		if (distances01 > prevDistances00){
-			distances01 = prevDistances00;
-		}
+		distances01 = Math.min(prevDistances02, distances01);
+		distances01 = Math.min(prevDistances12, distances01);
+		distances01 = Math.min(prevDistances11, distances01);
+		distances01 = Math.min(prevDistances10, distances01);
+		distances01 = Math.min(prevDistances00, distances01);
 		distances01 += rubbleLevels01;
 		distances02 -= rubbleLevels02;
-		if (distances02 > prevDistances03){
-			distances02 = prevDistances03;
-		}
-		if (distances02 > prevDistances13){
-			distances02 = prevDistances13;
-		}
-		if (distances02 > prevDistances12){
-			distances02 = prevDistances12;
-		}
-		if (distances02 > prevDistances11){
-			distances02 = prevDistances11;
-		}
-		if (distances02 > prevDistances01){
-			distances02 = prevDistances01;
-		}
+		distances02 = Math.min(prevDistances03, distances02);
+		distances02 = Math.min(prevDistances13, distances02);
+		distances02 = Math.min(prevDistances12, distances02);
+		distances02 = Math.min(prevDistances11, distances02);
+		distances02 = Math.min(prevDistances01, distances02);
 		distances02 += rubbleLevels02;
 		distances03 -= rubbleLevels03;
-		if (distances03 > prevDistances04){
-			distances03 = prevDistances04;
-		}
-		if (distances03 > prevDistances14){
-			distances03 = prevDistances14;
-		}
-		if (distances03 > prevDistances13){
-			distances03 = prevDistances13;
-		}
-		if (distances03 > prevDistances12){
-			distances03 = prevDistances12;
-		}
-		if (distances03 > prevDistances02){
-			distances03 = prevDistances02;
-		}
+		distances03 = Math.min(prevDistances04, distances03);
+		distances03 = Math.min(prevDistances14, distances03);
+		distances03 = Math.min(prevDistances13, distances03);
+		distances03 = Math.min(prevDistances12, distances03);
+		distances03 = Math.min(prevDistances02, distances03);
 		distances03 += rubbleLevels03;
 		distances04 -= rubbleLevels04;
-		if (distances04 > prevDistances14){
-			distances04 = prevDistances14;
-		}
-		if (distances04 > prevDistances13){
-			distances04 = prevDistances13;
-		}
-		if (distances04 > prevDistances03){
-			distances04 = prevDistances03;
-		}
+		distances04 = Math.min(prevDistances14, distances04);
+		distances04 = Math.min(prevDistances13, distances04);
+		distances04 = Math.min(prevDistances03, distances04);
 		distances04 += rubbleLevels04;
 		distances10 -= rubbleLevels10;
-		if (distances10 > prevDistances11){
-			distances10 = prevDistances11;
-		}
-		if (distances10 > prevDistances21){
-			distances10 = prevDistances21;
-		}
-		if (distances10 > prevDistances20){
-			distances10 = prevDistances20;
-		}
-		if (distances10 > prevDistances00){
-			distances10 = prevDistances00;
-		}
-		if (distances10 > prevDistances01){
-			distances10 = prevDistances01;
-		}
+		distances10 = Math.min(prevDistances11, distances10);
+		distances10 = Math.min(prevDistances21, distances10);
+		distances10 = Math.min(prevDistances20, distances10);
+		distances10 = Math.min(prevDistances00, distances10);
+		distances10 = Math.min(prevDistances01, distances10);
 		distances10 += rubbleLevels10;
 		distances11 -= rubbleLevels11;
-		if (distances11 > prevDistances12){
-			distances11 = prevDistances12;
-		}
-		if (distances11 > prevDistances22){
-			distances11 = prevDistances22;
-		}
-		if (distances11 > prevDistances21){
-			distances11 = prevDistances21;
-		}
-		if (distances11 > prevDistances20){
-			distances11 = prevDistances20;
-		}
-		if (distances11 > prevDistances10){
-			distances11 = prevDistances10;
-		}
-		if (distances11 > prevDistances00){
-			distances11 = prevDistances00;
-		}
-		if (distances11 > prevDistances01){
-			distances11 = prevDistances01;
-		}
-		if (distances11 > prevDistances02){
-			distances11 = prevDistances02;
-		}
+		distances11 = Math.min(prevDistances12, distances11);
+		distances11 = Math.min(prevDistances22, distances11);
+		distances11 = Math.min(prevDistances21, distances11);
+		distances11 = Math.min(prevDistances20, distances11);
+		distances11 = Math.min(prevDistances10, distances11);
+		distances11 = Math.min(prevDistances00, distances11);
+		distances11 = Math.min(prevDistances01, distances11);
+		distances11 = Math.min(prevDistances02, distances11);
 		distances11 += rubbleLevels11;
 		distances12 -= rubbleLevels12;
-		if (distances12 > prevDistances13){
-			distances12 = prevDistances13;
-		}
-		if (distances12 > prevDistances23){
-			distances12 = prevDistances23;
-		}
-		if (distances12 > prevDistances22){
-			distances12 = prevDistances22;
-		}
-		if (distances12 > prevDistances21){
-			distances12 = prevDistances21;
-		}
-		if (distances12 > prevDistances11){
-			distances12 = prevDistances11;
-		}
-		if (distances12 > prevDistances01){
-			distances12 = prevDistances01;
-		}
-		if (distances12 > prevDistances02){
-			distances12 = prevDistances02;
-		}
-		if (distances12 > prevDistances03){
-			distances12 = prevDistances03;
-		}
+		distances12 = Math.min(prevDistances13, distances12);
+		distances12 = Math.min(prevDistances23, distances12);
+		distances12 = Math.min(prevDistances22, distances12);
+		distances12 = Math.min(prevDistances21, distances12);
+		distances12 = Math.min(prevDistances11, distances12);
+		distances12 = Math.min(prevDistances01, distances12);
+		distances12 = Math.min(prevDistances02, distances12);
+		distances12 = Math.min(prevDistances03, distances12);
 		distances12 += rubbleLevels12;
 		distances13 -= rubbleLevels13;
-		if (distances13 > prevDistances14){
-			distances13 = prevDistances14;
-		}
-		if (distances13 > prevDistances24){
-			distances13 = prevDistances24;
-		}
-		if (distances13 > prevDistances23){
-			distances13 = prevDistances23;
-		}
-		if (distances13 > prevDistances22){
-			distances13 = prevDistances22;
-		}
-		if (distances13 > prevDistances12){
-			distances13 = prevDistances12;
-		}
-		if (distances13 > prevDistances02){
-			distances13 = prevDistances02;
-		}
-		if (distances13 > prevDistances03){
-			distances13 = prevDistances03;
-		}
-		if (distances13 > prevDistances04){
-			distances13 = prevDistances04;
-		}
+		distances13 = Math.min(prevDistances14, distances13);
+		distances13 = Math.min(prevDistances24, distances13);
+		distances13 = Math.min(prevDistances23, distances13);
+		distances13 = Math.min(prevDistances22, distances13);
+		distances13 = Math.min(prevDistances12, distances13);
+		distances13 = Math.min(prevDistances02, distances13);
+		distances13 = Math.min(prevDistances03, distances13);
+		distances13 = Math.min(prevDistances04, distances13);
 		distances13 += rubbleLevels13;
 		distances14 -= rubbleLevels14;
-		if (distances14 > prevDistances24){
-			distances14 = prevDistances24;
-		}
-		if (distances14 > prevDistances23){
-			distances14 = prevDistances23;
-		}
-		if (distances14 > prevDistances13){
-			distances14 = prevDistances13;
-		}
-		if (distances14 > prevDistances03){
-			distances14 = prevDistances03;
-		}
-		if (distances14 > prevDistances04){
-			distances14 = prevDistances04;
-		}
+		distances14 = Math.min(prevDistances24, distances14);
+		distances14 = Math.min(prevDistances23, distances14);
+		distances14 = Math.min(prevDistances13, distances14);
+		distances14 = Math.min(prevDistances03, distances14);
+		distances14 = Math.min(prevDistances04, distances14);
 		distances14 += rubbleLevels14;
 		distances20 -= rubbleLevels20;
-		if (distances20 > prevDistances21){
-			distances20 = prevDistances21;
-		}
-		if (distances20 > prevDistances31){
-			distances20 = prevDistances31;
-		}
-		if (distances20 > prevDistances30){
-			distances20 = prevDistances30;
-		}
-		if (distances20 > prevDistances10){
-			distances20 = prevDistances10;
-		}
-		if (distances20 > prevDistances11){
-			distances20 = prevDistances11;
-		}
+		distances20 = Math.min(prevDistances21, distances20);
+		distances20 = Math.min(prevDistances31, distances20);
+		distances20 = Math.min(prevDistances30, distances20);
+		distances20 = Math.min(prevDistances10, distances20);
+		distances20 = Math.min(prevDistances11, distances20);
 		distances20 += rubbleLevels20;
 		distances21 -= rubbleLevels21;
-		if (distances21 > prevDistances22){
-			distances21 = prevDistances22;
-		}
-		if (distances21 > prevDistances32){
-			distances21 = prevDistances32;
-		}
-		if (distances21 > prevDistances31){
-			distances21 = prevDistances31;
-		}
-		if (distances21 > prevDistances30){
-			distances21 = prevDistances30;
-		}
-		if (distances21 > prevDistances20){
-			distances21 = prevDistances20;
-		}
-		if (distances21 > prevDistances10){
-			distances21 = prevDistances10;
-		}
-		if (distances21 > prevDistances11){
-			distances21 = prevDistances11;
-		}
-		if (distances21 > prevDistances12){
-			distances21 = prevDistances12;
-		}
+		distances21 = Math.min(prevDistances22, distances21);
+		distances21 = Math.min(prevDistances32, distances21);
+		distances21 = Math.min(prevDistances31, distances21);
+		distances21 = Math.min(prevDistances30, distances21);
+		distances21 = Math.min(prevDistances20, distances21);
+		distances21 = Math.min(prevDistances10, distances21);
+		distances21 = Math.min(prevDistances11, distances21);
+		distances21 = Math.min(prevDistances12, distances21);
 		distances21 += rubbleLevels21;
 		distances22 -= rubbleLevels22;
-		if (distances22 > prevDistances23){
-			distances22 = prevDistances23;
-		}
-		if (distances22 > prevDistances33){
-			distances22 = prevDistances33;
-		}
-		if (distances22 > prevDistances32){
-			distances22 = prevDistances32;
-		}
-		if (distances22 > prevDistances31){
-			distances22 = prevDistances31;
-		}
-		if (distances22 > prevDistances21){
-			distances22 = prevDistances21;
-		}
-		if (distances22 > prevDistances11){
-			distances22 = prevDistances11;
-		}
-		if (distances22 > prevDistances12){
-			distances22 = prevDistances12;
-		}
-		if (distances22 > prevDistances13){
-			distances22 = prevDistances13;
-		}
+		distances22 = Math.min(prevDistances23, distances22);
+		distances22 = Math.min(prevDistances33, distances22);
+		distances22 = Math.min(prevDistances32, distances22);
+		distances22 = Math.min(prevDistances31, distances22);
+		distances22 = Math.min(prevDistances21, distances22);
+		distances22 = Math.min(prevDistances11, distances22);
+		distances22 = Math.min(prevDistances12, distances22);
+		distances22 = Math.min(prevDistances13, distances22);
 		distances22 += rubbleLevels22;
 		distances23 -= rubbleLevels23;
-		if (distances23 > prevDistances24){
-			distances23 = prevDistances24;
-		}
-		if (distances23 > prevDistances34){
-			distances23 = prevDistances34;
-		}
-		if (distances23 > prevDistances33){
-			distances23 = prevDistances33;
-		}
-		if (distances23 > prevDistances32){
-			distances23 = prevDistances32;
-		}
-		if (distances23 > prevDistances22){
-			distances23 = prevDistances22;
-		}
-		if (distances23 > prevDistances12){
-			distances23 = prevDistances12;
-		}
-		if (distances23 > prevDistances13){
-			distances23 = prevDistances13;
-		}
-		if (distances23 > prevDistances14){
-			distances23 = prevDistances14;
-		}
+		distances23 = Math.min(prevDistances24, distances23);
+		distances23 = Math.min(prevDistances34, distances23);
+		distances23 = Math.min(prevDistances33, distances23);
+		distances23 = Math.min(prevDistances32, distances23);
+		distances23 = Math.min(prevDistances22, distances23);
+		distances23 = Math.min(prevDistances12, distances23);
+		distances23 = Math.min(prevDistances13, distances23);
+		distances23 = Math.min(prevDistances14, distances23);
 		distances23 += rubbleLevels23;
 		distances24 -= rubbleLevels24;
-		if (distances24 > prevDistances34){
-			distances24 = prevDistances34;
-		}
-		if (distances24 > prevDistances33){
-			distances24 = prevDistances33;
-		}
-		if (distances24 > prevDistances23){
-			distances24 = prevDistances23;
-		}
-		if (distances24 > prevDistances13){
-			distances24 = prevDistances13;
-		}
-		if (distances24 > prevDistances14){
-			distances24 = prevDistances14;
-		}
+		distances24 = Math.min(prevDistances34, distances24);
+		distances24 = Math.min(prevDistances33, distances24);
+		distances24 = Math.min(prevDistances23, distances24);
+		distances24 = Math.min(prevDistances13, distances24);
+		distances24 = Math.min(prevDistances14, distances24);
 		distances24 += rubbleLevels24;
 		distances30 -= rubbleLevels30;
-		if (distances30 > prevDistances31){
-			distances30 = prevDistances31;
-		}
-		if (distances30 > prevDistances41){
-			distances30 = prevDistances41;
-		}
-		if (distances30 > prevDistances40){
-			distances30 = prevDistances40;
-		}
-		if (distances30 > prevDistances20){
-			distances30 = prevDistances20;
-		}
-		if (distances30 > prevDistances21){
-			distances30 = prevDistances21;
-		}
+		distances30 = Math.min(prevDistances31, distances30);
+		distances30 = Math.min(prevDistances41, distances30);
+		distances30 = Math.min(prevDistances40, distances30);
+		distances30 = Math.min(prevDistances20, distances30);
+		distances30 = Math.min(prevDistances21, distances30);
 		distances30 += rubbleLevels30;
 		distances31 -= rubbleLevels31;
-		if (distances31 > prevDistances32){
-			distances31 = prevDistances32;
-		}
-		if (distances31 > prevDistances42){
-			distances31 = prevDistances42;
-		}
-		if (distances31 > prevDistances41){
-			distances31 = prevDistances41;
-		}
-		if (distances31 > prevDistances40){
-			distances31 = prevDistances40;
-		}
-		if (distances31 > prevDistances30){
-			distances31 = prevDistances30;
-		}
-		if (distances31 > prevDistances20){
-			distances31 = prevDistances20;
-		}
-		if (distances31 > prevDistances21){
-			distances31 = prevDistances21;
-		}
-		if (distances31 > prevDistances22){
-			distances31 = prevDistances22;
-		}
+		distances31 = Math.min(prevDistances32, distances31);
+		distances31 = Math.min(prevDistances42, distances31);
+		distances31 = Math.min(prevDistances41, distances31);
+		distances31 = Math.min(prevDistances40, distances31);
+		distances31 = Math.min(prevDistances30, distances31);
+		distances31 = Math.min(prevDistances20, distances31);
+		distances31 = Math.min(prevDistances21, distances31);
+		distances31 = Math.min(prevDistances22, distances31);
 		distances31 += rubbleLevels31;
 		distances32 -= rubbleLevels32;
-		if (distances32 > prevDistances33){
-			distances32 = prevDistances33;
-		}
-		if (distances32 > prevDistances43){
-			distances32 = prevDistances43;
-		}
-		if (distances32 > prevDistances42){
-			distances32 = prevDistances42;
-		}
-		if (distances32 > prevDistances41){
-			distances32 = prevDistances41;
-		}
-		if (distances32 > prevDistances31){
-			distances32 = prevDistances31;
-		}
-		if (distances32 > prevDistances21){
-			distances32 = prevDistances21;
-		}
-		if (distances32 > prevDistances22){
-			distances32 = prevDistances22;
-		}
-		if (distances32 > prevDistances23){
-			distances32 = prevDistances23;
-		}
+		distances32 = Math.min(prevDistances33, distances32);
+		distances32 = Math.min(prevDistances43, distances32);
+		distances32 = Math.min(prevDistances42, distances32);
+		distances32 = Math.min(prevDistances41, distances32);
+		distances32 = Math.min(prevDistances31, distances32);
+		distances32 = Math.min(prevDistances21, distances32);
+		distances32 = Math.min(prevDistances22, distances32);
+		distances32 = Math.min(prevDistances23, distances32);
 		distances32 += rubbleLevels32;
 		distances33 -= rubbleLevels33;
-		if (distances33 > prevDistances34){
-			distances33 = prevDistances34;
-		}
-		if (distances33 > prevDistances44){
-			distances33 = prevDistances44;
-		}
-		if (distances33 > prevDistances43){
-			distances33 = prevDistances43;
-		}
-		if (distances33 > prevDistances42){
-			distances33 = prevDistances42;
-		}
-		if (distances33 > prevDistances32){
-			distances33 = prevDistances32;
-		}
-		if (distances33 > prevDistances22){
-			distances33 = prevDistances22;
-		}
-		if (distances33 > prevDistances23){
-			distances33 = prevDistances23;
-		}
-		if (distances33 > prevDistances24){
-			distances33 = prevDistances24;
-		}
+		distances33 = Math.min(prevDistances34, distances33);
+		distances33 = Math.min(prevDistances44, distances33);
+		distances33 = Math.min(prevDistances43, distances33);
+		distances33 = Math.min(prevDistances42, distances33);
+		distances33 = Math.min(prevDistances32, distances33);
+		distances33 = Math.min(prevDistances22, distances33);
+		distances33 = Math.min(prevDistances23, distances33);
+		distances33 = Math.min(prevDistances24, distances33);
 		distances33 += rubbleLevels33;
 		distances34 -= rubbleLevels34;
-		if (distances34 > prevDistances44){
-			distances34 = prevDistances44;
-		}
-		if (distances34 > prevDistances43){
-			distances34 = prevDistances43;
-		}
-		if (distances34 > prevDistances33){
-			distances34 = prevDistances33;
-		}
-		if (distances34 > prevDistances23){
-			distances34 = prevDistances23;
-		}
-		if (distances34 > prevDistances24){
-			distances34 = prevDistances24;
-		}
+		distances34 = Math.min(prevDistances44, distances34);
+		distances34 = Math.min(prevDistances43, distances34);
+		distances34 = Math.min(prevDistances33, distances34);
+		distances34 = Math.min(prevDistances23, distances34);
+		distances34 = Math.min(prevDistances24, distances34);
 		distances34 += rubbleLevels34;
 		distances40 -= rubbleLevels40;
-		if (distances40 > prevDistances41){
-			distances40 = prevDistances41;
-		}
-		if (distances40 > prevDistances30){
-			distances40 = prevDistances30;
-		}
-		if (distances40 > prevDistances31){
-			distances40 = prevDistances31;
-		}
+		distances40 = Math.min(prevDistances41, distances40);
+		distances40 = Math.min(prevDistances30, distances40);
+		distances40 = Math.min(prevDistances31, distances40);
 		distances40 += rubbleLevels40;
 		distances41 -= rubbleLevels41;
-		if (distances41 > prevDistances42){
-			distances41 = prevDistances42;
-		}
-		if (distances41 > prevDistances40){
-			distances41 = prevDistances40;
-		}
-		if (distances41 > prevDistances30){
-			distances41 = prevDistances30;
-		}
-		if (distances41 > prevDistances31){
-			distances41 = prevDistances31;
-		}
-		if (distances41 > prevDistances32){
-			distances41 = prevDistances32;
-		}
+		distances41 = Math.min(prevDistances42, distances41);
+		distances41 = Math.min(prevDistances40, distances41);
+		distances41 = Math.min(prevDistances30, distances41);
+		distances41 = Math.min(prevDistances31, distances41);
+		distances41 = Math.min(prevDistances32, distances41);
 		distances41 += rubbleLevels41;
 		distances42 -= rubbleLevels42;
-		if (distances42 > prevDistances43){
-			distances42 = prevDistances43;
-		}
-		if (distances42 > prevDistances41){
-			distances42 = prevDistances41;
-		}
-		if (distances42 > prevDistances31){
-			distances42 = prevDistances31;
-		}
-		if (distances42 > prevDistances32){
-			distances42 = prevDistances32;
-		}
-		if (distances42 > prevDistances33){
-			distances42 = prevDistances33;
-		}
+		distances42 = Math.min(prevDistances43, distances42);
+		distances42 = Math.min(prevDistances41, distances42);
+		distances42 = Math.min(prevDistances31, distances42);
+		distances42 = Math.min(prevDistances32, distances42);
+		distances42 = Math.min(prevDistances33, distances42);
 		distances42 += rubbleLevels42;
 		distances43 -= rubbleLevels43;
-		if (distances43 > prevDistances44){
-			distances43 = prevDistances44;
-		}
-		if (distances43 > prevDistances42){
-			distances43 = prevDistances42;
-		}
-		if (distances43 > prevDistances32){
-			distances43 = prevDistances32;
-		}
-		if (distances43 > prevDistances33){
-			distances43 = prevDistances33;
-		}
-		if (distances43 > prevDistances34){
-			distances43 = prevDistances34;
-		}
+		distances43 = Math.min(prevDistances44, distances43);
+		distances43 = Math.min(prevDistances42, distances43);
+		distances43 = Math.min(prevDistances32, distances43);
+		distances43 = Math.min(prevDistances33, distances43);
+		distances43 = Math.min(prevDistances34, distances43);
 		distances43 += rubbleLevels43;
 		distances44 -= rubbleLevels44;
-		if (distances44 > prevDistances43){
-			distances44 = prevDistances43;
-		}
-		if (distances44 > prevDistances33){
-			distances44 = prevDistances33;
-		}
-		if (distances44 > prevDistances34){
-			distances44 = prevDistances34;
-		}
+		distances44 = Math.min(prevDistances43, distances44);
+		distances44 = Math.min(prevDistances33, distances44);
+		distances44 = Math.min(prevDistances34, distances44);
 		distances44 += rubbleLevels44;
 		prevDistances11 -= rubbleLevels11;
-		if (prevDistances11 > distances12){
-			prevDistances11 = distances12;
-		}
-		if (prevDistances11 > distances22){
-			prevDistances11 = distances22;
-		}
-		if (prevDistances11 > distances21){
-			prevDistances11 = distances21;
-		}
-		if (prevDistances11 > distances20){
-			prevDistances11 = distances20;
-		}
-		if (prevDistances11 > distances10){
-			prevDistances11 = distances10;
-		}
-		if (prevDistances11 > distances00){
-			prevDistances11 = distances00;
-		}
-		if (prevDistances11 > distances01){
-			prevDistances11 = distances01;
-		}
-		if (prevDistances11 > distances02){
-			prevDistances11 = distances02;
-		}
+		prevDistances11 = Math.min(distances12, prevDistances11);
+		prevDistances11 = Math.min(distances22, prevDistances11);
+		prevDistances11 = Math.min(distances21, prevDistances11);
+		prevDistances11 = Math.min(distances20, prevDistances11);
+		prevDistances11 = Math.min(distances10, prevDistances11);
+		prevDistances11 = Math.min(distances00, prevDistances11);
+		prevDistances11 = Math.min(distances01, prevDistances11);
+		prevDistances11 = Math.min(distances02, prevDistances11);
 		prevDistances11 += rubbleLevels11;
 		prevDistances12 -= rubbleLevels12;
-		if (prevDistances12 > distances13){
-			prevDistances12 = distances13;
-		}
-		if (prevDistances12 > distances23){
-			prevDistances12 = distances23;
-		}
-		if (prevDistances12 > distances22){
-			prevDistances12 = distances22;
-		}
-		if (prevDistances12 > distances21){
-			prevDistances12 = distances21;
-		}
-		if (prevDistances12 > distances11){
-			prevDistances12 = distances11;
-		}
-		if (prevDistances12 > distances01){
-			prevDistances12 = distances01;
-		}
-		if (prevDistances12 > distances02){
-			prevDistances12 = distances02;
-		}
-		if (prevDistances12 > distances03){
-			prevDistances12 = distances03;
-		}
+		prevDistances12 = Math.min(distances13, prevDistances12);
+		prevDistances12 = Math.min(distances23, prevDistances12);
+		prevDistances12 = Math.min(distances22, prevDistances12);
+		prevDistances12 = Math.min(distances21, prevDistances12);
+		prevDistances12 = Math.min(distances11, prevDistances12);
+		prevDistances12 = Math.min(distances01, prevDistances12);
+		prevDistances12 = Math.min(distances02, prevDistances12);
+		prevDistances12 = Math.min(distances03, prevDistances12);
 		prevDistances12 += rubbleLevels12;
 		prevDistances13 -= rubbleLevels13;
-		if (prevDistances13 > distances14){
-			prevDistances13 = distances14;
-		}
-		if (prevDistances13 > distances24){
-			prevDistances13 = distances24;
-		}
-		if (prevDistances13 > distances23){
-			prevDistances13 = distances23;
-		}
-		if (prevDistances13 > distances22){
-			prevDistances13 = distances22;
-		}
-		if (prevDistances13 > distances12){
-			prevDistances13 = distances12;
-		}
-		if (prevDistances13 > distances02){
-			prevDistances13 = distances02;
-		}
-		if (prevDistances13 > distances03){
-			prevDistances13 = distances03;
-		}
-		if (prevDistances13 > distances04){
-			prevDistances13 = distances04;
-		}
+		prevDistances13 = Math.min(distances14, prevDistances13);
+		prevDistances13 = Math.min(distances24, prevDistances13);
+		prevDistances13 = Math.min(distances23, prevDistances13);
+		prevDistances13 = Math.min(distances22, prevDistances13);
+		prevDistances13 = Math.min(distances12, prevDistances13);
+		prevDistances13 = Math.min(distances02, prevDistances13);
+		prevDistances13 = Math.min(distances03, prevDistances13);
+		prevDistances13 = Math.min(distances04, prevDistances13);
 		prevDistances13 += rubbleLevels13;
 		prevDistances21 -= rubbleLevels21;
-		if (prevDistances21 > distances22){
-			prevDistances21 = distances22;
-		}
-		if (prevDistances21 > distances32){
-			prevDistances21 = distances32;
-		}
-		if (prevDistances21 > distances31){
-			prevDistances21 = distances31;
-		}
-		if (prevDistances21 > distances30){
-			prevDistances21 = distances30;
-		}
-		if (prevDistances21 > distances20){
-			prevDistances21 = distances20;
-		}
-		if (prevDistances21 > distances10){
-			prevDistances21 = distances10;
-		}
-		if (prevDistances21 > distances11){
-			prevDistances21 = distances11;
-		}
-		if (prevDistances21 > distances12){
-			prevDistances21 = distances12;
-		}
+		prevDistances21 = Math.min(distances22, prevDistances21);
+		prevDistances21 = Math.min(distances32, prevDistances21);
+		prevDistances21 = Math.min(distances31, prevDistances21);
+		prevDistances21 = Math.min(distances30, prevDistances21);
+		prevDistances21 = Math.min(distances20, prevDistances21);
+		prevDistances21 = Math.min(distances10, prevDistances21);
+		prevDistances21 = Math.min(distances11, prevDistances21);
+		prevDistances21 = Math.min(distances12, prevDistances21);
 		prevDistances21 += rubbleLevels21;
 		prevDistances22 -= rubbleLevels22;
-		if (prevDistances22 > distances23){
-			prevDistances22 = distances23;
-		}
-		if (prevDistances22 > distances33){
-			prevDistances22 = distances33;
-		}
-		if (prevDistances22 > distances32){
-			prevDistances22 = distances32;
-		}
-		if (prevDistances22 > distances31){
-			prevDistances22 = distances31;
-		}
-		if (prevDistances22 > distances21){
-			prevDistances22 = distances21;
-		}
-		if (prevDistances22 > distances11){
-			prevDistances22 = distances11;
-		}
-		if (prevDistances22 > distances12){
-			prevDistances22 = distances12;
-		}
-		if (prevDistances22 > distances13){
-			prevDistances22 = distances13;
-		}
+		prevDistances22 = Math.min(distances23, prevDistances22);
+		prevDistances22 = Math.min(distances33, prevDistances22);
+		prevDistances22 = Math.min(distances32, prevDistances22);
+		prevDistances22 = Math.min(distances31, prevDistances22);
+		prevDistances22 = Math.min(distances21, prevDistances22);
+		prevDistances22 = Math.min(distances11, prevDistances22);
+		prevDistances22 = Math.min(distances12, prevDistances22);
+		prevDistances22 = Math.min(distances13, prevDistances22);
 		prevDistances22 += rubbleLevels22;
 		prevDistances23 -= rubbleLevels23;
-		if (prevDistances23 > distances24){
-			prevDistances23 = distances24;
-		}
-		if (prevDistances23 > distances34){
-			prevDistances23 = distances34;
-		}
-		if (prevDistances23 > distances33){
-			prevDistances23 = distances33;
-		}
-		if (prevDistances23 > distances32){
-			prevDistances23 = distances32;
-		}
-		if (prevDistances23 > distances22){
-			prevDistances23 = distances22;
-		}
-		if (prevDistances23 > distances12){
-			prevDistances23 = distances12;
-		}
-		if (prevDistances23 > distances13){
-			prevDistances23 = distances13;
-		}
-		if (prevDistances23 > distances14){
-			prevDistances23 = distances14;
-		}
+		prevDistances23 = Math.min(distances24, prevDistances23);
+		prevDistances23 = Math.min(distances34, prevDistances23);
+		prevDistances23 = Math.min(distances33, prevDistances23);
+		prevDistances23 = Math.min(distances32, prevDistances23);
+		prevDistances23 = Math.min(distances22, prevDistances23);
+		prevDistances23 = Math.min(distances12, prevDistances23);
+		prevDistances23 = Math.min(distances13, prevDistances23);
+		prevDistances23 = Math.min(distances14, prevDistances23);
 		prevDistances23 += rubbleLevels23;
 		prevDistances31 -= rubbleLevels31;
-		if (prevDistances31 > distances32){
-			prevDistances31 = distances32;
-		}
-		if (prevDistances31 > distances42){
-			prevDistances31 = distances42;
-		}
-		if (prevDistances31 > distances41){
-			prevDistances31 = distances41;
-		}
-		if (prevDistances31 > distances40){
-			prevDistances31 = distances40;
-		}
-		if (prevDistances31 > distances30){
-			prevDistances31 = distances30;
-		}
-		if (prevDistances31 > distances20){
-			prevDistances31 = distances20;
-		}
-		if (prevDistances31 > distances21){
-			prevDistances31 = distances21;
-		}
-		if (prevDistances31 > distances22){
-			prevDistances31 = distances22;
-		}
+		prevDistances31 = Math.min(distances32, prevDistances31);
+		prevDistances31 = Math.min(distances42, prevDistances31);
+		prevDistances31 = Math.min(distances41, prevDistances31);
+		prevDistances31 = Math.min(distances40, prevDistances31);
+		prevDistances31 = Math.min(distances30, prevDistances31);
+		prevDistances31 = Math.min(distances20, prevDistances31);
+		prevDistances31 = Math.min(distances21, prevDistances31);
+		prevDistances31 = Math.min(distances22, prevDistances31);
 		prevDistances31 += rubbleLevels31;
 		prevDistances32 -= rubbleLevels32;
-		if (prevDistances32 > distances33){
-			prevDistances32 = distances33;
-		}
-		if (prevDistances32 > distances43){
-			prevDistances32 = distances43;
-		}
-		if (prevDistances32 > distances42){
-			prevDistances32 = distances42;
-		}
-		if (prevDistances32 > distances41){
-			prevDistances32 = distances41;
-		}
-		if (prevDistances32 > distances31){
-			prevDistances32 = distances31;
-		}
-		if (prevDistances32 > distances21){
-			prevDistances32 = distances21;
-		}
-		if (prevDistances32 > distances22){
-			prevDistances32 = distances22;
-		}
-		if (prevDistances32 > distances23){
-			prevDistances32 = distances23;
-		}
+		prevDistances32 = Math.min(distances33, prevDistances32);
+		prevDistances32 = Math.min(distances43, prevDistances32);
+		prevDistances32 = Math.min(distances42, prevDistances32);
+		prevDistances32 = Math.min(distances41, prevDistances32);
+		prevDistances32 = Math.min(distances31, prevDistances32);
+		prevDistances32 = Math.min(distances21, prevDistances32);
+		prevDistances32 = Math.min(distances22, prevDistances32);
+		prevDistances32 = Math.min(distances23, prevDistances32);
 		prevDistances32 += rubbleLevels32;
 		prevDistances33 -= rubbleLevels33;
-		if (prevDistances33 > distances34){
-			prevDistances33 = distances34;
-		}
-		if (prevDistances33 > distances44){
-			prevDistances33 = distances44;
-		}
-		if (prevDistances33 > distances43){
-			prevDistances33 = distances43;
-		}
-		if (prevDistances33 > distances42){
-			prevDistances33 = distances42;
-		}
-		if (prevDistances33 > distances32){
-			prevDistances33 = distances32;
-		}
-		if (prevDistances33 > distances22){
-			prevDistances33 = distances22;
-		}
-		if (prevDistances33 > distances23){
-			prevDistances33 = distances23;
-		}
-		if (prevDistances33 > distances24){
-			prevDistances33 = distances24;
-		}
+		prevDistances33 = Math.min(distances34, prevDistances33);
+		prevDistances33 = Math.min(distances44, prevDistances33);
+		prevDistances33 = Math.min(distances43, prevDistances33);
+		prevDistances33 = Math.min(distances42, prevDistances33);
+		prevDistances33 = Math.min(distances32, prevDistances33);
+		prevDistances33 = Math.min(distances22, prevDistances33);
+		prevDistances33 = Math.min(distances23, prevDistances33);
+		prevDistances33 = Math.min(distances24, prevDistances33);
 		prevDistances33 += rubbleLevels33;
 		distances22 -= rubbleLevels22;
-		if (distances22 > prevDistances23){
-			distances22 = prevDistances23;
-		}
-		if (distances22 > prevDistances33){
-			distances22 = prevDistances33;
-		}
-		if (distances22 > prevDistances32){
-			distances22 = prevDistances32;
-		}
-		if (distances22 > prevDistances31){
-			distances22 = prevDistances31;
-		}
-		if (distances22 > prevDistances21){
-			distances22 = prevDistances21;
-		}
-		if (distances22 > prevDistances11){
-			distances22 = prevDistances11;
-		}
-		if (distances22 > prevDistances12){
-			distances22 = prevDistances12;
-		}
-		if (distances22 > prevDistances13){
-			distances22 = prevDistances13;
-		}
+		distances22 = Math.min(prevDistances23, distances22);
+		distances22 = Math.min(prevDistances33, distances22);
+		distances22 = Math.min(prevDistances32, distances22);
+		distances22 = Math.min(prevDistances31, distances22);
+		distances22 = Math.min(prevDistances21, distances22);
+		distances22 = Math.min(prevDistances11, distances22);
+		distances22 = Math.min(prevDistances12, distances22);
+		distances22 = Math.min(prevDistances13, distances22);
 		distances22 += rubbleLevels22;
 	}
 

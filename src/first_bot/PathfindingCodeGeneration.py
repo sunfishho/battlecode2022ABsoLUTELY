@@ -71,9 +71,7 @@ for i in range(5):
         string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
             if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tif (distances" + str(i) + str(j) + " > prevDistances" + str(i + dx[k]) + str(j + dy[k]) + "){\n")
-                string += ("\t\t\tdistances" + str(i) + str(j) + " = prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ";\n")
-                string += ("\t\t}\n")
+                string += ("\t\tdistances" + str(i) + str(j) + " = Math.min(prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ", distances" + str(i) + str(j) + ");\n")
         string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 for i1 in range(3):
     for j1 in range(3):
@@ -82,9 +80,7 @@ for i1 in range(3):
         string += ("\t\tprevDistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
             if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tif (prevDistances" + str(i) + str(j) + " > distances" + str(i + dx[k]) + str(j + dy[k]) + "){\n")
-                string += ("\t\t\tprevDistances" + str(i) + str(j) + " = distances" + str(i + dx[k]) + str(j+dy[k]) + ";\n")
-                string += ("\t\t}\n")
+                string += ("\t\tprevDistances" + str(i) + str(j) + " = Math.min(distances" + str(i + dx[k]) + str(j+dy[k]) + ", prevDistances" + str(i) + str(j) + ");\n")
         string += ("\t\tprevDistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 for i1 in range(1):
     for j1 in range(1):
@@ -93,9 +89,7 @@ for i1 in range(1):
         string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
             if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tif (distances" + str(i) + str(j) + " > prevDistances" + str(i + dx[k]) + str(j + dy[k]) + "){\n")
-                string += ("\t\t\tdistances" + str(i) + str(j) + " = prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ";\n")
-                string += ("\t\t}\n")
+                string += ("\t\tdistances" + str(i) + str(j) + " = Math.min(prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ", distances" + str(i) + str(j) + ");\n")
         string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 
 
