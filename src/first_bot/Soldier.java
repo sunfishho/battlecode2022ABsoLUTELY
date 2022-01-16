@@ -30,6 +30,7 @@ public class Soldier extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
+        takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         if (me.equals(target)){

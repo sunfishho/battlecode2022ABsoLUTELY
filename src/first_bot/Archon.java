@@ -17,6 +17,7 @@ public class Archon extends RobotCommon{
     static int oppLeadCount = 200;
     static int changeOppLeadCount = 0;
     static MapLocation archonLocs;
+    static int numMinersAlive, numSoldiersAlive;
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -60,6 +61,12 @@ public class Archon extends RobotCommon{
         rank = newRankInfo / 2000;
         int loc = Util.getIntFromLocation(me);
         rc.writeSharedArray(rank-1, loc);
+        numMinersAlive = rc.readSharedArray(28);
+        numSoldiersAlive = rc.readSharedArray(29);
+        if (rank == numArchons){
+            rc.writeSharedArray(28, 0);
+            rc.writeSharedArray(29, 0);
+        }
         
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
 
@@ -179,29 +186,6 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(17, 65535);
         }
 
-        //going to cap it at round 180 before normal soldier production begins to happen
-        if (round % 40 == 39 && round <= 170 && alarm == 65535 && rank == 1){
-            rc.writeSharedArray(21, Util.getIntFromLocation(chooseRandomInitialDestination()) * 3 + 1);
-        }
-        int current_soldier_building_status = rc.readSharedArray(21);
-        switch(current_soldier_building_status % 3){
-            case 1: 
-                if (rc.getTeamLeadAmount(rc.getTeam()) >= 75 && rank == rankOfNearestArchon(new MapLocation(Util.WIDTH/2, Util.HEIGHT/2))){
-                    dir = pf.findBestDirection(Util.getLocationFromInt(rc.readSharedArray(21) / 3), 20);
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                    rc.writeSharedArray(21, current_soldier_building_status + 1);
-                }
-                return;
-            case 2: 
-                if (rc.getTeamLeadAmount(rc.getTeam()) >= 75 && rank == rankOfNearestArchon(new MapLocation(Util.WIDTH/2, Util.HEIGHT/2))){
-                    dir = pf.findBestDirection(Util.getLocationFromInt(rc.readSharedArray(21) / 3 - 1), 20);
-                    rc.buildRobot(RobotType.SOLDIER, dir);
-                    rc.writeSharedArray(21, current_soldier_building_status + 1);
-                }
-                return;
-            case 0:
-                break;
-        }
 
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
@@ -221,7 +205,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((teamLeadAmount < 400 || round < 5) && alarm == 65535))) {
+            && (((numMinersAlive < Math.max(8, Math.max(Util.WIDTH, Util.HEIGHT) / 5)) && alarm == 65535))) {
 
             //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map

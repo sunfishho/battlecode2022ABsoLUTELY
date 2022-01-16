@@ -19,6 +19,8 @@ public class Util {
             22: warning for locating archon
             23: round number + 2000 * number of archons processed (used for updating rank numbers when archons die)
             24-27: archon initial locations
+            28: each miner increments this every turn, last archon resets it to 0
+            29: each soldier increments this every turn, last archon resets it to 0
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value

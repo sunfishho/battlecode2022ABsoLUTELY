@@ -20,6 +20,7 @@ public class Miner extends Unit{
     }
     
     public void takeTurn() throws GameActionException {
+        takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         archonLocation = nearestArchon(me);
@@ -28,7 +29,10 @@ public class Miner extends Unit{
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
         }
-        observe();
+        MapLocation enemyCentroid = observe();
+        if (enemyCentroid != null){
+            retreat(enemyCentroid);
+        }
         observeSymmetry();
         tryToMine(1);
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
