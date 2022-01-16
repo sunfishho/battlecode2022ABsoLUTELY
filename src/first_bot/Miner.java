@@ -35,7 +35,7 @@ public class Miner extends Unit{
             int numEnemies = 0;
             MapLocation enemyLoc = me;
             for (RobotInfo bot : robotLocations){
-                if (bot.getTeam() == enemyTeam){
+                if (bot.getTeam() == myTeam){
                     continue;
                 }
                 switch(bot.getType()){
