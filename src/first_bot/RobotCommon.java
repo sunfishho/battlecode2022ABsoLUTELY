@@ -11,6 +11,7 @@ public abstract class RobotCommon {
     static int rank = -1; // for now, Archons continue with their normal rank setting algorithm, other bots will be set through constructor
     static int round = 0;
     static int actionRadius, visionRadius;
+    static double teammateSoldiers, enemySoldiers, numEnemies;
     Team myTeam, enemyTeam;
     MapLocation[] archonLocationsInitial = new MapLocation[4];
 
@@ -171,7 +172,7 @@ public abstract class RobotCommon {
 
     //if we're near a midline or the center, use rubble counts to try and infer symmetry
     public void observeSymmetry() throws GameActionException{
-        MapLocation[] squaresToCheck = rc.getAllLocationsWithinRadiusSquared(me, visionRadius);
+        MapLocation[] squaresToCheck = new MapLocation[]{rc.getLocation()};
         int length = squaresToCheck.length;
         int currentSymmetry = rc.readSharedArray(16);//current knowledge about symmetry
         //horizontal symmetry not ruled out yet

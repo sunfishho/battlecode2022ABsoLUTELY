@@ -10,7 +10,6 @@ public class Sage extends RobotCommon{
     private static boolean isRetreating;
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     static MapLocation target; 
-    static double numEnemies;
     Pathfinding pf = new Pathfinding(this);
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 

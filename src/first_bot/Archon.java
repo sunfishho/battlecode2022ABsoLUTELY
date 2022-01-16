@@ -44,10 +44,9 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
-
         // update variables
         round = rc.getRoundNum();
-        
+        numArchons = rc.getArchonCount();
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
         targetArchon = rc.readSharedArray(20);
 
@@ -302,7 +301,6 @@ public class Archon extends RobotCommon{
             if(rc.readSharedArray(i) != 0) {
                 knownMap[rc.readSharedArray(i)] = i + 1;
                 archonLocationsInitial[i] = Util.getLocationFromInt(rc.readSharedArray(i));
-                numArchons++;
             }
         }
     }

@@ -127,11 +127,13 @@ public class Soldier extends RobotCommon{
             if (enemy == null){
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
             }
             else if (rc.senseRubble(me.add(dir)) / 10 + 2 < rc.senseRubble(me) / 10 && me.add(dir).distanceSquaredTo(enemy) <= 13){
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
                 //in case we have a new best enemy to attack
                 enemy = attackValuableEnemies(false);
@@ -145,6 +147,7 @@ public class Soldier extends RobotCommon{
                 }
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
             }
         }
@@ -217,6 +220,7 @@ public class Soldier extends RobotCommon{
         if (enemy == null){
             if (dir != Direction.CENTER){
                 rc.move(dir);
+                me = rc.getLocation();
             }
             else{
                 return;
@@ -230,6 +234,7 @@ public class Soldier extends RobotCommon{
         if (me.add(dir).distanceSquaredTo(enemy) <= 13){
             if (dir != Direction.CENTER){
                 rc.move(dir);
+                me = rc.getLocation();
             }
             enemy = attackValuableEnemies(false);
             if (enemy != null){
@@ -242,6 +247,7 @@ public class Soldier extends RobotCommon{
             }
             if (dir != Direction.CENTER){
                 rc.move(dir);
+                me = rc.getLocation();
             }
         }
     }
@@ -286,6 +292,7 @@ public class Soldier extends RobotCommon{
             if (me.add(dir).distanceSquaredTo(enemy) <= 13){
                 if (dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
                 enemy = attackValuableEnemies(false);
                 if (enemy != null){
@@ -299,6 +306,7 @@ public class Soldier extends RobotCommon{
                 }
                 if (dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
             }
         }
@@ -310,12 +318,14 @@ public class Soldier extends RobotCommon{
             if (enemy == null){
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
             }
             else if (rc.senseRubble(me.add(dir)) / 10 + 2 < rc.senseRubble(me) / 10 && me.add(dir).distanceSquaredTo(enemy) <= 13){
 
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
                 //in case we have a new best enemy to attack
                 enemy = attackValuableEnemies(false);
@@ -329,6 +339,7 @@ public class Soldier extends RobotCommon{
                 }
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
+                    me = rc.getLocation();
                 }
             }
         }
@@ -421,6 +432,7 @@ public class Soldier extends RobotCommon{
         }
         if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
             rc.move(bestDir);
+            me = rc.getLocation();
         }
     }
 
@@ -467,6 +479,7 @@ public class Soldier extends RobotCommon{
         }
         if (rc.canMove(dir)){
             rc.move(dir);
+            me = rc.getLocation();
         }
 
     }

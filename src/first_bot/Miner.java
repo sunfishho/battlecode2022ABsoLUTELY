@@ -35,23 +35,25 @@ public class Miner extends RobotCommon{
         if (archonLocation.distanceSquaredTo(me) < 10 || retreatCounter >= 2) {
             isRetreating = false;
         }
+        /*
         // If there are mineable neighboring deposits, don't keep moving
         if (!isRetreating) {
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
                     MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                    if (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
-                        // rc.setIndicatorString("SENSED GOLD");
+                    if (rc.canSenseLocation(mineLocation) && rc.senseGold(mineLocation) > 0) {
+                        rc.setIndicatorString("SENSED GOLD");
                         return;
                     }
-                    if (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > 1) {
-                        // rc.setIndicatorString("SENSED LEAD");
+                    if (rc.canSenseLocation(mineLocation) && rc.senseLead(mineLocation) > 1) {
+                        rc.setIndicatorString("SENSED LEAD");
                         return;
                     }
                 }
             }
         }
-        
+        */
+        System.out.println(round + ": " + rc.getID() + ", " + Clock.getBytecodeNum());
         if (rc.canSenseLocation(target)) {
             RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
             for (RobotInfo robot : robotAtTarget) {
@@ -78,7 +80,7 @@ public class Miner extends RobotCommon{
         tryToWriteTarget(false);
         tryToMine(1);
     }
-
+    
     // Observes if any enemy non-miner units nearby
     public void observe() throws GameActionException {
         for (RobotInfo robot : robotLocations) {
