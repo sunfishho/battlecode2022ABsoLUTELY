@@ -15,7 +15,6 @@ public class MinerForager extends Miner {
         // otherwise, proceed towards target
 
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
-        Pathfinding pf = new Pathfinding(this);
         int i = 0;
         // don't go back whne you see 1 or you might loop back
         while(i < leadLocations.length && rc.senseLead(leadLocations[i]) <= 6) i++; 

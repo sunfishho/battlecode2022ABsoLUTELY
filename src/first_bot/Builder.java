@@ -6,10 +6,9 @@ import battlecode.common.*;
 import java.awt.*;
 
 
-public class Builder extends RobotCommon{
+public class Builder extends Unit {
 
     public static boolean isSacrifice = false;
-    public static MapLocation target = null;
     public static boolean labBuilder = false;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
@@ -147,7 +146,6 @@ public class Builder extends RobotCommon{
                 return true;
             }
         }
-        Pathfinding pf = new Pathfinding(this);
         Direction dir = pf.findBestDirection(target, 20);
         if (rc.canMove(dir)) {
             rc.move(dir);
@@ -157,14 +155,4 @@ public class Builder extends RobotCommon{
         return false;
     }
     
-    // Observes if any enemy units nearby
-    public void observe() throws GameActionException {
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() != rc.getTeam() && robot.getType() != RobotType.MINER) {
-                rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rank);
-                rc.writeSharedArray(18, round);
-                return;
-            }
-        }
-    }
 }

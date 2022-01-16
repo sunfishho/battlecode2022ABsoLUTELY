@@ -5,12 +5,12 @@ import java.util.Map;
 import battlecode.common.*;
 
 
-public class Miner extends RobotCommon{
-    public static MapLocation target;
+public class Miner extends Unit{
     public static boolean reachedTarget;
-    public static boolean isRetreating; // whether retreating
-    public static int retreatCounter; // number of turns retreating for
     public static RobotInfo[] robotLocations;
+    static RobotInfo[] nearbyBotsSeen;
+    static int numEnemies;
+    static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
@@ -27,14 +27,30 @@ public class Miner extends RobotCommon{
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
         }
-        retreatCounter++;
-
         observe();
         observeSymmetry();
         tryToMine(1);
-        if (archonLocation.distanceSquaredTo(me) < 10 || retreatCounter >= 2) {
-            isRetreating = false;
+        nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
+        numEnemies = 0;
+        double enemySoldierCentroidx = 0;
+        double enemySoldierCentroidy = 0;
+        for (RobotInfo bot : nearbyBotsSeen){
+            switch(bot.getType()){
+                case SOLDIER:
+                    if (bot.getTeam() != myTeam){
+                        MapLocation enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemySoldierCentroidy += enemyLoc.y;
+                        enemySoldierCentroidx += enemyLoc.x;
+                    }
+                    break;
+                default:
+            }
         }
+        enemySoldierCentroidx /= numEnemies;
+        enemySoldierCentroidy /= numEnemies;
+        enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
+        
         /*
         // If there are mineable neighboring deposits, don't keep moving
         if (!isRetreating) {
@@ -79,27 +95,6 @@ public class Miner extends RobotCommon{
         tryToMove();
         tryToWriteTarget(false);
         tryToMine(1);
-    }
-    
-    // Observes if any enemy non-miner units nearby
-    public void observe() throws GameActionException {
-        for (RobotInfo robot : robotLocations) {
-            if (robot.getTeam() != myTeam){
-                switch (robot.getType()){
-                    case MINER: continue;
-                    case ARCHON: 
-                        rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.location));
-                        rc.writeSharedArray(18, round);
-                        rc.writeSharedArray(22, Util.getIntFromLocation(robot.getLocation()));
-                        retreat();
-                    default: 
-                        rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.location));
-                        rc.writeSharedArray(18, round);
-                        retreat();
-                        return;
-                }
-            }
-        }
     }
 
     // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
@@ -254,17 +249,8 @@ public class Miner extends RobotCommon{
         }
     }
 
-    //When a miner is in danger, or it is scouting and wants to go home, it will return to its home Archon.
-    public void retreat() throws GameActionException{
-        target = archonLocation;
-        retreatCounter = 0;
-        isRetreating = true;
-    }
-
     // Moves toward target through pathfinding
     public void tryToMove() throws GameActionException {
-        
-        Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
         if (!isRetreating) {
             dir = pf.findBestDirection(target, 80);

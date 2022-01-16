@@ -78,7 +78,6 @@ public class Watchtower extends RobotCommon{
         if (rc.readSharedArray(17) != 65535) {
             initialDestination = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }
-        Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
         if (initialDestination != null){
             dir = pf.findBestDirection(initialDestination, 20);

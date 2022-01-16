@@ -36,7 +36,6 @@ public class MinerScout extends Miner {
     //If we can mine, might as well do it. If we reach the halfway target, we switch our destination to be the final target.
     public void doScoutRoutine() throws GameActionException {
         tryToMine(1);
-        Pathfinding pf = new Pathfinding(this);
         Direction dir = Direction.CENTER;
         if (!hasReachedHalfway){
             dir = pf.findBestDirection(halfTarget, 50);
@@ -69,7 +68,7 @@ public class MinerScout extends Miner {
                     if (rubbleSeen[Util.WIDTH - xcoord - 1] != -1 && rubbleSeen[Util.WIDTH - xcoord - 1] != rubbleSeen[xcoord]){
                         reportSymmetryBroken();
                         //Go home, so you won't die and get harvested by the enemy
-                        retreat();
+                        // retreat();
                     }
                 }
             }
@@ -82,7 +81,7 @@ public class MinerScout extends Miner {
                     if (rubbleSeen[Util.HEIGHT - ycoord - 1] != -1 && rubbleSeen[Util.HEIGHT - ycoord - 1] != rubbleSeen[ycoord]){
                         reportSymmetryBroken();
                         //Go home, so you won't die and get harvested by the enemy
-                        retreat();
+                        // retreat();
                     }
                 }
             }

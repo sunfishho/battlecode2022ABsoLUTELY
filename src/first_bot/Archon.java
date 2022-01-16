@@ -17,7 +17,6 @@ public class Archon extends RobotCommon{
     static int oppLeadCount = 200;
     static int changeOppLeadCount = 0;
     static MapLocation archonLocs;
-    Pathfinding pf = new Pathfinding(this);
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -260,10 +259,10 @@ public class Archon extends RobotCommon{
                 rc.writeSharedArray(20, targetArchon + 1);
             }
             else if(rc.readSharedArray(19) >= numArchons * numArchons) { // want all of the foragers to be sent first
-                int target = findLocalLocation();
-                if(target != -1 && rng.nextInt(2) == 1) {
-                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank), target);
-                    dir = pf.findBestDirection(Util.getLocationFromInt(target), 60);
+                int targetLoc = findLocalLocation();
+                if(targetLoc != -1 && rng.nextInt(2) == 1) {
+                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank), targetLoc);
+                    dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
                 }
                 else {
                     int minerReport = findMinerReport();

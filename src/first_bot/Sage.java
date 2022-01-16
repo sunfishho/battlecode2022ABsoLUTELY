@@ -5,12 +5,10 @@ import battlecode.common.*;
 import java.util.Random;
 
 
-public class Sage extends RobotCommon{
+public class Sage extends Unit {
 
     private static boolean isRetreating;
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
-    static MapLocation target; 
-    Pathfinding pf = new Pathfinding(this);
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 
     public Sage(RobotController rc, int r, MapLocation loc) throws GameActionException {
@@ -230,62 +228,5 @@ public class Sage extends RobotCommon{
     public int targetSoldiers() throws GameActionException {//counts number of enemey soldiers that we can attack
         return soldiersInRange(20);//sage attacking radius
     }
-    
-    public void retreat(MapLocation enemyCentroid) throws GameActionException{
-        rc.setIndicatorString("RETREATING: " + enemyCentroid.x + ", " + enemyCentroid.y);
-        int reflectionX = me.x * 2 - enemyCentroid.x;
-        int reflectionY = me.y * 2 - enemyCentroid.y;
-        if (reflectionX >= 0 && reflectionX < Util.WIDTH && reflectionY >= 0 && reflectionY < Util.HEIGHT){
-            target = me.translate(reflectionX - me.x, reflectionY - me.y);
-        }
-        else{
-            target = nearestArchon(me);
-        }
-
-        Direction dir = pf.findBestDirection(target, 30);
-        //check if we can move and that we're not going onto a horrible square
-        //also, if there's some alternative direction that gets us onto a much better square, take it
-        // int bestDistance = 0;
-        // Direction dirBest = dir;
-        // for (Direction dirAlt : Util.directions){
-        //     if (rc.canSenseLocation(me.add(dirAlt)) && rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me.add(dirAlt))/10 > 2 && rc.canMove(dirAlt)){
-        //         if (bestDistance < Util.distanceMetric(me.add(dirAlt), enemyCentroid)){
-        //             bestDistance = 
-        //         }
-        //     }
-        // }
-        if (rc.senseRubble(me.add(dir))/10 - rc.senseRubble(me)/10 > 3){
-            moveLowerRubble(true);
-            return;
-        }
-        else{
-            if (rc.canMove(dir)){
-                rc.setIndicatorLine(me, me.add(dir), 0, 100, 0);
-                rc.move(dir);
-            }
-        }
-    }
-
-    // Observes if any enemy units nearby
-    public void observe() throws GameActionException {
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() == myTeam){
-                return;
-            }
-            switch (robot.getType()){
-                case MINER: continue;
-                case ARCHON: 
-                    rc.writeSharedArray(22, Util.getIntFromLocation(robot.getLocation()));
-                    rc.writeSharedArray(17, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                    rc.writeSharedArray(18, round);
-                    break;
-                default:
-                    rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                    rc.writeSharedArray(18, round);
-                    return;
-            }
-        }
-    }
-
     
 }
