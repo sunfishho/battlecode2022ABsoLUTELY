@@ -33,6 +33,7 @@ public class Soldier extends Unit {
 
     public void takeTurn() throws GameActionException {
         // Update important fields
+        
         targetCountdown++;
         if (targetCountdown == 150){
             target = chooseRandomInitialDestination();
@@ -40,7 +41,6 @@ public class Soldier extends Unit {
         }
         takeAttendance();
         me = rc.getLocation();
-        archonLocation = this.nearestArchon(me);
         round = rc.getRoundNum();
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
@@ -52,7 +52,7 @@ public class Soldier extends Unit {
         // If previously not on offense and low health set target to nearest archon
         if (rc.getHealth() < 10) {
             isRetreating = true;
-            target = RobotCommon.nearestArchon(me);
+            target = archonLocation;
         }
         //reset the onOffense, onDefense flags
         onOffense = false;
@@ -101,7 +101,7 @@ public class Soldier extends Unit {
                 rc.attack(enemy);
             }
             target = archonLocation;
-            if (me.distanceSquaredTo(archonLocation) > 20) {
+            if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30);
                 moveLowerRubble(true);
             }

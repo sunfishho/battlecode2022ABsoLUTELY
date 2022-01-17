@@ -196,11 +196,12 @@ public class Archon extends RobotCommon{
         boolean enemiesNear = observe();
         if (alarm == 65535 || alarm == 65534) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
+                heal();
                 return;
             }
         }
         else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount <= numArchons * 50 && enemiesNear) {
+            if (teamLeadAmount <= 50) {
                 if (heal()) {
                     return;
                 }
@@ -277,8 +278,7 @@ public class Archon extends RobotCommon{
     }
 
     public boolean heal() throws GameActionException {
-        System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
-        int healable = 0;
+        // System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
         if (nearbyTeammatesWithinHealingRange.length != 0){
             RobotInfo mostNeedy = null;
 
@@ -286,7 +286,6 @@ public class Archon extends RobotCommon{
                 if (robot.health + 2 > robot.getType().health || !rc.canRepair(robot.getLocation())){
                     continue;
                 }
-                healable++;
                 if (mostNeedy == null){
                     mostNeedy = robot;
                     continue;
@@ -296,25 +295,24 @@ public class Archon extends RobotCommon{
                         continue;
                     case SOLDIER:
                         // check if the fraction of health is lower for this robot
-                        if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health <= mostNeedy.health * robot.getType().health){
+                        if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
                             mostNeedy = robot;
                         }
                         break;
                     default:
-                        if (mostNeedy.getType() != RobotType.SOLDIER && robot.health * mostNeedy.getType().health <= mostNeedy.health * robot.getType().health){
+                        if (mostNeedy.getType() != RobotType.SOLDIER && robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
                             mostNeedy = robot;
                         }
                         break;
                 }
             }
-            System.out.println("HEALABLE: " + healable);
+            // System.out.println("HEALABLE: " + healable);
             if (mostNeedy != null && rc.canRepair(mostNeedy.getLocation())){
                 MapLocation targetBot = mostNeedy.getLocation();
                 rc.repair(targetBot);
                 rc.setIndicatorString(targetBot.x + ", " + targetBot.y);
                 return true;
             }
-            rc.writeSharedArray(20, targetArchon + 1);
         }
         return false;
     }
