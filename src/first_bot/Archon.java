@@ -212,7 +212,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 150)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 10) {
+            && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 10) {
 
             //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
