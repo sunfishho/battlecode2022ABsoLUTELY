@@ -11,6 +11,8 @@ public class Soldier extends Unit {
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     static double teammateSoldiers, enemySoldiers;
     static int numEnemies;
+    static int loopingIncrement = 3;//experiment w/ this maybe idk
+    static int loopingPenalty;//increase rubble tolerance if we're stuck in a loop
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 
 
@@ -33,10 +35,25 @@ public class Soldier extends Unit {
 
     public void takeTurn() throws GameActionException {
         // Update important fields
+        switch(checkLoop()){
+            case 1: //cycling
+                loopingPenalty += loopingIncrement;
+                break;
+            case 2: //not cycling
+                loopingPenalty = 0;
+                break;
+            default: break;
+        }
+        if(loopingPenalty > 50){//let's just pick a new target at this point
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+            loopingPenalty = 0;
+        }
         targetCountdown++;
         if (targetCountdown == 150){
             target = chooseRandomInitialDestination();
             targetCountdown = 0;
+            loopingPenalty = 0;
         }
         takeAttendance();
         me = rc.getLocation();
@@ -102,7 +119,7 @@ public class Soldier extends Unit {
             }
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 20) {
-                tryToMove(30);
+                tryToMove(30 + loopingPenalty);
                 moveLowerRubble(true);
             }
             if (rc.getHealth() > 45) {
@@ -115,7 +132,7 @@ public class Soldier extends Unit {
         }
         // Act normal
         if (enemySoldiers < 0.000001){
-            tryToMove(30);
+            tryToMove(30 + loopingPenalty);
             moveLowerRubble(false);
             MapLocation enemy = attackValuableEnemies(false);
             if (enemy != null){
@@ -258,12 +275,12 @@ public class Soldier extends Unit {
             //if no enemies, try to move to your destination
             //if sufficiently far we can probably traverse higher rubble without being too scared
             if (enemy == null && me.distanceSquaredTo(target) >= 40){
-                tryToMove(50);
+                tryToMove(50 + loopingPenalty);
                 return;
             }
             //if not sufficiently far then we should be cautious
             else if (enemy == null){
-                tryToMove(30);
+                tryToMove(30 + loopingPenalty);
                 return;
             }
             dir = findDirectionLowerRubbleSquare(false);
@@ -405,7 +422,7 @@ public class Soldier extends Unit {
                 target = chooseRandomInitialDestination();
                 targetCountdown = 0;
             }
-            else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > 30) && !onOffense){
+            else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > avgRubble) && !onOffense){
                 target = chooseRandomInitialDestination();
                 targetCountdown = 0;
             }

@@ -6,11 +6,41 @@ public class Unit extends RobotCommon {
     static boolean isRetreating; // whether retreating
     static MapLocation target; 
     static int targetCountdown = 0;
+    public static int locationCounter;
+    public static int[] recentLocations;
+    /*
+    - recentLocations stores 10 most recent locations
+    - locationCounter cycles mod 10, each time we move we increment locationCounter and evict recentLocations[locationCounter]
+    */
+
     public Unit (RobotController rc, int r, MapLocation loc) {
         super(rc, r, loc);
+        locationCounter = 0;
+        recentLocations = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
+
     public void takeTurn() throws GameActionException {
 
+    }
+
+    public int checkLoop() {//checks recent locations to see if we have looped
+        //0 = haven't moved, 1 = cycling, 2 = not cycling
+        int loc = Util.getIntFromLocation(rc.getLocation());
+        if (recentLocations[locationCounter] == loc){//haven't moved since last check
+            return 0;
+        }
+        //else, we have moved and need to update recentLocations and check for a loop
+        locationCounter = (locationCounter + 1)%10;
+        if(recentLocations[locationCounter] == loc){//loop of length 10
+            return 1;
+        }
+        recentLocations[locationCounter] = loc;
+        for(int i = 0; i < 10; i++){
+            if(recentLocations[i] == loc){
+                return 1;
+            }
+        }
+        return 2;
     }
 
     //Tries to run away. First checks the point opposite of enemy centroid, and if that's not on the map, try going to your archon.
