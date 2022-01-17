@@ -102,4 +102,29 @@ public class Unit extends RobotCommon {
         }
         return hasNearby;
     }
+
+    //use this when you are certain that we actually want to move
+    public void moveLowerRubble(boolean toRetreat) throws GameActionException{
+        rc.setIndicatorString("MOVING TO LOWER RUBBLE, target = " + target);
+        int bestRubble = rc.senseRubble(me);
+        Direction bestDir = Direction.CENTER;
+        for (Direction dir: Util.directions){
+            if (rc.canMove(dir) && rc.senseRubble(me.add(dir))/10 < bestRubble/10){
+                bestDir = dir;
+                bestRubble = rc.senseRubble(me.add(bestDir));
+            }
+            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
+                MapLocation nearestArchonLoc = nearestArchon(me);
+                if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
+                    bestDir = dir;
+                    bestRubble = rc.senseRubble(me.add(bestDir));
+                }
+            }
+        }
+        if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
+            rc.move(bestDir);
+            me = rc.getLocation();
+        }
+    }
+
 }

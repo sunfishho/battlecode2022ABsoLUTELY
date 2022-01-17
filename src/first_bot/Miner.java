@@ -12,6 +12,7 @@ public class Miner extends Unit{
     static int numEnemies;
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static int maxBytecodeUsed = 0;
+    static int income;
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
@@ -20,6 +21,7 @@ public class Miner extends Unit{
     }
     
     public void takeTurn() throws GameActionException {
+        income = 0;
         targetCountdown++;
         if (targetCountdown == 150){
             target = chooseRandomInitialDestination();
@@ -96,43 +98,18 @@ public class Miner extends Unit{
             tryToWriteTarget(true);
         }
         tryToMove();
+        // Check if we can still mine stuff, stay still if so
+        // for (int dx = -1; dx <= 1; dx++) {
+        //     for (int dy = -1; dx <= 1; dy++) {
+        //         MapLocation newLoc = new MapLocation(me.x + dx, me.y + dy);
+        //         if (rc.senseLead(newLoc) > 1 || rc.senseGold(newLoc) > 0) {
+
+        //         }
+        //     }
+        // }
         tryToWriteTarget(false);
         tryToMine(1);
-    }
-
-    // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
-    //This function should be replaced with a better exploration algorithm once we think of one
-    public void explore() throws GameActionException {
-        // stay put if you're on lattice and you can mine
-        if(Util.onLattice(Util.getIntFromLocation(me))) {
-            MapLocation loc = me;
-            if (rc.senseNearbyLocationsWithLead(2).length > 0) {
-                target = me;
-                targetCountdown = 0;
-                return;
-            }
-        }
-        // otherwise, explore with higher chance of moving away from Archon
-        int dirIndex = rng.nextInt(Util.directions.length + 4);
-        Direction dir = Direction.CENTER;
-        if(dirIndex < Util.directions.length) {
-            dir = Util.directions[dirIndex];
-        }
-        else {
-            dir = me.directionTo(archonLocation).opposite();
-        }
-        
-        Direction dirLeft = dir.rotateLeft();
-        Direction dirRight = dir.rotateRight();
-
-        if(rc.canMove(dir)) {
-            rc.move(dir);
-        } else if (rc.canMove(dirLeft)) {
-            rc.move(dirLeft);
-        } else if (rc.canMove(dirRight)) {
-            rc.move(dirRight);
-        }
-        me = rc.getLocation();
+        rc.writeSharedArray(30, rc.readSharedArray(30) + income);
     }
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
@@ -142,6 +119,7 @@ public class Miner extends Unit{
         
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
+        // Whether we want to change target
         boolean change = false;
         robotLocations = rc.senseNearbyRobots();
         if(numGoldLocations > 0) {
@@ -262,6 +240,7 @@ public class Miner extends Unit{
                 }
                 while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > leaveLead) {
                     rc.mineLead(mineLocation);
+                    income++;
                 }
             }
         }
@@ -269,8 +248,25 @@ public class Miner extends Unit{
 
     // Moves toward target through pathfinding
     public void tryToMove() throws GameActionException {
+        int curRubble = rc.senseRubble(me);
         Direction dir = Direction.CENTER;
         if (!isRetreating) {
+            if (rc.canSenseLocation(target) && me.distanceSquaredTo(target) <= 2 && (rc.senseLead(target) > 1 || rc.senseGold(target) > 0)) {
+                int bestRubble = curRubble;
+                // try to get on a better rubble square
+                for (int i = 0; i < Util.directions.length; i++) {
+                    MapLocation newLoc = me.add(Util.directions[i]);
+                    if (rc.canSenseLocation(newLoc) && newLoc.distanceSquaredTo(target) <= 2 && rc.senseRubble(newLoc) <= bestRubble && rc.canMove(Util.directions[i])) {
+                        bestRubble = rc.senseRubble(newLoc);
+                        dir = Util.directions[i];
+                    }
+                }
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                    me = rc.getLocation();
+                }
+                return;
+            }
             dir = pf.findBestDirection(target, 80);
         } else {
             dir = pf.findBestDirection(target, 10);
