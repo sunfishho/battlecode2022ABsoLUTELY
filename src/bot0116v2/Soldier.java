@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0116v2;
 
 import battlecode.common.*;
 
@@ -32,7 +32,6 @@ public class Soldier extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
-        // Update important fields
         targetCountdown++;
         if (targetCountdown == 150){
             target = chooseRandomInitialDestination();
@@ -40,7 +39,6 @@ public class Soldier extends Unit {
         }
         takeAttendance();
         me = rc.getLocation();
-        archonLocation = this.nearestArchon(me);
         round = rc.getRoundNum();
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
@@ -49,11 +47,6 @@ public class Soldier extends Unit {
         // Try to attack someone
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
-        // If previously not on offense and low health set target to nearest archon
-        if (!onOffense && rc.getHealth() < 10) {
-            isRetreating = true;
-            target = RobotCommon.nearestArchon(me);
-        }
         //reset the onOffense, onDefense flags
         onOffense = false;
         onDefense = false;
@@ -68,7 +61,7 @@ public class Soldier extends Unit {
             switch(bot.getType()){
                 case SOLDIER:
                     double weight = (bot.getHealth()/3 + 5) / (10 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
-                    if (bot.getTeam() == myTeam && bot.getLocation().distanceSquaredTo(me) <= 13){
+                    if (bot.getTeam() == myTeam){
                         teammateSoldiers += weight;
                     }
                     else{
@@ -93,23 +86,6 @@ public class Soldier extends Unit {
                     }
                     break;
                 default:
-            }
-        }
-        if (isRetreating) {
-            MapLocation enemy = attackValuableEnemies(false);
-            if (enemy != null){
-                rc.attack(enemy);
-            }
-            target = archonLocation;
-            if (me.distanceSquaredTo(archonLocation) > 20) {
-                tryToMove(30);
-                moveLowerRubble(true);
-            }
-            if (rc.getHealth() > 45) {
-                isRetreating = false;
-                target = chooseRandomInitialDestination();
-            } else {
-                return;
             }
         }
         // Act normal

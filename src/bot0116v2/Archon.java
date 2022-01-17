@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0116v2;
 
 import battlecode.common.*;
 import java.util.ArrayList;
@@ -154,7 +154,7 @@ public class Archon extends RobotCommon{
       
         Archon Relocation is way too slow for now oops
          */
-        // rc.setIndicatorString(rank + " " + newRankInfo);
+        rc.setIndicatorString(rank + " " + newRankInfo);
 
         int numBuilders = 0;
         Team us = rc.getTeam();
@@ -200,10 +200,8 @@ public class Archon extends RobotCommon{
             }
         }
         else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount <= numArchons * 50 && enemiesNear) {
-                if (heal()) {
-                    return;
-                }
+            if (teamLeadAmount <= numArchons * 50 && !enemiesNear && rank != rc.readSharedArray(17) / 10000) {
+                return;
             }
         }
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
@@ -273,15 +271,11 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        heal();
-    }
-
-    public boolean heal() throws GameActionException {
         if (nearbyTeammatesWithinHealingRange.length != 0){
             RobotInfo mostNeedy = null;
 
             for (RobotInfo robot : nearbyTeammatesWithinHealingRange){
-                if (robot.health + 2 > robot.getType().health || !rc.canAttack(robot.getLocation())){
+                if (robot.health + 2 > robot.getType().health || !rc.canRepair(robot.getLocation())){
                     continue;
                 }
                 if (mostNeedy == null){
@@ -302,16 +296,11 @@ public class Archon extends RobotCommon{
                         break;
                 }
             }
-            
-            if (mostNeedy != null && rc.canAttack(mostNeedy.getLocation())){
-                MapLocation targetBot = mostNeedy.getLocation();
-                rc.attack(targetBot);
-                rc.setIndicatorString(targetBot.x + ", " + targetBot.y);
-                return true;
+
+            if (mostNeedy != null){
+                rc.repair(mostNeedy.getLocation());
             }
-            rc.writeSharedArray(20, targetArchon + 1);
         }
-        return false;
     }
 
     //returns the change in lead count since the last turn and updates oppLeadCount
