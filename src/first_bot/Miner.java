@@ -57,7 +57,7 @@ public class Miner extends Unit{
         round = rc.getRoundNum();
         archonLocation = nearestArchon(me);
         // If previously not on offense and low health set target to nearest archon
-        if (rc.getHealth() < 10) {
+        if (rc.getHealth() < 10 && round < 200) {
             needsHeal = true;
             target = archonLocation;
         }
