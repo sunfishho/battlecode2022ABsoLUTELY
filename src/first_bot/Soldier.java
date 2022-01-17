@@ -15,20 +15,48 @@ public class Soldier extends Unit {
         if (rc.readSharedArray(17) < 65534){
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
         }
-        else if (rc.readSharedArray(17) == 65534){
-            target = chooseRandomInitialDestination();
-            
-        }
         else{
             target = chooseRandomInitialDestination();
-            // target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
         }
-        //do more stuff later
     }
 
     public void takeTurn() throws GameActionException {
-        //make sure to reset the location of the soldier
+
+        
+
+        if (me.distanceSquaredTo(target) <= 2){
+            target = chooseRandomInitialDestination();
+        }
+
+        //if there's an alarm for a specific location, set target to the alarm
+        if (rc.readSharedArray(17) < 65534) {
+            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+            targetCountdown = 0;
+        }
+
+        observe();
+        observeSymmetry();
+        takeAttendance();
         me = rc.getLocation();
+        round = rc.getRoundNum();
+        
+        if (!doSoldierMicro()){
+            Direction dir = pf.findBestDirection(target, 60);
+            if (rc.canMove(dir)){
+                rc.move(dir);
+            }
+        }
+        RobotInfo[] enemies = rc.senseNearbyRobots(13, enemyTeam);
+        int bestEnemyIndex = -1;
+        for (int enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++){
+            if (rc.canAttack(enemies[enemyIndex].location) && (bestEnemyIndex == -1 || isBetterTargetThan(enemies[enemyIndex], enemies[bestEnemyIndex]))){
+                bestEnemyIndex = enemyIndex;
+            }
+        }
+        if (bestEnemyIndex != -1){
+            rc.attack(enemies[bestEnemyIndex].location);
+        }
+        return;
     }
 
     public boolean isBetterTargetThan(RobotInfo bot1, RobotInfo bot2) throws GameActionException{
@@ -44,35 +72,46 @@ public class Soldier extends Unit {
         //lower distance -> better target
         if (me.distanceSquaredTo(bot1.location) < me.distanceSquaredTo(bot2.location)) return true;
         if (me.distanceSquaredTo(bot1.location) > me.distanceSquaredTo(bot2.location)) return false;
-
+        //otherwise tiebreak on ID
         return (bot1.ID <= bot2.ID);
     }
 
-    public static void doSoldierMicro() throws GameActionException{
+    public static boolean doSoldierMicro() throws GameActionException{
         SoldierMicroInfo[] soldierMicroInfo = new SoldierMicroInfo[9];
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
             //create a soldierMicroInfo for each possible direction the soldier can move in
-            soldierMicroInfo[dirIdx] = new SoldierMicroInfo(rc, me.add(Direction.values()[dirIdx]));
-
+            if (rc.canSenseLocation(me.add(Util.directions[dirIdx]))){
+                soldierMicroInfo[dirIdx] = new SoldierMicroInfo(rc, me.add(Util.directions[dirIdx]));   
+            }
+            else{
+                soldierMicroInfo[dirIdx] = null;
+            }
         }
 
         RobotInfo[] enemies = rc.senseNearbyRobots(20, rc.getTeam().opponent());
-        for (int enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++){
-            for (int dirIdx = 0; dirIdx < 9; dirIdx++){
-                soldierMicroInfo[dirIdx].update(enemies[enemyIndex]);
+
+        for (int dirIdx = 0; dirIdx < 9; dirIdx++){
+            if (soldierMicroInfo[dirIdx] != null){
+                for (int enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++){
+                    soldierMicroInfo[dirIdx].update(enemies[enemyIndex]);   
+                }
             }
         }
         int bestChoiceIndex = -1;
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
-            if (rc.canMove(Direction.values()[dirIdx]) && (bestChoiceIndex < 0 || soldierMicroInfo[dirIdx].isBetterThan(soldierMicroInfo[bestChoiceIndex]))){
-                bestChoiceIndex = dirIdx;
+            if (soldierMicroInfo[dirIdx] != null){
+                if (rc.canMove(Util.directions[dirIdx]) && (bestChoiceIndex < 0 || soldierMicroInfo[dirIdx].isBetterThan(soldierMicroInfo[bestChoiceIndex]))){
+                    bestChoiceIndex = dirIdx;
+                }
             }
         }
         if (bestChoiceIndex != -1 && Util.directions[bestChoiceIndex] != Direction.CENTER){
-            rc.move(Direction.values()[bestChoiceIndex]);
-            //put attacking code in here later
-            return;
+            if (enemies.length > 0){
+                rc.move(Util.directions[bestChoiceIndex]);
+                return true;
+            }
         }
+        return false;
     }
 
     
@@ -80,7 +119,7 @@ public class Soldier extends Unit {
 }
 
 class SoldierMicroInfo{
-    int numEnemies;
+    int numEnemies, numTeammates;
     int minDistToEnemy;
     MapLocation loc;
     RobotController rc;
@@ -92,6 +131,7 @@ class SoldierMicroInfo{
         this.loc = loc;
         minDistToEnemy = 100000;
         numEnemies = 0;
+        numTeammates = rc.senseNearbyRobots(loc, 13, rc.getTeam()).length;
         rubbleLevel = rc.senseRubble(loc);
     }
 
@@ -118,10 +158,11 @@ class SoldierMicroInfo{
     }
     /*
     List of considerations we should take into place:
-    1. number of teammates/number of enemies
+    1. number of enemies
     2. rubble level
+    2. number of teammates
     3. distance to nearest enemy
-    4. if enemy is getting healee
+    4. if enemy is getting healed maybe idk
     */
     
     public boolean isBetterThan(SoldierMicroInfo micro){
@@ -130,6 +171,11 @@ class SoldierMicroInfo{
         //if we're on a worse rubble square than in the other scenario we should be happy
         if (rubbleLevel/10 < micro.rubbleLevel/10) return true;
         if (rubbleLevel/10 > micro.rubbleLevel/10) return false;
+
+        //if there are more teammates there go there
+        if (numTeammates > micro.numTeammates) return true;
+        if (numTeammates < micro.numTeammates) return false;
+
         if (rc.isActionReady()){
             if (!micro.rc.isActionReady()){
                 //if this can attack but micro can't
@@ -144,7 +190,7 @@ class SoldierMicroInfo{
         if (micro.rc.isActionReady()){
             return false;
         }
-
+        //prefer to have soldiers farther away
         return (minDistToEnemy >= micro.minDistToEnemy);
     }
 }
