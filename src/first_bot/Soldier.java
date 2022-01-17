@@ -22,8 +22,6 @@ public class Soldier extends Unit {
 
     public void takeTurn() throws GameActionException {
 
-        
-
         if (me.distanceSquaredTo(target) <= 2){
             target = chooseRandomInitialDestination();
         }
@@ -40,12 +38,15 @@ public class Soldier extends Unit {
         me = rc.getLocation();
         round = rc.getRoundNum();
         
-        if (!doSoldierMicro()){
-            Direction dir = pf.findBestDirection(target, 60);
+        boolean needSoldierMicro = doSoldierMicro();
+        // Figure out where to move if we don't need to fight
+        if (!needSoldierMicro){
+            Direction dir = pf.findBestDirection(target, 30);
             if (rc.canMove(dir)){
                 rc.move(dir);
             }
         }
+        // Find an enemy to attack
         RobotInfo[] enemies = rc.senseNearbyRobots(13, enemyTeam);
         int bestEnemyIndex = -1;
         for (int enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++){
@@ -53,12 +54,16 @@ public class Soldier extends Unit {
                 bestEnemyIndex = enemyIndex;
             }
         }
-        if (bestEnemyIndex != -1){
+        // Attack it if we can
+        if (bestEnemyIndex != -1 && rc.canAttack(enemies[bestEnemyIndex].location)){
             rc.attack(enemies[bestEnemyIndex].location);
         }
+        // Debugging indicator string
+        rc.setIndicatorString(target.x + " " + target.y + ", " + needSoldierMicro);
         return;
     }
 
+    // Compare bots to see which one we want to attack first
     public boolean isBetterTargetThan(RobotInfo bot1, RobotInfo bot2) throws GameActionException{
         //lower attack order -> better target
         if (Util.getAttackPref(bot1.type) < Util.getAttackPref(bot2.type)) return true;
@@ -76,7 +81,9 @@ public class Soldier extends Unit {
         return (bot1.ID <= bot2.ID);
     }
 
+    // Returns true if soldier micro is needed
     public static boolean doSoldierMicro() throws GameActionException{
+        
         SoldierMicroInfo[] soldierMicroInfo = new SoldierMicroInfo[9];
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
             //create a soldierMicroInfo for each possible direction the soldier can move in
@@ -87,9 +94,10 @@ public class Soldier extends Unit {
                 soldierMicroInfo[dirIdx] = null;
             }
         }
-
+        // Get all enemies
         RobotInfo[] enemies = rc.senseNearbyRobots(20, rc.getTeam().opponent());
-
+        
+        // For each soldier micro, update minDistToEnemy
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
             if (soldierMicroInfo[dirIdx] != null){
                 for (int enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++){
@@ -97,6 +105,7 @@ public class Soldier extends Unit {
                 }
             }
         }
+        
         int bestChoiceIndex = -1;
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
             if (soldierMicroInfo[dirIdx] != null){
@@ -107,6 +116,9 @@ public class Soldier extends Unit {
         }
         if (bestChoiceIndex != -1 && Util.directions[bestChoiceIndex] != Direction.CENTER){
             if (enemies.length > 0){
+                if (Util.directions[bestChoiceIndex] == Direction.CENTER) {
+                    return true;
+                }
                 rc.move(Util.directions[bestChoiceIndex]);
                 return true;
             }
@@ -121,6 +133,7 @@ public class Soldier extends Unit {
 class SoldierMicroInfo{
     int numEnemies, numTeammates;
     int minDistToEnemy;
+    int minDistToPassiveEnemy;
     MapLocation loc;
     RobotController rc;
     int rubbleLevel;
@@ -130,7 +143,8 @@ class SoldierMicroInfo{
         this.rc = rc;
         this.loc = loc;
         minDistToEnemy = 100000;
-        numEnemies = 0;
+        minDistToPassiveEnemy = 100000;
+
         numTeammates = rc.senseNearbyRobots(loc, 13, rc.getTeam()).length;
         rubbleLevel = rc.senseRubble(loc);
     }
@@ -138,21 +152,33 @@ class SoldierMicroInfo{
     
 
     //please only call this on enemy bots
+    // Distance to enemy aggressive bots (only include those who can attack us right now)
     public void update(RobotInfo bot){
         MapLocation botLocation = bot.getLocation();
         switch (bot.getType()){
             case SOLDIER: 
                 if (botLocation.distanceSquaredTo(loc) <= 13){
-                    minDistToEnemy = Math.min(minDistToEnemy, loc.distanceSquaredTo(botLocation));
+                    minDistToEnemy = Math.min(minDistToEnemy, Util.distanceMetric(loc,botLocation));
+                    numEnemies++;
                 }
             case WATCHTOWER:
                 if (botLocation.distanceSquaredTo(loc) <= 20){
-                    minDistToEnemy = Math.min(minDistToEnemy, loc.distanceSquaredTo(botLocation));
+                    minDistToEnemy = Math.min(minDistToEnemy, Util.distanceMetric(loc,botLocation));
+                    numEnemies++;
                 }
             case SAGE:
                 if (botLocation.distanceSquaredTo(loc) <= 20){
-                    minDistToEnemy = Math.min(minDistToEnemy, loc.distanceSquaredTo(botLocation));
+                    minDistToEnemy = Math.min(minDistToEnemy, Util.distanceMetric(loc,botLocation));
+                    numEnemies++;
                 }
+            case MINER:
+                minDistToPassiveEnemy = Math.min(minDistToPassiveEnemy, Util.distanceMetric(loc,botLocation));
+            case ARCHON:
+                minDistToPassiveEnemy = Math.min(minDistToPassiveEnemy, Util.distanceMetric(loc,botLocation));
+            case LABORATORY:
+                minDistToPassiveEnemy = Math.min(minDistToPassiveEnemy, Util.distanceMetric(loc,botLocation));
+            case BUILDER:
+                minDistToPassiveEnemy = Math.min(minDistToPassiveEnemy, Util.distanceMetric(loc,botLocation));
             default:
         }
     }
@@ -166,16 +192,30 @@ class SoldierMicroInfo{
     */
     
     public boolean isBetterThan(SoldierMicroInfo micro){
-        if (this.numEnemies < micro.numEnemies) return true;
-        if (this.numEnemies > micro.numEnemies) return true;
-        //if we're on a worse rubble square than in the other scenario we should be happy
-        if (rubbleLevel/10 < micro.rubbleLevel/10) return true;
-        if (rubbleLevel/10 > micro.rubbleLevel/10) return false;
-
+        int metric = 0; // positive = better
+        //if we're on a better rubble square than in the other scenario we should be happy
+        metric -= 1000 * (rubbleLevel/10);
+        metric += 1000 * (micro.rubbleLevel/10);
+        
         //if there are more teammates there go there
-        if (numTeammates > micro.numTeammates) return true;
-        if (numTeammates < micro.numTeammates) return false;
+        metric += 500 * numTeammates;
+        metric -= 500 * micro.numTeammates;
+        metric += 300 * numEnemies;
+        metric -= 300 * micro.numEnemies;
 
+        if (this.numEnemies == 0 && micro.numEnemies == 0) {
+            
+            metric += 600 * minDistToPassiveEnemy;
+            metric -= 600 * minDistToPassiveEnemy;
+        }
+        
+        if (metric > 0) {
+            return true;
+        }
+        if (metric < 0) {
+            return false;
+        }
+        
         if (rc.isActionReady()){
             if (!micro.rc.isActionReady()){
                 //if this can attack but micro can't
