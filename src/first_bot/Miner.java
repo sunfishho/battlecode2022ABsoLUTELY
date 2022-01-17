@@ -188,31 +188,6 @@ public class Miner extends Unit{
                 return;
             }
         }
-        if (rc.readSharedArray(17) == 65535 && !change){
-            MapLocation minerLoc = me;
-            int minerCentroidx = 0;
-            int minerCentroidy = 0;
-            int numMiners = 0;
-            for (int idx = robotLocations.length - 1; idx >= 0; idx--){
-                if (robotLocations[idx].getTeam() == myTeam && robotLocations[idx].getType() == RobotType.MINER){
-                    minerLoc = robotLocations[idx].getLocation();
-                    numMiners++;
-                    minerCentroidx += minerLoc.x;
-                    minerCentroidy += minerLoc.y;
-                }
-            }
-            if (numMiners != 0){
-                minerCentroidx /= numMiners;
-                minerCentroidy /= numMiners;
-                Direction dirRetreat = retreat(new MapLocation(minerCentroidx, minerCentroidy));
-                isRetreating = false;
-                if (rc.canMove(dirRetreat)){
-                    rc.move(dirRetreat);
-                    return;
-                }
-            }
-
-        }
         // Choose random location
         if (resetLoc || reachedTarget) {
             MapLocation bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
