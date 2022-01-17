@@ -13,11 +13,15 @@ public class Miner extends Unit{
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static int maxBytecodeUsed = 0;
     static int income;
+    static boolean needsHeal;
+    static int loopingIncrement = 3;//experiment w/ this maybe idk
+    static int loopingPenalty;
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
         isRetreating = false;
         target = t;
+        needsHeal = false;
     }
     
     public void takeTurn() throws GameActionException {
@@ -28,15 +32,53 @@ public class Miner extends Unit{
             targetCountdown = 0;
         }
         isRetreating = false;
+        switch(checkLoop()){
+            case 1: //cycling
+                loopingPenalty += loopingIncrement;
+                break;
+            case 2: //not cycling
+                loopingPenalty = 0;
+                break;
+            default: break;
+        }
+        if(loopingPenalty > 50){//let's just pick a new target at this point
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+            loopingPenalty = 0;
+        }
+        targetCountdown++;
+        if (targetCountdown == 150){
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+            loopingPenalty = 0;
+        }
         takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         archonLocation = nearestArchon(me);
+        // If previously not on offense and low health set target to nearest archon
+        if (rc.getHealth() < 10) {
+            needsHeal = true;
+            target = archonLocation;
+        }
+        
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         robotLocations = rc.senseNearbyRobots(20);
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
             targetCountdown = 0;
+            tryToMine(1);
+            target = archonLocation;
+            if (me.distanceSquaredTo(archonLocation) > 13) {
+                tryToMove(30 + loopingPenalty);
+                moveLowerRubble(true);
+            }
+            if (rc.getHealth() > 45) {
+                needsHeal = false;
+                target = chooseRandomInitialDestination();
+            } else {
+                return;
+            }
         }
         if (observe()){
             int enemyCentroidx = 0;
@@ -97,7 +139,7 @@ public class Miner extends Unit{
             reachedTarget = true;
             tryToWriteTarget(true);
         }
-        tryToMove();
+        tryToMove(30 + loopingPenalty);
         // Check if we can still mine stuff, stay still if so
         // for (int dx = -1; dx <= 1; dx++) {
         //     for (int dy = -1; dx <= 1; dy++) {
@@ -222,10 +264,10 @@ public class Miner extends Unit{
     }
 
     // Moves toward target through pathfinding
-    public void tryToMove() throws GameActionException {
+    public void tryToMove(int avgRubble) throws GameActionException {
         int curRubble = rc.senseRubble(me);
         Direction dir = Direction.CENTER;
-        if (!isRetreating) {
+        if (!isRetreating && !needsHeal) {
             if (rc.canSenseLocation(target) && me.distanceSquaredTo(target) <= 2 && (rc.senseLead(target) > 1 || rc.senseGold(target) > 0)) {
                 int bestRubble = curRubble;
                 // try to get on a better rubble square
@@ -242,7 +284,7 @@ public class Miner extends Unit{
                 }
                 return;
             }
-            dir = pf.findBestDirection(target, 80);
+            dir = pf.findBestDirection(target, avgRubble);
         } else {
             dir = pf.findBestDirection(target, 10);
         }
