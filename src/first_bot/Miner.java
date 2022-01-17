@@ -183,10 +183,10 @@ public class Miner extends Unit{
             //     initialBytecode = Clock.getBytecodeNum();
             // }
             MapLocation bestLoc = archonLocation;
-            int bestDist = 0;
+            int bestDist = 100000;
             
             for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
-                if (rc.senseLead(leadLocations[idx]) > 1 && bestDist < archonLocation.distanceSquaredTo(leadLocations[idx])){
+                if (rc.senseLead(leadLocations[idx]) > 1 && bestDist > archonLocation.distanceSquaredTo(leadLocations[idx])){
                     bestDist = archonLocation.distanceSquaredTo(leadLocations[idx]);
                     bestLoc = leadLocations[idx];
                     change = true;
