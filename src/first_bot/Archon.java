@@ -65,11 +65,11 @@ public class Archon extends RobotCommon{
         rc.writeSharedArray(rank-1, loc);
         numMinersAlive = rc.readSharedArray(28);
         numSoldiersAlive = rc.readSharedArray(29);
+        // System.out.println(round + " " + numMinersAlive + " " + numSoldiersAlive);
         if (rank == numArchons){
             rc.writeSharedArray(28, 0);
             rc.writeSharedArray(29, 0);
         }
-        
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
 
         if (changeOppLeadCount > 51 && round > 10){
@@ -207,7 +207,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((numMinersAlive < Math.max(8, Util.WIDTH * Util.HEIGHT / 150)) && (alarm == 65535)))) {
+            && (((numMinersAlive < Math.max(8, Util.WIDTH * Util.HEIGHT / 150)) && (alarm == 65535 || round % 13 == 0)))) {
 
             //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map

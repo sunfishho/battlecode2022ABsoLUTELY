@@ -66,10 +66,6 @@ public class Pathfinding {
 	static int prevDistances21;
 	static int rubbleLevels21;
 
-	static int distances22;
-	static int prevDistances22;
-	static int rubbleLevels22;
-
 	static int distances23;
 	static int prevDistances23;
 	static int rubbleLevels23;
@@ -282,9 +278,6 @@ public class Pathfinding {
 			prevDistances21 = distances21;
 		}
 		newcol++;
-		rubbleLevels22 = robot.rc.senseRubble(mc.translate(2, 2)) + 10;
-		distances22 = Util.distanceMetric(newrow, newcol, target.x, target.y) * avgRubble;
-		prevDistances22 = distances22;
 		newcol++;
 		if (newrow < 0 || newcol < 0 || newrow >= Util.WIDTH || newcol >= Util.HEIGHT || (this.robot.rc.canSenseRobotAtLocation(mc.translate(2, 3)))){
 			rubbleLevels23 = 1000000000;
@@ -487,7 +480,6 @@ public class Pathfinding {
 		distances10 += rubbleLevels10;
 		distances11 -= rubbleLevels11;
 		distances11 = Math.min(prevDistances12, distances11);
-		distances11 = Math.min(prevDistances22, distances11);
 		distances11 = Math.min(prevDistances21, distances11);
 		distances11 = Math.min(prevDistances20, distances11);
 		distances11 = Math.min(prevDistances10, distances11);
@@ -498,7 +490,6 @@ public class Pathfinding {
 		distances12 -= rubbleLevels12;
 		distances12 = Math.min(prevDistances13, distances12);
 		distances12 = Math.min(prevDistances23, distances12);
-		distances12 = Math.min(prevDistances22, distances12);
 		distances12 = Math.min(prevDistances21, distances12);
 		distances12 = Math.min(prevDistances11, distances12);
 		distances12 = Math.min(prevDistances01, distances12);
@@ -509,7 +500,6 @@ public class Pathfinding {
 		distances13 = Math.min(prevDistances14, distances13);
 		distances13 = Math.min(prevDistances24, distances13);
 		distances13 = Math.min(prevDistances23, distances13);
-		distances13 = Math.min(prevDistances22, distances13);
 		distances13 = Math.min(prevDistances12, distances13);
 		distances13 = Math.min(prevDistances02, distances13);
 		distances13 = Math.min(prevDistances03, distances13);
@@ -530,7 +520,6 @@ public class Pathfinding {
 		distances20 = Math.min(prevDistances11, distances20);
 		distances20 += rubbleLevels20;
 		distances21 -= rubbleLevels21;
-		distances21 = Math.min(prevDistances22, distances21);
 		distances21 = Math.min(prevDistances32, distances21);
 		distances21 = Math.min(prevDistances31, distances21);
 		distances21 = Math.min(prevDistances30, distances21);
@@ -539,22 +528,11 @@ public class Pathfinding {
 		distances21 = Math.min(prevDistances11, distances21);
 		distances21 = Math.min(prevDistances12, distances21);
 		distances21 += rubbleLevels21;
-		distances22 -= rubbleLevels22;
-		distances22 = Math.min(prevDistances23, distances22);
-		distances22 = Math.min(prevDistances33, distances22);
-		distances22 = Math.min(prevDistances32, distances22);
-		distances22 = Math.min(prevDistances31, distances22);
-		distances22 = Math.min(prevDistances21, distances22);
-		distances22 = Math.min(prevDistances11, distances22);
-		distances22 = Math.min(prevDistances12, distances22);
-		distances22 = Math.min(prevDistances13, distances22);
-		distances22 += rubbleLevels22;
 		distances23 -= rubbleLevels23;
 		distances23 = Math.min(prevDistances24, distances23);
 		distances23 = Math.min(prevDistances34, distances23);
 		distances23 = Math.min(prevDistances33, distances23);
 		distances23 = Math.min(prevDistances32, distances23);
-		distances23 = Math.min(prevDistances22, distances23);
 		distances23 = Math.min(prevDistances12, distances23);
 		distances23 = Math.min(prevDistances13, distances23);
 		distances23 = Math.min(prevDistances14, distances23);
@@ -581,7 +559,6 @@ public class Pathfinding {
 		distances31 = Math.min(prevDistances30, distances31);
 		distances31 = Math.min(prevDistances20, distances31);
 		distances31 = Math.min(prevDistances21, distances31);
-		distances31 = Math.min(prevDistances22, distances31);
 		distances31 += rubbleLevels31;
 		distances32 -= rubbleLevels32;
 		distances32 = Math.min(prevDistances33, distances32);
@@ -590,7 +567,6 @@ public class Pathfinding {
 		distances32 = Math.min(prevDistances41, distances32);
 		distances32 = Math.min(prevDistances31, distances32);
 		distances32 = Math.min(prevDistances21, distances32);
-		distances32 = Math.min(prevDistances22, distances32);
 		distances32 = Math.min(prevDistances23, distances32);
 		distances32 += rubbleLevels32;
 		distances33 -= rubbleLevels33;
@@ -599,7 +575,6 @@ public class Pathfinding {
 		distances33 = Math.min(prevDistances43, distances33);
 		distances33 = Math.min(prevDistances42, distances33);
 		distances33 = Math.min(prevDistances32, distances33);
-		distances33 = Math.min(prevDistances22, distances33);
 		distances33 = Math.min(prevDistances23, distances33);
 		distances33 = Math.min(prevDistances24, distances33);
 		distances33 += rubbleLevels33;
@@ -681,7 +656,6 @@ public class Pathfinding {
 		prevDistances10 += rubbleLevels10;
 		prevDistances11 -= rubbleLevels11;
 		prevDistances11 = Math.min(distances12, prevDistances11);
-		prevDistances11 = Math.min(distances22, prevDistances11);
 		prevDistances11 = Math.min(distances21, prevDistances11);
 		prevDistances11 = Math.min(distances20, prevDistances11);
 		prevDistances11 = Math.min(distances10, prevDistances11);
@@ -692,7 +666,6 @@ public class Pathfinding {
 		prevDistances12 -= rubbleLevels12;
 		prevDistances12 = Math.min(distances13, prevDistances12);
 		prevDistances12 = Math.min(distances23, prevDistances12);
-		prevDistances12 = Math.min(distances22, prevDistances12);
 		prevDistances12 = Math.min(distances21, prevDistances12);
 		prevDistances12 = Math.min(distances11, prevDistances12);
 		prevDistances12 = Math.min(distances01, prevDistances12);
@@ -703,7 +676,6 @@ public class Pathfinding {
 		prevDistances13 = Math.min(distances14, prevDistances13);
 		prevDistances13 = Math.min(distances24, prevDistances13);
 		prevDistances13 = Math.min(distances23, prevDistances13);
-		prevDistances13 = Math.min(distances22, prevDistances13);
 		prevDistances13 = Math.min(distances12, prevDistances13);
 		prevDistances13 = Math.min(distances02, prevDistances13);
 		prevDistances13 = Math.min(distances03, prevDistances13);
@@ -724,7 +696,6 @@ public class Pathfinding {
 		prevDistances20 = Math.min(distances11, prevDistances20);
 		prevDistances20 += rubbleLevels20;
 		prevDistances21 -= rubbleLevels21;
-		prevDistances21 = Math.min(distances22, prevDistances21);
 		prevDistances21 = Math.min(distances32, prevDistances21);
 		prevDistances21 = Math.min(distances31, prevDistances21);
 		prevDistances21 = Math.min(distances30, prevDistances21);
@@ -733,22 +704,11 @@ public class Pathfinding {
 		prevDistances21 = Math.min(distances11, prevDistances21);
 		prevDistances21 = Math.min(distances12, prevDistances21);
 		prevDistances21 += rubbleLevels21;
-		prevDistances22 -= rubbleLevels22;
-		prevDistances22 = Math.min(distances23, prevDistances22);
-		prevDistances22 = Math.min(distances33, prevDistances22);
-		prevDistances22 = Math.min(distances32, prevDistances22);
-		prevDistances22 = Math.min(distances31, prevDistances22);
-		prevDistances22 = Math.min(distances21, prevDistances22);
-		prevDistances22 = Math.min(distances11, prevDistances22);
-		prevDistances22 = Math.min(distances12, prevDistances22);
-		prevDistances22 = Math.min(distances13, prevDistances22);
-		prevDistances22 += rubbleLevels22;
 		prevDistances23 -= rubbleLevels23;
 		prevDistances23 = Math.min(distances24, prevDistances23);
 		prevDistances23 = Math.min(distances34, prevDistances23);
 		prevDistances23 = Math.min(distances33, prevDistances23);
 		prevDistances23 = Math.min(distances32, prevDistances23);
-		prevDistances23 = Math.min(distances22, prevDistances23);
 		prevDistances23 = Math.min(distances12, prevDistances23);
 		prevDistances23 = Math.min(distances13, prevDistances23);
 		prevDistances23 = Math.min(distances14, prevDistances23);
@@ -775,7 +735,6 @@ public class Pathfinding {
 		prevDistances31 = Math.min(distances30, prevDistances31);
 		prevDistances31 = Math.min(distances20, prevDistances31);
 		prevDistances31 = Math.min(distances21, prevDistances31);
-		prevDistances31 = Math.min(distances22, prevDistances31);
 		prevDistances31 += rubbleLevels31;
 		prevDistances32 -= rubbleLevels32;
 		prevDistances32 = Math.min(distances33, prevDistances32);
@@ -784,7 +743,6 @@ public class Pathfinding {
 		prevDistances32 = Math.min(distances41, prevDistances32);
 		prevDistances32 = Math.min(distances31, prevDistances32);
 		prevDistances32 = Math.min(distances21, prevDistances32);
-		prevDistances32 = Math.min(distances22, prevDistances32);
 		prevDistances32 = Math.min(distances23, prevDistances32);
 		prevDistances32 += rubbleLevels32;
 		prevDistances33 -= rubbleLevels33;
@@ -793,7 +751,6 @@ public class Pathfinding {
 		prevDistances33 = Math.min(distances43, prevDistances33);
 		prevDistances33 = Math.min(distances42, prevDistances33);
 		prevDistances33 = Math.min(distances32, prevDistances33);
-		prevDistances33 = Math.min(distances22, prevDistances33);
 		prevDistances33 = Math.min(distances23, prevDistances33);
 		prevDistances33 = Math.min(distances24, prevDistances33);
 		prevDistances33 += rubbleLevels33;
@@ -837,7 +794,6 @@ public class Pathfinding {
 		prevDistances44 += rubbleLevels44;
 		distances11 -= rubbleLevels11;
 		distances11 = Math.min(prevDistances12, distances11);
-		distances11 = Math.min(prevDistances22, distances11);
 		distances11 = Math.min(prevDistances21, distances11);
 		distances11 = Math.min(prevDistances20, distances11);
 		distances11 = Math.min(prevDistances10, distances11);
@@ -848,7 +804,6 @@ public class Pathfinding {
 		distances12 -= rubbleLevels12;
 		distances12 = Math.min(prevDistances13, distances12);
 		distances12 = Math.min(prevDistances23, distances12);
-		distances12 = Math.min(prevDistances22, distances12);
 		distances12 = Math.min(prevDistances21, distances12);
 		distances12 = Math.min(prevDistances11, distances12);
 		distances12 = Math.min(prevDistances01, distances12);
@@ -859,14 +814,12 @@ public class Pathfinding {
 		distances13 = Math.min(prevDistances14, distances13);
 		distances13 = Math.min(prevDistances24, distances13);
 		distances13 = Math.min(prevDistances23, distances13);
-		distances13 = Math.min(prevDistances22, distances13);
 		distances13 = Math.min(prevDistances12, distances13);
 		distances13 = Math.min(prevDistances02, distances13);
 		distances13 = Math.min(prevDistances03, distances13);
 		distances13 = Math.min(prevDistances04, distances13);
 		distances13 += rubbleLevels13;
 		distances21 -= rubbleLevels21;
-		distances21 = Math.min(prevDistances22, distances21);
 		distances21 = Math.min(prevDistances32, distances21);
 		distances21 = Math.min(prevDistances31, distances21);
 		distances21 = Math.min(prevDistances30, distances21);
@@ -875,22 +828,11 @@ public class Pathfinding {
 		distances21 = Math.min(prevDistances11, distances21);
 		distances21 = Math.min(prevDistances12, distances21);
 		distances21 += rubbleLevels21;
-		distances22 -= rubbleLevels22;
-		distances22 = Math.min(prevDistances23, distances22);
-		distances22 = Math.min(prevDistances33, distances22);
-		distances22 = Math.min(prevDistances32, distances22);
-		distances22 = Math.min(prevDistances31, distances22);
-		distances22 = Math.min(prevDistances21, distances22);
-		distances22 = Math.min(prevDistances11, distances22);
-		distances22 = Math.min(prevDistances12, distances22);
-		distances22 = Math.min(prevDistances13, distances22);
-		distances22 += rubbleLevels22;
 		distances23 -= rubbleLevels23;
 		distances23 = Math.min(prevDistances24, distances23);
 		distances23 = Math.min(prevDistances34, distances23);
 		distances23 = Math.min(prevDistances33, distances23);
 		distances23 = Math.min(prevDistances32, distances23);
-		distances23 = Math.min(prevDistances22, distances23);
 		distances23 = Math.min(prevDistances12, distances23);
 		distances23 = Math.min(prevDistances13, distances23);
 		distances23 = Math.min(prevDistances14, distances23);
@@ -903,7 +845,6 @@ public class Pathfinding {
 		distances31 = Math.min(prevDistances30, distances31);
 		distances31 = Math.min(prevDistances20, distances31);
 		distances31 = Math.min(prevDistances21, distances31);
-		distances31 = Math.min(prevDistances22, distances31);
 		distances31 += rubbleLevels31;
 		distances32 -= rubbleLevels32;
 		distances32 = Math.min(prevDistances33, distances32);
@@ -912,7 +853,6 @@ public class Pathfinding {
 		distances32 = Math.min(prevDistances41, distances32);
 		distances32 = Math.min(prevDistances31, distances32);
 		distances32 = Math.min(prevDistances21, distances32);
-		distances32 = Math.min(prevDistances22, distances32);
 		distances32 = Math.min(prevDistances23, distances32);
 		distances32 += rubbleLevels32;
 		distances33 -= rubbleLevels33;
@@ -921,7 +861,6 @@ public class Pathfinding {
 		distances33 = Math.min(prevDistances43, distances33);
 		distances33 = Math.min(prevDistances42, distances33);
 		distances33 = Math.min(prevDistances32, distances33);
-		distances33 = Math.min(prevDistances22, distances33);
 		distances33 = Math.min(prevDistances23, distances33);
 		distances33 = Math.min(prevDistances24, distances33);
 		distances33 += rubbleLevels33;

@@ -23,6 +23,8 @@ public class Pathfinding {
     }\n\n"""
 
 for i in range (25):
+    if i == 12:
+        continue
     string += ("\tstatic int distances" + str(i // 5)  + str(i % 5) + ";\n")
     string += ("\tstatic int prevDistances" + str(i // 5)  + str(i % 5) + ";\n")
     string += ("\tstatic int rubbleLevels" + str(i // 5)  + str(i % 5) + ";\n")
@@ -36,6 +38,9 @@ string += "\t\tint dxDiff = 0;\n"
 string += "\t\tint dyDiff = 0;\n"
 for i in range(5):
     for j in range(5):
+        if i == 2 and j == 2:
+            string += "\t\tnewcol++;\n"
+            continue
         if j == 0 and i > 0:
             string += "\t\tnewrow++;\n"
             string += "\t\tnewcol -= 4;\n"
@@ -68,28 +73,46 @@ dy = [1, 1, 0, -1, -1, -1, 0, 1]
 string += "\tpublic void iterate(){\n"
 for i in range(5):
     for j in range(5):
+        if i == 2 and j == 2:
+            continue
         string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
-            if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tdistances" + str(i) + str(j) + " = Math.min(prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ", distances" + str(i) + str(j) + ");\n")
+            iNew = i + dx[k]
+            jNew = j + dy[k]
+            if (iNew == 2 and jNew == 2):
+                continue
+            if (iNew >= 0 and jNew >= 0 and iNew < 5 and jNew < 5):
+                string += ("\t\tdistances" + str(i) + str(j) + " = Math.min(prevDistances" + str(iNew) + str(jNew) + ", distances" + str(i) + str(j) + ");\n")
         string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 for i1 in range(5):
     for j1 in range(5):
         i = i1
         j = j1
+        if i == 2 and j == 2:
+            continue
         string += ("\t\tprevDistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
-            if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tprevDistances" + str(i) + str(j) + " = Math.min(distances" + str(i + dx[k]) + str(j+dy[k]) + ", prevDistances" + str(i) + str(j) + ");\n")
+            iNew = i + dx[k]
+            jNew = j + dy[k]
+            if (iNew == 2 and jNew == 2):
+                continue
+            if (iNew >= 0 and jNew >= 0 and iNew < 5 and jNew < 5):
+                string += ("\t\tprevDistances" + str(i) + str(j) + " = Math.min(distances" + str(iNew) + str(jNew) + ", prevDistances" + str(i) + str(j) + ");\n")
         string += ("\t\tprevDistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 for i1 in range(3):
     for j1 in range(3):
         i = i1 + 1
         j = j1 + 1
+        if i == 2 and j == 2:
+            continue
         string += ("\t\tdistances" + str(i) + str(j) + " -= rubbleLevels" + str(i) + str(j) + ";\n")
         for k in range(8):
-            if (i + dx[k] >= 0 and j + dy[k] >= 0 and i + dx[k] < 5 and j + dy[k] < 5):
-                string += ("\t\tdistances" + str(i) + str(j) + " = Math.min(prevDistances" + str(i + dx[k]) + str(j+dy[k]) + ", distances" + str(i) + str(j) + ");\n")
+            iNew = i + dx[k]
+            jNew = j + dy[k]
+            if (iNew == 2 and jNew == 2):
+                continue
+            if (iNew >= 0 and jNew >= 0 and iNew < 5 and jNew < 5):
+                string += ("\t\tdistances" + str(i) + str(j) + " = Math.min(prevDistances" + str(iNew) + str(jNew) + ", distances" + str(i) + str(j) + ");\n")
         string += ("\t\tdistances" + str(i) + str(j) + " += rubbleLevels" + str(i) + str(j) + ";\n")
 
 
