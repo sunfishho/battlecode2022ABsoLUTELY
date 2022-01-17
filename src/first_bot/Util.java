@@ -48,6 +48,7 @@ public class Util {
         Direction.SOUTHWEST,
         Direction.WEST,
         Direction.NORTHWEST,
+        Direction.CENTER;
     };
 
     static final RobotType[] attackOrder = new RobotType[] {
