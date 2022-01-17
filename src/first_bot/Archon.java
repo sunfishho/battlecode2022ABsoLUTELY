@@ -277,18 +277,23 @@ public class Archon extends RobotCommon{
     }
 
     public boolean heal() throws GameActionException {
+        System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
+        int healable = 0;
         if (nearbyTeammatesWithinHealingRange.length != 0){
             RobotInfo mostNeedy = null;
 
             for (RobotInfo robot : nearbyTeammatesWithinHealingRange){
-                if (robot.health + 2 > robot.getType().health || !rc.canAttack(robot.getLocation())){
+                if (robot.health + 2 > robot.getType().health || !rc.canRepair(robot.getLocation())){
                     continue;
                 }
+                healable++;
                 if (mostNeedy == null){
                     mostNeedy = robot;
                     continue;
                 }
                 switch (robot.getType()){
+                    case ARCHON:
+                        continue;
                     case SOLDIER:
                         // check if the fraction of health is lower for this robot
                         if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health <= mostNeedy.health * robot.getType().health){
@@ -302,10 +307,10 @@ public class Archon extends RobotCommon{
                         break;
                 }
             }
-            
-            if (mostNeedy != null && rc.canAttack(mostNeedy.getLocation())){
+            System.out.println("HEALABLE: " + healable);
+            if (mostNeedy != null && rc.canRepair(mostNeedy.getLocation())){
                 MapLocation targetBot = mostNeedy.getLocation();
-                rc.attack(targetBot);
+                rc.repair(targetBot);
                 rc.setIndicatorString(targetBot.x + ", " + targetBot.y);
                 return true;
             }

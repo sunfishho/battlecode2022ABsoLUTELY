@@ -50,7 +50,7 @@ public class Soldier extends Unit {
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         // If previously not on offense and low health set target to nearest archon
-        if (!onOffense && rc.getHealth() < 10) {
+        if (rc.getHealth() < 10) {
             isRetreating = true;
             target = RobotCommon.nearestArchon(me);
         }
@@ -68,7 +68,7 @@ public class Soldier extends Unit {
             switch(bot.getType()){
                 case SOLDIER:
                     double weight = (bot.getHealth()/3 + 5) / (10 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
-                    if (bot.getTeam() == myTeam && bot.getLocation().distanceSquaredTo(me) <= 13){
+                    if (bot.getTeam() == myTeam){
                         teammateSoldiers += weight;
                     }
                     else{
@@ -107,6 +107,7 @@ public class Soldier extends Unit {
             }
             if (rc.getHealth() > 45) {
                 isRetreating = false;
+                
                 target = chooseRandomInitialDestination();
             } else {
                 return;
@@ -129,7 +130,7 @@ public class Soldier extends Unit {
         // This whole block only runs if we have an enemy in sight
         tryToAttackAndMove();
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        rc.setIndicatorString("target: " + target.x + ", " + target.y);
+        rc.setIndicatorString("target: " + target.x + ", " + target.y + "; " + isRetreating);
     }
     //right now this only deals with soldier skirmishes + archon stuff
     public void tryToAttackAndMove() throws GameActionException{
@@ -395,20 +396,22 @@ public class Soldier extends Unit {
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
-        if (rc.readSharedArray(17) < 65534) {
-            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
-            targetCountdown = 0;
-        }
-        else if (target == null){
-            target = chooseRandomInitialDestination();
-            targetCountdown = 0;
-        }
-        else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > 30) && !onOffense){
-            target = chooseRandomInitialDestination();
-            targetCountdown = 0;
-        }
-        if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
-            return;
+        if (!isRetreating) {
+            if (rc.readSharedArray(17) < 65534) {
+                target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+                targetCountdown = 0;
+            }
+            else if (target == null){
+                target = chooseRandomInitialDestination();
+                targetCountdown = 0;
+            }
+            else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > 30) && !onOffense){
+                target = chooseRandomInitialDestination();
+                targetCountdown = 0;
+            }
+            if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
+                return;
+            }
         }
         Direction dir = Direction.CENTER;
         if (target != null){
