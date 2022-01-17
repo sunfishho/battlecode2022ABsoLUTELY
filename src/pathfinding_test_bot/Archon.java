@@ -27,8 +27,8 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException{
-        if (rc.getRoundNum() == 1 && rc.getTeamLeadAmount(rc.getTeam()) == 200){
-            rc.buildRobot(RobotType.MINER, Direction.EAST);
-        }
+        // if (rc.getRoundNum() == 1 && rc.getTeamLeadAmount(rc.getTeam()) == 200){
+        //     rc.buildRobot(RobotType.MINER, Direction.EAST);
+        // }
     }
 }

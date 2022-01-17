@@ -22,9 +22,11 @@ public class Soldier extends Unit {
         }
         else if (rc.readSharedArray(17) == 65534){
             target = chooseRandomInitialDestination();
+            
         }
         else{
-            target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
+            target = chooseRandomInitialDestination();
+            // target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
         }
         //do more stuff later
     }
