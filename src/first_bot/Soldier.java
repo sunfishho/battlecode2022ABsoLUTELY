@@ -30,11 +30,17 @@ public class Soldier extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
+        targetCountdown++;
+        if (targetCountdown == 150){
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+        }
         takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
+            targetCountdown = 0;
         }
         // Try to attack someone
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
@@ -348,10 +354,12 @@ public class Soldier extends Unit {
         //Attack if possible
         if (inVisionNotAttack){
             target = bestBot.getLocation();
+            targetCountdown = 0;
             return target;
         }
         if (rc.canAttack(bestBot.getLocation())) {
             target = bestBot.getLocation();
+            targetCountdown = 0;
             return target;
         }
         return null;
@@ -386,12 +394,15 @@ public class Soldier extends Unit {
         rc.setIndicatorString("trying to move: " + target);
         if (rc.readSharedArray(17) < 65534) {
             target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+            targetCountdown = 0;
         }
         else if (target == null){
             target = chooseRandomInitialDestination();
+            targetCountdown = 0;
         }
         else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > 30) && !onOffense){
             target = chooseRandomInitialDestination();
+            targetCountdown = 0;
         }
         if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
             return;

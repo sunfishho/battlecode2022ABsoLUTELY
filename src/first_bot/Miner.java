@@ -20,6 +20,11 @@ public class Miner extends Unit{
     }
     
     public void takeTurn() throws GameActionException {
+        targetCountdown++;
+        if (targetCountdown == 150){
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+        }
         isRetreating = false;
         takeAttendance();
         me = rc.getLocation();
@@ -29,6 +34,7 @@ public class Miner extends Unit{
         robotLocations = rc.senseNearbyRobots(20);
         if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
+            targetCountdown = 0;
         }
         if (observe()){
             int enemyCentroidx = 0;
@@ -102,6 +108,7 @@ public class Miner extends Unit{
             MapLocation loc = me;
             if (rc.senseNearbyLocationsWithLead(2).length > 0) {
                 target = me;
+                targetCountdown = 0;
                 return;
             }
         }
@@ -164,6 +171,7 @@ public class Miner extends Unit{
 
             if(change) {
                 target = bestLoc;
+                targetCountdown = 0;
                 if (target.equals(me) == false) {
                     reachedTarget = false;
                 }
@@ -195,6 +203,7 @@ public class Miner extends Unit{
 
             if(change) {
                 target = bestLoc;
+                targetCountdown = 0;
                 if (target.equals(me) == false) {
                     reachedTarget = false;
                 }
@@ -233,7 +242,7 @@ public class Miner extends Unit{
                 bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
             }
             target = bestLoc;
-            
+            targetCountdown = 0;
             if (target.equals(me) == false) {
                 reachedTarget = false;
             }

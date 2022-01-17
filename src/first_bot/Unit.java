@@ -5,6 +5,7 @@ public class Unit extends RobotCommon {
     static double teammateSoldiers, enemySoldiers, numEnemies;
     static boolean isRetreating; // whether retreating
     static MapLocation target; 
+    static int targetCountdown = 0;
     public Unit (RobotController rc, int r, MapLocation loc) {
         super(rc, r, loc);
     }
@@ -21,9 +22,11 @@ public class Unit extends RobotCommon {
         int reflectionY = me.y * 2 - enemyCentroid.y;
         if (reflectionX >= 0 && reflectionX < Util.WIDTH && reflectionY >= 0 && reflectionY < Util.HEIGHT){
             target = me.translate(reflectionX - me.x, reflectionY - me.y);
+            targetCountdown = 0;
         }
         else{
             target = nearestArchon(me);
+            targetCountdown = 0;
         }
 
         Direction dir = pf.findBestDirection(target, 30);
