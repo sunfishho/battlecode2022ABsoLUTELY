@@ -16,6 +16,7 @@ public class Miner extends Unit{
     static boolean needsHeal;
     static int loopingIncrement = 3;//experiment w/ this maybe idk
     static int loopingPenalty;
+    static boolean isDefended; // If the miner is close to a soldier our team or does not need defense
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
@@ -25,6 +26,7 @@ public class Miner extends Unit{
     }
     
     public void takeTurn() throws GameActionException {
+        isDefended = true;
         income = 0;
         targetCountdown++;
         if (targetCountdown == 150){
@@ -64,13 +66,14 @@ public class Miner extends Unit{
         
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         robotLocations = rc.senseNearbyRobots(20);
-        if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
+        // Sometimes we don't want to step on the target
+        if (rc.canSenseLocation(target) && me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
             targetCountdown = 0;
             tryToMine(1);
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
-                tryToMove(30 + loopingPenalty);
+                tryToMove(30);
                 moveLowerRubble(true);
             }
             if (rc.getHealth() > 45) {
@@ -84,6 +87,7 @@ public class Miner extends Unit{
             int enemyCentroidx = 0;
             int enemyCentroidy = 0;
             int numEnemies = 0;
+            isDefended = false;
             MapLocation enemyLoc = me;
             for (RobotInfo bot : robotLocations){
                 if (bot.getTeam() == myTeam){
@@ -91,12 +95,19 @@ public class Miner extends Unit{
                 }
                 switch(bot.getType()){
                     case SOLDIER:
+                        if (bot.getTeam() == myTeam && bot.getLocation().distanceSquaredTo(me) <= 8){
+                            isDefended = true;
+                            break;
+                        }
                         enemyLoc = bot.getLocation();
                         numEnemies++;
                         enemyCentroidx += enemyLoc.x;
                         enemyCentroidy += enemyLoc.y;
                         break;
                     case ARCHON:
+                        if (bot.getTeam() == myTeam){
+                            break;
+                        }
                         enemyLoc = bot.getLocation();
                         numEnemies++;
                         enemyCentroidx += enemyLoc.x;
@@ -106,8 +117,8 @@ public class Miner extends Unit{
                 }
             }
             if (numEnemies != 0){
-                enemyCentroidx /= numEnemies;
-                enemyCentroidy /= numEnemies;
+                enemyCentroidx = (int) (enemyCentroidx / (numEnemies + 0.0) + 0.5);
+                enemyCentroidx = (int) (enemyCentroidy / (numEnemies + 0.0) + 0.5);
                 retreat(new MapLocation(enemyCentroidx, enemyCentroidy));
             }
         }
@@ -240,9 +251,11 @@ public class Miner extends Unit{
                 MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                 while (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
                     rc.mineGold(mineLocation);
+                    loopingPenalty = 0;
                 }
                 while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > leaveLead) {
                     rc.mineLead(mineLocation);
+                    loopingPenalty = 0;
                     income++;
                 }
             }
@@ -272,7 +285,11 @@ public class Miner extends Unit{
             }
             dir = pf.findBestDirection(target, avgRubble);
         } else {
-            dir = pf.findBestDirection(target, 10);
+            if (needsHeal && isDefended) {
+                dir = pf.findBestDirection(target, 30);
+            } else {
+                dir = pf.findBestDirection(target, 10);
+            }
         }
         
         if (rc.canMove(dir)) {

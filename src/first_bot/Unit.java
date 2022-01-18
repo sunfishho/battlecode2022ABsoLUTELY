@@ -16,7 +16,7 @@ public class Unit extends RobotCommon {
     public Unit (RobotController rc, int r, MapLocation loc) {
         super(rc, r, loc);
         locationCounter = 0;
-        recentLocations = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        recentLocations = new int[] {-1, -1, -1, -1};
     }
 
     public void takeTurn() throws GameActionException {
@@ -24,22 +24,23 @@ public class Unit extends RobotCommon {
     }
 
     public int checkLoop() {//checks recent locations to see if we have looped
-        //0 = haven't moved, 1 = cycling, 2 = not cycling
-        int loc = Util.getIntFromLocation(rc.getLocation());
-        if (recentLocations[locationCounter] == loc){//haven't moved since last check
-            return 0;
-        }
-        //else, we have moved and need to update recentLocations and check for a loop
-        locationCounter = (locationCounter + 1)%10;
-        if(recentLocations[locationCounter] == loc){//loop of length 10
-            return 1;
-        }
-        recentLocations[locationCounter] = loc;
-        for(int i = 0; i < 10; i++){
-            if(recentLocations[i] == loc){
-                return 1;
-            }
-        }
+        // //0 = haven't moved, 1 = cycling, 2 = not cycling
+        // int loc = Util.getIntFromLocation(rc.getLocation());
+        // if (recentLocations[locationCounter] == loc){//haven't moved since last check
+        //     return 0;
+        // }
+        // //else, we have moved and need to update recentLocations and check for a loop
+        // locationCounter = (locationCounter + 1) % 4;
+        // if(recentLocations[locationCounter] == loc){//loop of length 10
+        //     return 1;
+        // }
+        // for(int i = 0; i < recentLocations.length; i++){
+        //     if(recentLocations[i] == loc){
+        //         recentLocations[locationCounter] = loc;
+        //         return 1;
+        //     }
+        // }
+        // recentLocations[locationCounter] = loc;
         return 2;
     }
 

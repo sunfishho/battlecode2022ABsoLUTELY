@@ -64,7 +64,7 @@ public class Miner extends Unit{
         
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         robotLocations = rc.senseNearbyRobots(20);
-        if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
+        if (rc.canSenseLocation(target) && me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
             target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
             targetCountdown = 0;
             tryToMine(1);

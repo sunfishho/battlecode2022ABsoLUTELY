@@ -3,7 +3,6 @@ package first_bot;
 
 import battlecode.common.*;
 
-
 public class Soldier extends Unit {
 
     static int type;//0 = aggressive, 1 = defensive, 2 = escort?
@@ -116,6 +115,7 @@ public class Soldier extends Unit {
             MapLocation enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
+                loopingPenalty = 0;
             }
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
@@ -137,11 +137,12 @@ public class Soldier extends Unit {
             MapLocation enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
+                loopingPenalty = 0;
             }
             return;
         }
-        enemySoldierCentroidx /= numEnemies;
-        enemySoldierCentroidy /= numEnemies;
+        enemySoldierCentroidx = (int) (enemySoldierCentroidx / (numEnemies + 0.0) + 0.5);
+        enemySoldierCentroidy = (int) (enemySoldierCentroidy / (numEnemies + 0.0) + 0.5);
         enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
         
         // This whole block only runs if we have an enemy in sight
@@ -190,11 +191,13 @@ public class Soldier extends Unit {
                 enemy = attackValuableEnemies(false);
                 if (enemy != null){
                     rc.attack(enemy);
+                    loopingPenalty = 0;
                 }                
             }
             else{
                 if (enemy != null){
                     rc.attack(enemy);
+                    loopingPenalty = 0;
                 }
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
@@ -223,6 +226,7 @@ public class Soldier extends Unit {
             enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
+                loopingPenalty = 0;
             }
             return;
         }
@@ -234,11 +238,13 @@ public class Soldier extends Unit {
             enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
+                loopingPenalty = 0;
             }
         }
         else{
             if (enemy != null){
                 rc.attack(enemy);
+                loopingPenalty = 0;
             }
             if (dir != Direction.CENTER){
                 rc.move(dir);
@@ -266,6 +272,7 @@ public class Soldier extends Unit {
             enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
+                loopingPenalty = 0;
             }
         }
         //when we have more soldiers
@@ -292,12 +299,14 @@ public class Soldier extends Unit {
                 enemy = attackValuableEnemies(false);
                 if (enemy != null){
                     rc.attack(enemy);
+                    loopingPenalty = 0;
                 }
             }
             else{
                 enemy = attackValuableEnemies(false);
                 if (enemy != null){
                     rc.attack(enemy);
+                    loopingPenalty = 0;
                 }
                 if (dir != Direction.CENTER){
                     rc.move(dir);
@@ -326,11 +335,13 @@ public class Soldier extends Unit {
                 enemy = attackValuableEnemies(false);
                 if (enemy != null){
                     rc.attack(enemy);
+                    loopingPenalty = 0;
                 }
             }
             else{
                 if (enemy != null){
                     rc.attack(enemy);
+                    loopingPenalty = 0;
                 }
                 if (rc.canMove(dir) && dir != Direction.CENTER){
                     rc.move(dir);
