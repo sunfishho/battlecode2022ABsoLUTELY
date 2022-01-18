@@ -14,7 +14,7 @@ public class Miner extends Unit{
     static int maxBytecodeUsed = 0;
     static int income;
     static boolean needsHeal;
-    static int loopingIncrement = 3;//experiment w/ this maybe idk
+    static int loopingIncrement = 0;//experiment w/ this maybe idk
     static int loopingPenalty;
     static boolean isDefended; // If the miner is close to a soldier our team or does not need defense
 

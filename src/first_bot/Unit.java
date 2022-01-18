@@ -7,6 +7,7 @@ public class Unit extends RobotCommon {
     static MapLocation target; 
     static int targetCountdown = 0;
     public static int locationCounter;
+    public static int[] recentDists;
     public static int[] recentLocations;
     /*
     - recentLocations stores 10 most recent locations
@@ -16,7 +17,8 @@ public class Unit extends RobotCommon {
     public Unit (RobotController rc, int r, MapLocation loc) {
         super(rc, r, loc);
         locationCounter = 0;
-        recentLocations = new int[] {-1, -1, -1, -1};
+        recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
+        recentLocations = new int[] {-1, -1, -1, -1, -1, -1, -1, -1};
     }
 
     public void takeTurn() throws GameActionException {
@@ -24,23 +26,24 @@ public class Unit extends RobotCommon {
     }
 
     public int checkLoop() {//checks recent locations to see if we have looped
-        // //0 = haven't moved, 1 = cycling, 2 = not cycling
-        // int loc = Util.getIntFromLocation(rc.getLocation());
-        // if (recentLocations[locationCounter] == loc){//haven't moved since last check
-        //     return 0;
+        //0 = haven't moved, 1 = cycling, 2 = not cycling
+        int loc = Util.getIntFromLocation(rc.getLocation());
+        //else, we have moved and need to update recentLocations and check for a loop
+        locationCounter = (locationCounter + 1) % recentDists.length;
+        int dist = me.distanceSquaredTo(target);
+        // If old distance is not farther from new distance, it's probably in a loop
+        // System.out.print(rc.getRoundNum() + ", " + rc.getID() + ", [");
+        // for (int i = 0; i < recentDists.length; i++) {
+        //     System.out.print(recentDists[i] + " ");
         // }
-        // //else, we have moved and need to update recentLocations and check for a loop
-        // locationCounter = (locationCounter + 1) % 4;
-        // if(recentLocations[locationCounter] == loc){//loop of length 10
-        //     return 1;
-        // }
-        // for(int i = 0; i < recentLocations.length; i++){
-        //     if(recentLocations[i] == loc){
-        //         recentLocations[locationCounter] = loc;
-        //         return 1;
-        //     }
-        // }
-        // recentLocations[locationCounter] = loc;
+        // System.out.println("]");
+        if (recentDists[locationCounter] <= dist) {
+            recentLocations[locationCounter] = loc;
+            recentDists[locationCounter] = dist;
+            return 1;
+        }
+        recentLocations[locationCounter] = loc;
+        recentDists[locationCounter] = dist;
         return 2;
     }
 

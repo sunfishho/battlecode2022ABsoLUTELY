@@ -10,7 +10,7 @@ public class Soldier extends Unit {
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     static double teammateSoldiers, enemySoldiers;
     static int numEnemies;
-    static int loopingIncrement = 3;//experiment w/ this maybe idk
+    static int loopingIncrement = 0;//experiment w/ this maybe idk
     static int loopingPenalty;//increase rubble tolerance if we're stuck in a loop
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
 
@@ -44,7 +44,7 @@ public class Soldier extends Unit {
                 break;
             default: break;
         }
-        if(loopingPenalty > 50){//let's just pick a new target at this point
+        if(loopingPenalty > 70){//let's just pick a new target at this point
             target = chooseRandomInitialDestination();
             targetCountdown = 0;
             loopingPenalty = 0;
@@ -67,7 +67,11 @@ public class Soldier extends Unit {
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         // If previously not on offense and low health set target to nearest archon
         if (rc.getHealth() < 10) {
-            isRetreating = true;
+            if (!isRetreating) {
+                // reset recentdists
+                recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
+                isRetreating = true;
+            }
             target = archonLocation;
         }
         //reset the onOffense, onDefense flags
@@ -120,6 +124,14 @@ public class Soldier extends Unit {
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30 + loopingPenalty);
+                boolean crowded = (checkLoop() == 1);
+                // boolean crowded = false;
+                if (me.distanceSquaredTo(archonLocation) > 13 && rc.senseNearbyRobots(20, rc.getTeam()).length > 3 && me.distanceSquaredTo(archonLocation) < 36) {
+                    // We can't get healed by the archon so try to move to a different archon
+                    rank = (rank % rc.getArchonCount()) + 1;
+                    archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
+                    recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
+                }
                 moveLowerRubble(true);
             }
             if (rc.getHealth() > 45) {
@@ -422,7 +434,8 @@ public class Soldier extends Unit {
 
     
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
-    public void tryToMove(int avgRubble) throws GameActionException {
+    // returs if move was made
+    public boolean tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
         if (!isRetreating) {
             if (rc.readSharedArray(17) < 65534) {
@@ -438,18 +451,19 @@ public class Soldier extends Unit {
                 targetCountdown = 0;
             }
             if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
-                return;
+                return false;
             }
         }
         Direction dir = Direction.CENTER;
         if (target != null){
             dir = pf.findBestDirection(target, avgRubble);
         }
-        if (rc.canMove(dir)){
+        if (rc.canMove(dir) && dir != Direction.CENTER){
             rc.move(dir);
             me = rc.getLocation();
+            return true;
         }
-
+        return false;
     }
 
     //how many enemy soldiers can attack us if we move in direction dir?
