@@ -1,4 +1,4 @@
-package first_bot;
+package bot0117v2;
 
 import java.util.Map;
 
