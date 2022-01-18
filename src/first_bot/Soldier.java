@@ -124,9 +124,15 @@ public class Soldier extends Unit {
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30 + loopingPenalty);
-                boolean crowded = (checkLoop() == 1);
-                // boolean crowded = false;
-                if (me.distanceSquaredTo(archonLocation) > 13 && rc.senseNearbyRobots(20, rc.getTeam()).length > 3 && me.distanceSquaredTo(archonLocation) < 36) {
+                boolean crowded = false;
+                int crowdCount = 0;
+                for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
+                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.TURRET && robot.getHealth() < robot.getType().health) {
+                        crowdCount++;
+                    }
+                }
+
+                if (me.distanceSquaredTo(archonLocation) > 13 && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
                     // We can't get healed by the archon so try to move to a different archon
                     rank = (rank % rc.getArchonCount()) + 1;
                     archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
