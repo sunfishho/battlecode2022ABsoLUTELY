@@ -33,16 +33,19 @@ public class Miner extends Unit{
             target = chooseRandomInitialDestination();
             targetCountdown = 0;
         }
-        isRetreating = false;
-        switch(checkLoop()){
-            case 1: //cycling
-                loopingPenalty += loopingIncrement;
-                break;
-            case 2: //not cycling
-                loopingPenalty = 0;
-                break;
-            default: break;
+        if (isRetreating) {
+            target = chooseRandomInitialDestination();
         }
+        isRetreating = false;
+        // switch(checkLoop()){
+        //     case 1: //cycling
+        //         loopingPenalty += loopingIncrement;
+        //         break;
+        //     case 2: //not cycling
+        //         loopingPenalty = 0;
+        //         break;
+        //     default: break;
+        // }
         if(loopingPenalty > 50){//let's just pick a new target at this point
             target = chooseRandomInitialDestination();
             targetCountdown = 0;
@@ -83,6 +86,7 @@ public class Miner extends Unit{
                 return;
             }
         }
+        int bytecodeBeforeMoving0 = Clock.getBytecodeNum();
         if (observe()){
             int enemyCentroidx = 0;
             int enemyCentroidy = 0;
@@ -117,11 +121,19 @@ public class Miner extends Unit{
                 }
             }
             if (numEnemies != 0){
-                enemyCentroidx = (int) (enemyCentroidx / (numEnemies + 0.0) + 0.5);
-                enemyCentroidx = (int) (enemyCentroidy / (numEnemies + 0.0) + 0.5);
-                retreat(new MapLocation(enemyCentroidx, enemyCentroidy));
+                enemyCentroidx = (int) ((enemyCentroidx / (numEnemies + 0.0)) + 0.5);
+                enemyCentroidy = (int) ((enemyCentroidy / (numEnemies + 0.0)) + 0.5);
+                Direction dir = retreat(new MapLocation(enemyCentroidx, enemyCentroidy));
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                }
+                observeSymmetry();
+                tryToMine(1);
+                rc.writeSharedArray(30, rc.readSharedArray(30) + income);
+                return;
             }
         }
+        int bytecodeBeforeMoving1 = Clock.getBytecodeNum();
         observeSymmetry();
         tryToMine(1);
         /*
@@ -137,6 +149,7 @@ public class Miner extends Unit{
                 }
             }
         }
+        int bytecodeBeforeMoving2 = Clock.getBytecodeNum();
 
         // Case when Archon could not assign a Location to the Miner
         if(target.equals(archonLocation) && isRetreating == false) {
@@ -149,10 +162,12 @@ public class Miner extends Unit{
             reachedTarget = true;
             tryToWriteTarget(true);
         }
+        int bytecodeBeforeMoving3 = Clock.getBytecodeNum();
         tryToMove(30 + loopingPenalty);
         tryToWriteTarget(false);
         tryToMine(1);
         rc.writeSharedArray(30, rc.readSharedArray(30) + income);
+        rc.setIndicatorString(bytecodeBeforeMoving0 + " " + bytecodeBeforeMoving1 + " " + bytecodeBeforeMoving2 + " " + bytecodeBeforeMoving3);
     }
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.

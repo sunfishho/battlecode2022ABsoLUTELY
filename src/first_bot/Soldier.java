@@ -159,8 +159,8 @@ public class Soldier extends Unit {
             }
             return;
         }
-        enemySoldierCentroidx = (int) (enemySoldierCentroidx / (numEnemies + 0.0) + 0.5);
-        enemySoldierCentroidy = (int) (enemySoldierCentroidy / (numEnemies + 0.0) + 0.5);
+        enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
+        enemySoldierCentroidy = (int) ((enemySoldierCentroidy / (numEnemies + 0.0)) + 0.5);
         enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
         
         // This whole block only runs if we have an enemy in sight
