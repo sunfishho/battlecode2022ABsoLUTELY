@@ -158,12 +158,12 @@ class SoldierMicroInfo{
     int numTeammates;
     // add this to the eval if we're out of the enemies's attack radius but inside their vision radius
     final int BARELY_IN_VISION_BONUS = 500;
-    final int ENEMY_PENALTY = 1500;
+    final int ENEMY_PENALTY = 2000;
     final int TEAMMATE_MULTPLIER = 2000;
     final double NON_DIAGONAL_BONUS = 200;
     final int ABLE_TO_SHOOT_BONUS = 1000;
     final double ADDITIONAL_TARGET_PENALTY = 0.3;
-    final int RUBBLE_PENALTY = 10000;
+    final int RUBBLE_PENALTY = 15000;
     //how much less scared we are of being in attack range of sages
     final double WATCHTOWER_MULTIPLIER = 1.5;
     final double SAGE_MULTIPLIER = 0.3;
@@ -226,16 +226,16 @@ class SoldierMicroInfo{
 
     public double findEval() throws GameActionException{
         // System.out.println("Beginning of findEval: " + Clock.getBytecodesLeft());
-        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("numEnemiesCanBeAttackedBy is " + numEnemiesCanBeAttackedBy);
         double eval = 0; // positive = better
         //if we're on a better rubble square than in the other scenario we should be happy
         eval -= RUBBLE_PENALTY * (rubbleLevel/10);
-        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("eval is " + eval + " after rubble");
         double myWeight = 10 / (10 + rc.senseRubble(loc)) * rc.getHealth() / 50 + ADDITIONAL_TARGET_PENALTY;
-        eval -= ENEMY_PENALTY * (numEnemiesCanBeAttackedBy - myWeight);
+        if (numEnemiesCanBeAttackedBy > 0){
+            eval -= ENEMY_PENALTY * (numEnemiesCanBeAttackedBy - myWeight);
+        }
 
         //if there are more teammates around me, go for it
-        RobotInfo[] teammates = rc.senseNearbyRobots(20, rc.getTeam());
+        RobotInfo[] teammates = rc.senseNearbyRobots(13, rc.getTeam());
         for (int idx = 0; idx < teammates.length; idx++){
             if (teammates[idx].getType() == RobotType.SOLDIER || teammates[idx].getType() == RobotType.WATCHTOWER){
                 eval += (10 / (10 + rc.senseRubble(teammates[idx].location)) * teammates[idx].health + ADDITIONAL_TARGET_PENALTY) * TEAMMATE_MULTPLIER;
