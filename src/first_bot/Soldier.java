@@ -98,6 +98,9 @@ public class Soldier extends Unit {
         }
         // Get all enemies
         RobotInfo[] enemies = rc.senseNearbyRobots(20, rc.getTeam().opponent());
+        if (enemies.length == 0){
+            return false;
+        }
         
         // For each soldier micro, update minDistToEnemy
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
@@ -112,12 +115,12 @@ public class Soldier extends Unit {
         double bestEval = -1000000;
         double curEval;
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
-            if (rc.getID() == 10900 && me.equals(new MapLocation(8, 7))) System.out.println(soldierMicroInfo[dirIdx]);
+            if (rc.getID() == 11494 && me.equals(new MapLocation(12, 16))) System.out.println(soldierMicroInfo[dirIdx]);
             if (soldierMicroInfo[dirIdx] != null){
-                if (rc.getID() == 10900 && me.equals(new MapLocation(8, 7))) System.out.println(dirIdx);
+                if (rc.getID() == 11494 && me.equals(new MapLocation(12, 16))) System.out.println(dirIdx);
                 if (rc.canMove(Util.directions[dirIdx]) || bestChoiceIndex < 0){
                     curEval = soldierMicroInfo[dirIdx].findEval();
-                    if (rc.getID() == 10900 && me.equals(new MapLocation(8, 7))){
+                    if (rc.getID() == 11494 && me.equals(new MapLocation(12, 16))){
                         System.out.println(curEval + " " + Util.directions[dirIdx]);
                     }
                     if (curEval > bestEval){
@@ -154,13 +157,13 @@ class SoldierMicroInfo{
     int rubbleTolerance;
     int numTeammates;
     // add this to the eval if we're out of the enemies's attack radius but inside their vision radius
-    final int BARELY_IN_VISION_BONUS = 2000;
-    final int ENEMY_PENALTY = 2000;
+    final int BARELY_IN_VISION_BONUS = 500;
+    final int ENEMY_PENALTY = 1500;
     final int TEAMMATE_MULTPLIER = 2000;
     final double NON_DIAGONAL_BONUS = 200;
     final int ABLE_TO_SHOOT_BONUS = 1000;
     final double ADDITIONAL_TARGET_PENALTY = 0.3;
-    final int RUBBLE_PENALTY = 3000;
+    final int RUBBLE_PENALTY = 10000;
     //how much less scared we are of being in attack range of sages
     final double WATCHTOWER_MULTIPLIER = 1.5;
     final double SAGE_MULTIPLIER = 0.3;
@@ -191,17 +194,17 @@ class SoldierMicroInfo{
                 minDistToEnemy = Math.min(minDistToEnemy, loc.distanceSquaredTo(botLocation));
                 //update numEnemies if the soldier can attack us
                 if (loc.distanceSquaredTo(botLocation) <= 13){
-                    numEnemiesCanBeAttackedBy += 10 / (10 + rc.senseRubble(botLocation) * bot.health + ADDITIONAL_TARGET_PENALTY);
+                    numEnemiesCanBeAttackedBy += (10 / (10 + rc.senseRubble(botLocation)) * bot.health / 50 + ADDITIONAL_TARGET_PENALTY);
                 }
             case WATCHTOWER:
                 minDistToEnemy = Math.min(minDistToEnemy, loc.distanceSquaredTo(botLocation));
                 if (loc.distanceSquaredTo(botLocation) <= 20){
-                    numEnemiesCanBeAttackedBy += (10 / (10 + rc.senseRubble(botLocation)) * bot.health + ADDITIONAL_TARGET_PENALTY) * WATCHTOWER_MULTIPLIER;
+                    numEnemiesCanBeAttackedBy += ((10 / (10 + rc.senseRubble(botLocation)) * bot.health / 50 + ADDITIONAL_TARGET_PENALTY) * WATCHTOWER_MULTIPLIER);
                 }
             case SAGE:
                 minDistToEnemy = Math.min(minDistToEnemy, loc.distanceSquaredTo(botLocation));
                 if (loc.distanceSquaredTo(botLocation) <= 25){
-                    numEnemiesCanBeAttackedBy += 10 / (10 + rc.senseRubble(botLocation) * bot.health + ADDITIONAL_TARGET_PENALTY) * SAGE_MULTIPLIER;
+                    numEnemiesCanBeAttackedBy += ((10 / (10 + rc.senseRubble(botLocation)) * bot.health / 50 + ADDITIONAL_TARGET_PENALTY) * SAGE_MULTIPLIER);
                 }
             //otherwise it is a passive enemy, so we update the passive enemy counter if it is in range and we can attack
             default:
@@ -215,31 +218,38 @@ class SoldierMicroInfo{
     }
     /*
     List of considerations we should take into place:
-    1. rubble
-    2. number of enemies we know we will be in attack range of
-    3. 
+    
     */
+
+
+    //need to implement: add bonus to being on edge
 
     public double findEval() throws GameActionException{
         // System.out.println("Beginning of findEval: " + Clock.getBytecodesLeft());
+        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("numEnemiesCanBeAttackedBy is " + numEnemiesCanBeAttackedBy);
         double eval = 0; // positive = better
         //if we're on a better rubble square than in the other scenario we should be happy
         eval -= RUBBLE_PENALTY * (rubbleLevel/10);
-        
-        //we sould
-        eval -= ENEMY_PENALTY * (numEnemiesCanBeAttackedBy - 1);
+        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("eval is " + eval + " after rubble");
+        double myWeight = 10 / (10 + rc.senseRubble(loc)) * rc.getHealth() / 50 + ADDITIONAL_TARGET_PENALTY;
+        eval -= ENEMY_PENALTY * (numEnemiesCanBeAttackedBy - myWeight);
 
+        //if there are more teammates around me, go for it
+        RobotInfo[] teammates = rc.senseNearbyRobots(20, rc.getTeam());
+        for (int idx = 0; idx < teammates.length; idx++){
+            if (teammates[idx].getType() == RobotType.SOLDIER || teammates[idx].getType() == RobotType.WATCHTOWER){
+                eval += (10 / (10 + rc.senseRubble(teammates[idx].location)) * teammates[idx].health + ADDITIONAL_TARGET_PENALTY) * TEAMMATE_MULTPLIER;
+            }
+        }
+        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("eval is " + eval + " after teammate/enemy considerations");
         //ideal location is between vision and action radius
         if (minDistToEnemy > 13 && minDistToEnemy < 20){
             eval += BARELY_IN_VISION_BONUS;
         }
 
+        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("eval is " + eval + " after barely in vision bonus");
 
-        //if there are more teammates around me, go for it
-        RobotInfo[] teammates = rc.senseNearbyRobots(13, rc.getTeam());
-        for (int idx = 0; idx < teammates.length; idx++){
-            eval += ((10 + rc.senseRubble(teammates[idx].location)) * teammates[idx].health + ADDITIONAL_TARGET_PENALTY) * TEAMMATE_MULTPLIER;
-        }
+        
 
         //if we have some enemy that can attack us, add a penalty if we can't actually shoot when we get there
         // also, add a penalty for how far away this enemy is
@@ -252,9 +262,13 @@ class SoldierMicroInfo{
             eval -= ENEMY_DIST_PENALTY * minDistToEnemy;
         }
 
+        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("eval is " + eval + " after passive_enemy_bonus, able_to_shoot bonus, distance penalty");
+
+
         //want to move closer to the target if we can
         eval -= rubbleTolerance * Util.distanceMetric(loc, target);
 
+        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("eval is " + eval + " after distance penalty");
 
         // prefer not going diagonally, because if you go diagonally it's possible some soldier that didn't used to be in vision radius
         // is now within attack radius and will kill you
@@ -265,6 +279,8 @@ class SoldierMicroInfo{
             case WEST: eval += NON_DIAGONAL_BONUS;
             default: break;
         }
+
+        if (rc.getID() == 11494 && rc.getLocation().equals(new MapLocation(12, 16))) System.out.println("eval is " + eval + " after nondiagonal bonus");
 
         return eval;
     }
