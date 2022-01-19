@@ -36,8 +36,8 @@ public class Util {
     //this is for distanceMetric()
     static int DISTANCE_WEIGHT_RECIPROCAL = 5;
 
-    static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
-    static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
+    static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1, 0};
+    static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1, 0};
 
     static final Direction[] directions = new Direction[] {
         Direction.NORTH,
@@ -48,6 +48,7 @@ public class Util {
         Direction.SOUTHWEST,
         Direction.WEST,
         Direction.NORTHWEST,
+        Direction.CENTER
     };
 
     static final RobotType[] attackOrder = new RobotType[] {
