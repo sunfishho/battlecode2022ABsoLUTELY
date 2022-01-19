@@ -25,6 +25,7 @@ public class Archon extends RobotCommon{
 
     public Archon(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
+
         numForagersSent = 100;
         numScoutsSent = 0;
         //initialize the Symmetry bit
@@ -49,7 +50,7 @@ public class Archon extends RobotCommon{
         if (changeOppLeadCount > 51 && round > 10){
             rc.writeSharedArray(17, 65534);
         }
-        
+
         if(round == 1) {
             establishRank();
             relocCheck();

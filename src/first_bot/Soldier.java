@@ -37,7 +37,7 @@ public class Soldier extends Unit {
 
     public void takeTurn() throws GameActionException {
         // Update important fields
-        archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
+        
         healing = false;
         if (rc.getHealth() > health) {
             healing = true;
@@ -85,10 +85,7 @@ public class Soldier extends Unit {
         //reset the onOffense, onDefense flags
         onOffense = false;
         onDefense = false;
-        int b1 = Clock.getBytecodeNum();
         observe();
-        int b2 = Clock.getBytecodeNum();
-        rc.setIndicatorString(round + ": " + b1 + ", " + b2);
         observeSymmetry();
         teammateSoldiers = 0;
         enemySoldiers = 0;
@@ -137,7 +134,7 @@ public class Soldier extends Unit {
                 tryToMove(30 + loopingPenalty);
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
-                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health) {
+                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.TURRET && robot.getHealth() < robot.getType().health) {
                         crowdCount++;
                     }
                 }
@@ -154,7 +151,6 @@ public class Soldier extends Unit {
                 
                 target = chooseRandomInitialDestination();
             } else {
-                rc.setIndicatorString(round + ": " + b1 + ", " + b2);
                 return;
             }
         }
@@ -167,7 +163,6 @@ public class Soldier extends Unit {
                 rc.attack(enemy);
                 loopingPenalty = 0;
             }
-            rc.setIndicatorString(round + ": " + b1 + ", " + b2);
             return;
         }
         enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
@@ -178,7 +173,6 @@ public class Soldier extends Unit {
         tryToAttackAndMove();
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
         rc.setIndicatorString("target: " + target.x + ", " + target.y + "; " + isRetreating);
-        rc.setIndicatorString(round + ": " + b1 + ", " + b2);
     }
     //right now this only deals with soldier skirmishes + archon stuff
     public void tryToAttackAndMove() throws GameActionException{

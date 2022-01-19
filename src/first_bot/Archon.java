@@ -19,7 +19,6 @@ public class Archon extends RobotCommon{
     static MapLocation archonLocs;
     static int numMinersAlive, numSoldiersAlive;
     static RobotInfo[] nearbyTeammatesWithinHealingRange;
-    static boolean isMoving = false;
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -52,7 +51,6 @@ public class Archon extends RobotCommon{
         numArchons = rc.getArchonCount();
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
         targetArchon = rc.readSharedArray(20);
-        observe();
 
         // update ranks of archons if changed
 
@@ -100,6 +98,7 @@ public class Archon extends RobotCommon{
             }
         }
 
+
         if (rc.readSharedArray(22) != 0 && round >= 2){
             /*
             MapLocation archonSpotted = Util.getLocationFromInt(rc.readSharedArray(22));
@@ -119,70 +118,8 @@ public class Archon extends RobotCommon{
              */
         }
         // System.out.println("Symmetry: " + rc.readSharedArray(16));
-        int alarm = rc.readSharedArray(17);
-
-        MapLocation alarmLoc = Util.getLocationFromInt(alarm % 10000);
-        if (rank == 1) {
-            System.out.println(round + ": " + alarmLoc.x + ", " + alarmLoc.y);
-        }
+        int alarm = rc.readSharedArray(18);
         int prevIncome = rc.readSharedArray(30);
-        rc.setIndicatorString("empty " + isMoving);
-        if (rc.getMode() == RobotMode.TURRET) {
-            isMoving = false;
-        }
-        // Move archon closer to target every so often
-        if (round > 10 && (round % 160 >= (rank * 30 - 30) && round % 160 <= (rank * 30 - 11) && !isMoving) || isMoving) {
-            if (targetArchon % numArchons == rank % numArchons) {
-                rc.writeSharedArray(20, targetArchon + 1);
-            }
-            MapLocation target = me;
-            if (alarm > 65533) {
-                target = new MapLocation(Util.WIDTH/2, Util.HEIGHT/2);
-            }
-            target = Util.getLocationFromInt(alarm % 10000);
-
-            isMoving = true;
-            // Stop moving if we're in danger
-            boolean isThreatened = false;
-            RobotInfo[] enemies = rc.senseNearbyRobots(34, myTeam.opponent());
-            for (RobotInfo robot : enemies) {
-                if (robot.getType() != RobotType.MINER) {
-                    isThreatened = true;
-                }
-            }
-            if (isThreatened || target.distanceSquaredTo(me) < 100 || round % 160 >= rank * 30) {
-                boolean moved = moveLowerRubble(false);
-                if (moved) {
-                    return;
-                }
-                if (rc.getMode() != RobotMode.TURRET && rc.canTransform()) {
-                    isMoving = false;
-                    rc.transform();
-                }
-                return;
-            }
-            rc.setIndicatorString("MOVING TO: " + target.x + " " + target.y);
-            if (rc.getMode() == RobotMode.TURRET) {
-                if (rc.canTransform()) {
-                    rc.transform();
-                }
-                return;
-            }
-            
-            Direction dir = Direction.CENTER;
-            if (target.distanceSquaredTo(me) < 324) {
-                dir = pf.findBestDirection(target, 10);
-            } else {
-                dir = pf.findBestDirection(target, 30);
-            }
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                me = rc.getLocation();
-                rc.writeSharedArray(rank - 1, Util.getIntFromLocation(me));
-            }
-            return;
-        }
-        rc.setIndicatorString("HI2");
 
         if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) + 1 && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
             relocCheck();
@@ -247,12 +184,16 @@ public class Archon extends RobotCommon{
                 dir = Util.directions[rng.nextInt(Util.directions.length)];
             }
         }
+
+        if (alarm < round - 3) {
+            rc.writeSharedArray(18, 65535);
+            rc.writeSharedArray(17, 65535);
+        }
+
+
         // System.out.println("ALARM: " + alarm);
         // System.out.println("LOCATION: " + rc.readSharedArray(17));
-        rc.setIndicatorString("string");
-        
-        
-        rc.setIndicatorString("HI");
+        boolean enemiesNear = observe();
         if (alarm == 65535 || alarm == 65534) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 heal();
@@ -261,11 +202,9 @@ public class Archon extends RobotCommon{
         }
         else { // figure out where the alarm is coming from and send troops
             if (teamLeadAmount < 50 || (targetArchon % numArchons) != (rank % numArchons)) {
-
                 if (heal()) {
                     return;
                 }
-                rc.setIndicatorString("Didnt heal");
             }
         }
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
@@ -322,16 +261,11 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        heal(); 
-        if (rank == rc.getArchonCount()) {
-            rc.writeSharedArray(18, 65535);
-            rc.writeSharedArray(17, 65535);
-        }
+        heal();
     }
 
     public boolean heal() throws GameActionException {
-
-        System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
+        // System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
         if (nearbyTeammatesWithinHealingRange.length != 0){
             RobotInfo mostNeedy = null;
 
@@ -398,14 +332,10 @@ public class Archon extends RobotCommon{
                         rc.writeSharedArray(22, Util.getIntFromLocation(robot.location));
                         rc.writeSharedArray(17, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                         rc.writeSharedArray(18, round);
-                        rc.writeSharedArray(20, rank);
-                        targetArchon = rank;
                         return true;
                     default:
                         rc.writeSharedArray(17, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                         rc.writeSharedArray(18, round);
-                        rc.writeSharedArray(20, rank);
-                        targetArchon = rank;
                         return true;
                 }
         }

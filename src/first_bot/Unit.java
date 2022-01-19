@@ -112,31 +112,20 @@ public class Unit extends RobotCommon {
     // Observes if any enemy units nearby, returns true if this is true
     public boolean observe() throws GameActionException {
         boolean hasNearby = false;
-        int prevDist = 10000;
-        if (rc.readSharedArray(17) < 65534) {
-            MapLocation prevLoc = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
-            MapLocation nearestPrevArchonLocation = Util.getLocationFromInt(rc.readSharedArray(rankOfNearestArchon(prevLoc) - 1));
-            prevDist = nearestPrevArchonLocation.distanceSquaredTo(prevLoc);
-        }    
         for (RobotInfo robot: rc.senseNearbyRobots()) {
-            
             if (robot.getTeam() != myTeam){
-                int locInt = Util.getIntFromLocation(robot.getLocation());
-                if (rc.readSharedArray(17) < 65534 && archonLocation.distanceSquaredTo(robot.location) > prevDist) {
-                    continue;
-                }
                 switch (robot.getType()){
                     case MINER: continue;
                     case ARCHON: 
-                        rc.writeSharedArray(22, locInt);
-                        rc.writeSharedArray(17, locInt + 10000 * rankOfNearestArchon(robot.getLocation()));
+                        rc.writeSharedArray(22, Util.getIntFromLocation(robot.getLocation()));
+                        rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                         rc.writeSharedArray(18, round);
                         if (rc.getType() == RobotType.MINER || rc.getType() == RobotType.BUILDER) {
                             isRetreating = true;
                         }
                         return hasNearby == true;
                     default:
-                        rc.writeSharedArray(17, locInt + 10000 * rankOfNearestArchon(robot.getLocation()));
+                        rc.writeSharedArray(17, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                         rc.writeSharedArray(18, round);
                         if (rc.getType() == RobotType.MINER || rc.getType() == RobotType.BUILDER) {
                             isRetreating = true;
@@ -148,6 +137,28 @@ public class Unit extends RobotCommon {
         return hasNearby;
     }
 
-    
+    //use this when you are certain that we actually want to move
+    public void moveLowerRubble(boolean toRetreat) throws GameActionException{
+        rc.setIndicatorString("MOVING TO LOWER RUBBLE, target = " + target);
+        int bestRubble = rc.senseRubble(me);
+        Direction bestDir = Direction.CENTER;
+        for (Direction dir: Util.directions){
+            if (rc.canMove(dir) && rc.senseRubble(me.add(dir))/10 < bestRubble/10){
+                bestDir = dir;
+                bestRubble = rc.senseRubble(me.add(bestDir));
+            }
+            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
+                MapLocation nearestArchonLoc = nearestArchon(me);
+                if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
+                    bestDir = dir;
+                    bestRubble = rc.senseRubble(me.add(bestDir));
+                }
+            }
+        }
+        if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
+            rc.move(bestDir);
+            me = rc.getLocation();
+        }
+    }
 
 }

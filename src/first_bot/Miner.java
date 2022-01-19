@@ -62,17 +62,6 @@ public class Miner extends Unit{
         if (rc.getHealth() < 10 && round < 200) {
             needsHeal = true;
             target = archonLocation;
-            if (me.distanceSquaredTo(archonLocation) > 13) {
-                tryToMove(30);
-                moveLowerRubble(true);
-            }
-            if (rc.getHealth() > 45) {
-                needsHeal = false;
-                target = chooseRandomInitialDestination();
-            } else {
-                rc.writeSharedArray(30, rc.readSharedArray(30) + income);
-                return;
-            }
         }
         
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
@@ -85,6 +74,17 @@ public class Miner extends Unit{
                 tryToMine(0);
             } else {
                 tryToMine(1);
+            }
+            target = archonLocation;
+            if (me.distanceSquaredTo(archonLocation) > 13) {
+                tryToMove(30);
+                moveLowerRubble(true);
+            }
+            if (rc.getHealth() > 45) {
+                needsHeal = false;
+                target = chooseRandomInitialDestination();
+            } else {
+                return;
             }
         }
         int bytecodeBeforeMoving0 = Clock.getBytecodeNum();
