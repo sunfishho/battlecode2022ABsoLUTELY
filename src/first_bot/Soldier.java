@@ -13,6 +13,8 @@ public class Soldier extends Unit {
     static int loopingIncrement = 0;//experiment w/ this maybe idk
     static int loopingPenalty;//increase rubble tolerance if we're stuck in a loop
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
+    static boolean healing;
+    static int health;
 
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
@@ -29,12 +31,18 @@ public class Soldier extends Unit {
             target = chooseRandomInitialDestination();
             // target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
         }
+        health = 50;
         //do more stuff later
     }
 
     public void takeTurn() throws GameActionException {
         // Update important fields
         
+        healing = false;
+        if (rc.getHealth() > health) {
+            healing = true;
+        }
+        health = rc.getHealth();
         switch(checkLoop()){
             case 1: //cycling
                 loopingPenalty += loopingIncrement;
@@ -124,7 +132,6 @@ public class Soldier extends Unit {
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30 + loopingPenalty);
-                boolean crowded = false;
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
                     if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.TURRET && robot.getHealth() < robot.getType().health) {
@@ -132,11 +139,10 @@ public class Soldier extends Unit {
                     }
                 }
 
-                if (me.distanceSquaredTo(archonLocation) > 13 && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
+                if (!healing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
                     // We can't get healed by the archon so try to move to a different archon
                     rank = (rank % rc.getArchonCount()) + 1;
                     archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
-                    recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
                 }
                 moveLowerRubble(true);
             }
@@ -229,6 +235,7 @@ public class Soldier extends Unit {
 
     //logic can be improved
     public void oneOnOneCombat(RobotInfo soldier) throws GameActionException{
+        loopingPenalty = 0;
         //move first so cooldown is less when you attack
         //go to your archon if your health is lower than that of your opponent's
         Direction dir = findDirectionLowerRubbleSquare(rc.getHealth() <= soldier.health);
@@ -244,7 +251,6 @@ public class Soldier extends Unit {
             enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
-                loopingPenalty = 0;
             }
             return;
         }
@@ -273,6 +279,7 @@ public class Soldier extends Unit {
 
     //For when you have more than one teammate
     public void groupCombat(double teammateSoldiers, double enemySoldiers, MapLocation enemyCentroid) throws GameActionException{
+        loopingPenalty = 0;
         //average number of hits expected when rushing an archon before perishing
         // int AVG_HITS_EXPECTED_WHEN_ATACKING = 3;
         //this is the case where we're attacking an archon but we're down in numbers
@@ -290,7 +297,6 @@ public class Soldier extends Unit {
             enemy = attackValuableEnemies(false);
             if (enemy != null){
                 rc.attack(enemy);
-                loopingPenalty = 0;
             }
         }
         //when we have more soldiers

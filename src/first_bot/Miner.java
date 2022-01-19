@@ -14,7 +14,7 @@ public class Miner extends Unit{
     static int maxBytecodeUsed = 0;
     static int income;
     static boolean needsHeal;
-    static int loopingIncrement = 0;//experiment w/ this maybe idk
+    static int loopingIncrement = 1;//experiment w/ this maybe idk
     static int loopingPenalty;
     static boolean isDefended; // If the miner is close to a soldier our team or does not need defense
 
@@ -29,23 +29,6 @@ public class Miner extends Unit{
         isDefended = true;
         income = 0;
         targetCountdown++;
-        if (targetCountdown == 150){
-            target = chooseRandomInitialDestination();
-            targetCountdown = 0;
-        }
-        if (isRetreating) {
-            target = chooseRandomInitialDestination();
-        }
-        isRetreating = false;
-        // switch(checkLoop()){
-        //     case 1: //cycling
-        //         loopingPenalty += loopingIncrement;
-        //         break;
-        //     case 2: //not cycling
-        //         loopingPenalty = 0;
-        //         break;
-        //     default: break;
-        // }
         if(loopingPenalty > 50){//let's just pick a new target at this point
             target = chooseRandomInitialDestination();
             targetCountdown = 0;
@@ -57,6 +40,20 @@ public class Miner extends Unit{
             targetCountdown = 0;
             loopingPenalty = 0;
         }
+        if (isRetreating) {
+            target = chooseRandomInitialDestination();
+        }
+        isRetreating = false;
+        switch(checkLoop()){
+            case 1: //cycling
+                loopingPenalty += loopingIncrement;
+                break;
+            case 2: //not cycling
+                loopingPenalty = 0;
+                break;
+            default: break;
+        }
+        
         takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
@@ -71,9 +68,13 @@ public class Miner extends Unit{
         robotLocations = rc.senseNearbyRobots(20);
         // Sometimes we don't want to step on the target
         if (rc.canSenseLocation(target) && me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
-            target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
+            target = chooseRandomInitialDestination();
             targetCountdown = 0;
-            tryToMine(1);
+            if (isRetreating) {
+                tryToMine(0);
+            } else {
+                tryToMine(1);
+            }
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30);
@@ -127,15 +128,18 @@ public class Miner extends Unit{
                 if (rc.canMove(dir)) {
                     rc.move(dir);
                 }
-                observeSymmetry();
-                tryToMine(1);
+                tryToMine(0);
                 rc.writeSharedArray(30, rc.readSharedArray(30) + income);
                 return;
             }
         }
         int bytecodeBeforeMoving1 = Clock.getBytecodeNum();
         observeSymmetry();
-        tryToMine(1);
+        if (isRetreating) {
+            tryToMine(0);
+        } else {
+            tryToMine(1);
+        }
         /*
         // If there are mineable neighboring deposits, don't keep moving
         */
@@ -165,9 +169,13 @@ public class Miner extends Unit{
         int bytecodeBeforeMoving3 = Clock.getBytecodeNum();
         tryToMove(30 + loopingPenalty);
         tryToWriteTarget(false);
-        tryToMine(1);
+        if (isRetreating) {
+            tryToMine(0);
+        } else {
+            tryToMine(1);
+        }
         rc.writeSharedArray(30, rc.readSharedArray(30) + income);
-        rc.setIndicatorString(bytecodeBeforeMoving0 + " " + bytecodeBeforeMoving1 + " " + bytecodeBeforeMoving2 + " " + bytecodeBeforeMoving3);
+        // rc.setIndicatorString(bytecodeBeforeMoving0 + " " + bytecodeBeforeMoving1 + " " + bytecodeBeforeMoving2 + " " + bytecodeBeforeMoving3);
     }
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
@@ -244,9 +252,9 @@ public class Miner extends Unit{
         }
         // Choose random location
         if (resetLoc || reachedTarget) {
-            MapLocation bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
+            MapLocation bestLoc = chooseRandomInitialDestination();
             while (bestLoc.distanceSquaredTo(archonLocation) <= 10) {
-                bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
+                bestLoc = chooseRandomInitialDestination();
             }
             target = bestLoc;
             targetCountdown = 0;
