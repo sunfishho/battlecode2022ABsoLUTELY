@@ -142,7 +142,7 @@ public class Soldier extends Unit {
                     }
                 }
 
-                if (!healing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
+                if (!healing && crowdCount > 4 && me.distanceSquaredTo(archonLocation) < 25) {
                     // We can't get healed by the archon so try to move to a different archon
                     rank = (rank % rc.getArchonCount()) + 1;
                     archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));

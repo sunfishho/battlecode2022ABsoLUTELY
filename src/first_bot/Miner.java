@@ -44,6 +44,7 @@ public class Miner extends Unit{
             target = chooseRandomInitialDestination();
         }
         isRetreating = false;
+        boolean hasNearby = observe();
         switch(checkLoop()){
             case 1: //cycling
                 loopingPenalty += loopingIncrement;
@@ -62,6 +63,7 @@ public class Miner extends Unit{
         if (rc.getHealth() < 10 && round < 200) {
             needsHeal = true;
             target = archonLocation;
+            tryToMine(1);
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30);
                 moveLowerRubble(true);
@@ -88,10 +90,11 @@ public class Miner extends Unit{
             }
         }
         int bytecodeBeforeMoving0 = Clock.getBytecodeNum();
-        if (observe()){
+        if (hasNearby){
             int enemyCentroidx = 0;
             int enemyCentroidy = 0;
             int numEnemies = 0;
+            int numDefenders = 0;
             isDefended = false;
             MapLocation enemyLoc = me;
             for (RobotInfo bot : robotLocations){
@@ -102,6 +105,7 @@ public class Miner extends Unit{
                     case SOLDIER:
                         if (bot.getTeam() == myTeam && bot.getLocation().distanceSquaredTo(me) <= 8){
                             isDefended = true;
+                            numDefenders++;
                             break;
                         }
                         enemyLoc = bot.getLocation();
@@ -231,11 +235,14 @@ public class Miner extends Unit{
         int numLeadLocations = leadLocations.length;
         if(numLeadLocations > 0) {
             MapLocation bestLoc = archonLocation;
-            int bestDist = 100000;
+            int bestNum = -1;
+            int bestDist = -1;
             
             for(int idx = numLeadLocations - 1; idx >= 0 ; idx--) {
-                if (rc.senseLead(leadLocations[idx]) > 1 && bestDist > archonLocation.distanceSquaredTo(leadLocations[idx])){
+                int newNum = rc.senseLead(leadLocations[idx]);
+                if ((newNum > 1 && newNum > bestNum - 20 && bestDist < archonLocation.distanceSquaredTo(leadLocations[idx])) || newNum >= bestNum + 20){
                     bestDist = archonLocation.distanceSquaredTo(leadLocations[idx]);
+                    bestNum = newNum;
                     bestLoc = leadLocations[idx];
                     change = true;
                 }
