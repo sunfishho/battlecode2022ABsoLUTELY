@@ -74,8 +74,8 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(30, 0);
         }
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
-        computeDifferenceOppLeadCount();
-        if (changeOppLeadCount < -51 && round > 10){
+
+        if (changeOppLeadCount > 51 && round > 10){
             rc.writeSharedArray(17, 65534);
         }
 
@@ -131,7 +131,7 @@ public class Archon extends RobotCommon{
             isMoving = false;
         }
         // Move archon closer to target every so often
-        if ((round > 100 && (round % 160 >= (rank * 30 - 30) && round % 160 <= (rank * 30 - 11) && !isMoving) || isMoving) && 1 == 2) {
+        if (round > 10 && (round % 160 >= (rank * 30 - 30) && round % 160 <= (rank * 30 - 11) && !isMoving) || isMoving) {
             if (targetArchon % numArchons == rank % numArchons) {
                 rc.writeSharedArray(20, targetArchon + 1);
             }
@@ -141,7 +141,7 @@ public class Archon extends RobotCommon{
             }
             target = Util.getLocationFromInt(alarm % 10000);
 
-            
+            isMoving = true;
             // Stop moving if we're in danger
             boolean isThreatened = false;
             RobotInfo[] enemies = rc.senseNearbyRobots(34, myTeam.opponent());
@@ -152,7 +152,7 @@ public class Archon extends RobotCommon{
             }
             if (isThreatened || target.distanceSquaredTo(me) < 100 || round % 160 >= rank * 30) {
                 boolean moved = moveLowerRubble(false);
-                if (moved || !rc.isMovementReady()) {
+                if (moved) {
                     return;
                 }
                 if (rc.getMode() != RobotMode.TURRET && rc.canTransform()) {
@@ -164,7 +164,6 @@ public class Archon extends RobotCommon{
             rc.setIndicatorString("MOVING TO: " + target.x + " " + target.y);
             if (rc.getMode() == RobotMode.TURRET) {
                 if (rc.canTransform()) {
-                    isMoving = true;
                     rc.transform();
                 }
                 return;
@@ -274,7 +273,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 15) {
+            && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 10) {
 
             //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
@@ -324,8 +323,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         }
         heal(); 
-        // Reset alarms if none nearby
-        if (rank == rc.getArchonCount() && rc.readSharedArray(18) != round) {
+        if (rank == rc.getArchonCount()) {
             rc.writeSharedArray(18, 65535);
             rc.writeSharedArray(17, 65535);
         }
