@@ -155,28 +155,6 @@ public class Sage extends Unit {
         }
     }
 
-    public void moveLowerRubble(boolean toRetreat) throws GameActionException{
-        // rc.setIndicatorString("MOVING TO LOWER RUBBLE");
-        int bestRubble = rc.senseRubble(me);
-        Direction bestDir = Direction.CENTER;
-        for (Direction dir: Util.directions){
-            if (rc.canMove(dir) && rc.senseRubble(me.add(dir))/10 < bestRubble/10){
-                bestDir = dir;
-                bestRubble = rc.senseRubble(me.add(bestDir));
-            }
-            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
-                MapLocation nearestArchonLoc = nearestArchon(me);
-                if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
-                    bestDir = dir;
-                    bestRubble = rc.senseRubble(me.add(bestDir));
-                }
-            }
-        }
-        if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
-            rc.move(bestDir);
-        }
-    }
-
     public int soldiersInRange(int r) throws GameActionException {//counts number of enemy soldiers within distance r
         Team opp = rc.getTeam().opponent();
         int cnt = 0;
