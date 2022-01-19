@@ -37,7 +37,6 @@ public class Soldier extends Unit {
         me = rc.getLocation();
         round = rc.getRoundNum();
 
-        System.out.println("Checkpoint 1: location is " + me + "  and # of bytecodes left is: " + Clock.getBytecodesLeft());
         // Find an enemy to attack
         RobotInfo[] enemies = rc.senseNearbyRobots(13, enemyTeam);
         int bestEnemyIndex = -1;
@@ -48,10 +47,10 @@ public class Soldier extends Unit {
         }
 
         // Attack it if we can (later, add for the possibility that we don't attack)
-        if (bestEnemyIndex != -1 && rc.getActionCooldownTurns() == 0){
+        if (bestEnemyIndex != -1 && rc.canAttack(enemies[bestEnemyIndex].location)){
+            // System.out.println("I AM ATTACKING: " + me);
             rc.attack(enemies[bestEnemyIndex].location);
         }
-        System.out.println("Checkpoint 2: location is " + me + "  and # of bytecodes left is: " + Clock.getBytecodesLeft());
 
         boolean needSoldierMicro = doSoldierMicro();
         // Figure out where to move if we don't need to fight
@@ -61,7 +60,6 @@ public class Soldier extends Unit {
                 rc.move(dir);
             }
         }
-        System.out.println("Checkpoint 3: location is " + me + "  and # of bytecodes left is: " + Clock.getBytecodesLeft());
         // Debugging indicator string
         rc.setIndicatorString(target.x + " " + target.y + ", " + needSoldierMicro);
         return;
@@ -109,13 +107,23 @@ public class Soldier extends Unit {
                 }
             }
         }
-        System.out.println("Checkpoint 4: location is " + me + "  and # of bytecodes left is: " + Clock.getBytecodesLeft());
         
         int bestChoiceIndex = -1;
+        double bestEval = -1000000;
+        double curEval;
         for (int dirIdx = 0; dirIdx < 9; dirIdx++){
+            if (rc.getID() == 10900 && me.equals(new MapLocation(8, 7))) System.out.println(soldierMicroInfo[dirIdx]);
             if (soldierMicroInfo[dirIdx] != null){
-                if (rc.canMove(Util.directions[dirIdx]) && (bestChoiceIndex < 0 || soldierMicroInfo[dirIdx].isBetterThan(soldierMicroInfo[bestChoiceIndex]))){
-                    bestChoiceIndex = dirIdx;
+                if (rc.getID() == 10900 && me.equals(new MapLocation(8, 7))) System.out.println(dirIdx);
+                if (rc.canMove(Util.directions[dirIdx]) || bestChoiceIndex < 0){
+                    curEval = soldierMicroInfo[dirIdx].findEval();
+                    if (rc.getID() == 10900 && me.equals(new MapLocation(8, 7))){
+                        System.out.println(curEval + " " + Util.directions[dirIdx]);
+                    }
+                    if (curEval > bestEval){
+                        bestEval = curEval;
+                        bestChoiceIndex = dirIdx;
+                    }
                 }
             }
         }
@@ -124,12 +132,7 @@ public class Soldier extends Unit {
                 if (Util.directions[bestChoiceIndex] == Direction.CENTER) {
                     return true;
                 }
-                try {
-                    rc.move(Util.directions[bestChoiceIndex]);
-                } catch(Exception e){
-                    e.printStackTrace();
-                    rc.resign();
-                }
+                if (rc.canMove(Util.directions[bestChoiceIndex])) rc.move(Util.directions[bestChoiceIndex]);
                 return true;
             }
         }
@@ -153,11 +156,11 @@ class SoldierMicroInfo{
     // add this to the eval if we're out of the enemies's attack radius but inside their vision radius
     final int BARELY_IN_VISION_BONUS = 2000;
     final int ENEMY_PENALTY = 2000;
-    final int TEAMMATE_MULTPLIER = 1000;
+    final int TEAMMATE_MULTPLIER = 2000;
     final double NON_DIAGONAL_BONUS = 200;
     final int ABLE_TO_SHOOT_BONUS = 1000;
     final double ADDITIONAL_TARGET_PENALTY = 0.3;
-    final int RUBBLE_PENALTY = 1000;
+    final int RUBBLE_PENALTY = 3000;
     //how much less scared we are of being in attack range of sages
     final double WATCHTOWER_MULTIPLIER = 1.5;
     final double SAGE_MULTIPLIER = 0.3;
@@ -218,12 +221,13 @@ class SoldierMicroInfo{
     */
 
     public double findEval() throws GameActionException{
+        // System.out.println("Beginning of findEval: " + Clock.getBytecodesLeft());
         double eval = 0; // positive = better
         //if we're on a better rubble square than in the other scenario we should be happy
         eval -= RUBBLE_PENALTY * (rubbleLevel/10);
         
         //we sould
-        eval -= ENEMY_PENALTY * numEnemiesCanBeAttackedBy;
+        eval -= ENEMY_PENALTY * (numEnemiesCanBeAttackedBy - 1);
 
         //ideal location is between vision and action radius
         if (minDistToEnemy > 13 && minDistToEnemy < 20){
@@ -236,7 +240,6 @@ class SoldierMicroInfo{
         for (int idx = 0; idx < teammates.length; idx++){
             eval += ((10 + rc.senseRubble(teammates[idx].location)) * teammates[idx].health + ADDITIONAL_TARGET_PENALTY) * TEAMMATE_MULTPLIER;
         }
-
 
         //if we have some enemy that can attack us, add a penalty if we can't actually shoot when we get there
         // also, add a penalty for how far away this enemy is
@@ -266,9 +269,9 @@ class SoldierMicroInfo{
         return eval;
     }
     
-    public boolean isBetterThan(SoldierMicroInfo micro) throws GameActionException{
-        double myEval = findEval();
-        double microEval = micro.findEval();
-        return myEval >= microEval;
-    }
+    // public boolean isBetterThan(SoldierMicroInfo micro) throws GameActionException{
+    //     double myEval = findEval();
+    //     double microEval = micro.findEval();
+    //     return myEval >= microEval;
+    // }
 }
