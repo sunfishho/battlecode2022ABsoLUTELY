@@ -2,7 +2,7 @@
 package first_bot;
 
 import battlecode.common.*;
-import java.util.ArrayList;
+import java.util.*;
 
 
 public class Archon extends RobotCommon{
@@ -20,6 +20,8 @@ public class Archon extends RobotCommon{
     static int numMinersAlive, numSoldiersAlive;
     static RobotInfo[] nearbyTeammatesWithinHealingRange;
     static int numBuilders;
+    static int incomeSum;
+    static Queue<Integer> incomeQueue;
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -44,6 +46,8 @@ public class Archon extends RobotCommon{
         Util.WIDTH = rc.getMapWidth();
         Util.HEIGHT = rc.getMapHeight();
         numBuilders = 0;
+        incomeSum = 0;
+        incomeQueue = new LinkedList<Integer>();
     }
 
     public void takeTurn() throws GameActionException {
@@ -122,6 +126,15 @@ public class Archon extends RobotCommon{
         // System.out.println("Symmetry: " + rc.readSharedArray(16));
         int alarm = rc.readSharedArray(18);
         int prevIncome = rc.readSharedArray(30);
+        incomeQueue.add(prevIncome);
+        incomeSum += prevIncome;
+        if (incomeQueue.size() > 50) {
+            incomeSum -= incomeQueue.poll();
+        }
+        
+        if (rank == rc.getArchonCount()) {
+            rc.writeSharedArray(30, 0);
+        }
 
         if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) + 1 && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
             relocCheck();
@@ -210,9 +223,9 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SAGE, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        if (round > 150 && numBuilders == 0 && rank == 1 && prevIncome > 3) {
+        if (round > 150 && numBuilders == 0 && rank == 1 && incomeSum > 150) {
             if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
-                numBuilders = 1;
+                numBuilders++;
                 rc.buildRobot(RobotType.BUILDER, dir);
                 rc.writeSharedArray(20, targetArchon + 1);
             } 
@@ -258,9 +271,10 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.MINER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        else if (rc.getTeamLeadAmount(rc.getTeam()) >= 400 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+        else if (numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             rc.buildRobot(RobotType.BUILDER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
+            numBuilders++;
         } 
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             // System.out.println("SOLDIER on round " + round);

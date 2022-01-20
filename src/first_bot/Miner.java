@@ -18,10 +18,10 @@ public class Miner extends Unit{
     static int loopingPenalty;
     static boolean isDefended; // If the miner is close to a soldier our team or does not need defense
 
-    public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
+    public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
         super(rc, r, loc);
         isRetreating = false;
-        target = t;
+        tryToWriteTarget(true);
         needsHeal = false;
     }
     

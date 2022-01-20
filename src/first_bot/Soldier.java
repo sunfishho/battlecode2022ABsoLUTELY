@@ -309,12 +309,12 @@ public class Soldier extends Unit {
             //if no enemies, try to move to your destination
             //if sufficiently far we can probably traverse higher rubble without being too scared
             if (enemy == null && me.distanceSquaredTo(target) >= 40){
-                tryToMove(50 + loopingPenalty);
+                tryToMove(40 + loopingPenalty);
                 return;
             }
             //if not sufficiently far then we should be cautious
             else if (enemy == null){
-                tryToMove(30 + loopingPenalty);
+                tryToMove(20 + loopingPenalty);
                 return;
             }
             dir = findDirectionLowerRubbleSquare(false);

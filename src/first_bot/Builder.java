@@ -59,6 +59,10 @@ public class Builder extends Unit {
             }
             RobotType t = sq.getType();
             if(t.equals(RobotType.ARCHON) && !Util.buildingHealthy(RobotType.ARCHON, sq.health, sq.level)){
+                if (rc.canMutate(loc)) {
+                    rc.mutate(loc);
+                    return true;
+                }
                 opt = loc;
                 break;
             }
@@ -68,6 +72,10 @@ public class Builder extends Unit {
             }
             if(t.equals(RobotType.LABORATORY) && bestType == null &&
                     !Util.buildingHealthy(RobotType.LABORATORY, sq.health, sq.level)){
+                if (rc.canMutate(loc)) {
+                    rc.mutate(loc);
+                    return true;
+                }
                 bestType = RobotType.LABORATORY;
                 opt = loc;
             }
@@ -125,7 +133,8 @@ public class Builder extends Unit {
             }
             for(RobotInfo r : rc.senseNearbyRobots(20, us)){
                 if(r.type == RobotType.LABORATORY){
-                    rc.disintegrate();
+                    labBuilder = false;
+                    target = archonLocation;
                 }
             }
             
@@ -149,8 +158,8 @@ public class Builder extends Unit {
             if (rc.getTeamLeadAmount(us) >= 180 && rc.canBuildRobot(RobotType.LABORATORY, bestDir) && Util.labElig(me.add(bestDir))) {
                 rc.buildRobot(RobotType.LABORATORY, bestDir);
                 labBuilder = false;
-                rc.writeSharedArray(31, 0);
-                target = chooseRandomInitialDestination();
+                rc.writeSharedArray(31, 2);
+                target = archonLocation;
                 return true;
             }
         }

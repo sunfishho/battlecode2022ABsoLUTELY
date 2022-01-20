@@ -69,7 +69,7 @@ public class Sage extends Unit {
                 moveLowerRubble(true);
             }
             if (rc.getHealth() > 95 ) {
-                isRetreating = false;
+                isHealing = false;
                 
                 target = chooseRandomInitialDestination();
             } else {
@@ -96,10 +96,10 @@ public class Sage extends Unit {
             }
         }
         if (numEnemies == 0){
-            tryToMove(40);
+            tryToMove(20);
             moveLowerRubble(false);
             tryToAttack();
-            rc.setIndicatorString("target1: " + target.x + ", " + target.y + ", " + isHealing);
+            rc.setIndicatorString("target1: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
             return;
         }
         enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
@@ -108,7 +108,7 @@ public class Sage extends Unit {
         
         // This whole block only runs if we have an enemy in sight
         tryToAttack();
-        if (rc.getActionCooldownTurns() > 2) {
+        if (rc.getActionCooldownTurns() > 3) {
             Direction dir = retreat(enemySoldierCentroid);
             if (rc.canMove(dir)) {
                 rc.move(dir);
@@ -118,7 +118,7 @@ public class Sage extends Unit {
             tryToMove(30);
         }
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        rc.setIndicatorString("target2: " + target.x + ", " + target.y + ", " + isHealing);
+        rc.setIndicatorString("target2: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
 
     }
     

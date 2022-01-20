@@ -63,7 +63,7 @@ public class Unit extends RobotCommon {
             targetCountdown = 0;
         }
 
-        Direction dir = pf.findBestDirection(target, 30);
+        Direction dir = pf.findBestDirection(target, 25);
         //check if we can move and that we're not going onto a horrible square
         //also, if there's some alternative direction that gets us onto a much better square, take it
         // int bestDistance = 0;

@@ -22,7 +22,7 @@ public class Util {
             28: each miner increments this every turn, last archon resets it to 0
             29: each soldier increments this every turn, last archon resets it to 0
             30: income
-            31: ready to build lab (0 if no, 1 if yes)
+            31: ready to build lab (0 if no, 1 if yes, 2 if built already)
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
