@@ -37,12 +37,12 @@ public class Sage extends Unit {
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
         }
-        if (rc.getActionCooldownTurns() < 2) {
+        if (rc.getActionCooldownTurns() < 20) {
             isRetreating = false;
         }
         observe();
         // If low health, go to archon
-        if (rc.getHealth() < 40) {
+        if (rc.getHealth() < 20) {
             if (!isHealing) {
                 // reset recentdists
                 isHealing = true;
@@ -52,6 +52,7 @@ public class Sage extends Unit {
         // If high health, leave archon
         if (isHealing) {
             target = archonLocation;
+            tryToAttack();
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30);
                 int crowdCount = 0;
@@ -85,6 +86,14 @@ public class Sage extends Unit {
         for (RobotInfo bot : nearbyBotsSeen){
             switch(bot.getType()){
                 case SOLDIER:
+                    if (bot.getTeam() != myTeam) {
+                        MapLocation enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemySoldierCentroidy += enemyLoc.y;
+                        enemySoldierCentroidx += enemyLoc.x;
+                    }
+                    break;
+                case SAGE:
                     if (bot.getTeam() != myTeam) {
                         MapLocation enemyLoc = bot.getLocation();
                         numEnemies++;
@@ -148,7 +157,7 @@ public class Sage extends Unit {
                 bestType = enemyType;
                 highestRubble = rc.senseRubble(bot.getLocation());
                 highestHealth = bot.getHealth();
-                if (bot.getHealth() <= 40) {
+                if (bot.getHealth() <= 45) {
                     highestOneshotHealth = bot.getHealth();
                 }
                 bestBot = bot;
@@ -158,14 +167,14 @@ public class Sage extends Unit {
                 if (highestRubble < rc.senseRubble(bot.getLocation())){
                     highestRubble = rc.senseRubble(bot.getLocation());
                     highestHealth = bot.getHealth();
-                    if (bot.getHealth() <= 40) {
+                    if (bot.getHealth() <= 45) {
                         highestOneshotHealth = bot.getHealth();
                     }
                     bestBot = bot;
                 }
                 else if (highestRubble == rc.senseRubble(bot.getLocation())){
                     
-                    if ((bot.getHealth() <= 40 && highestOneshotHealth < bot.getHealth())){
+                    if ((bot.getHealth() <= 45 && highestOneshotHealth < bot.getHealth())){
                         highestOneshotHealth = bot.getHealth();
                         bestBot = bot;
                     } else if (highestOneshotHealth == 1 && highestHealth < bot.getHealth()) {
@@ -177,7 +186,7 @@ public class Sage extends Unit {
             // Tiebreak by enemy health
         }
         //Attack if possible
-        if (targetSoldiers() > 5 && rc.canEnvision(AnomalyType.CHARGE)) {
+        if ((targetSoldiers() >= 5 || bestBot.health <= bestBot.type.health/5) && rc.canEnvision(AnomalyType.CHARGE)) {
             rc.envision(AnomalyType.CHARGE);
             isRetreating = true;
             return;

@@ -77,7 +77,7 @@ public class Miner extends Unit{
         if (needsHeal) {
             if (rc.getHealth() > 35 || round >= 200) {
                 needsHeal = false;
-                target = chooseRandomInitialDestination();
+                tryToWriteTarget(true);
             } else {
                 return;
             }
@@ -85,8 +85,8 @@ public class Miner extends Unit{
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         robotLocations = rc.senseNearbyRobots(20);
         // Sometimes we don't want to step on the target
-        if (rc.canSenseLocation(target) && me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
-            target = chooseRandomInitialDestination();
+        if (rc.canSenseLocation(target) && rc.senseRubble(target) > 30){
+            tryToWriteTarget(true);
             targetCountdown = 0;
         }
         int bytecodeBeforeMoving0 = Clock.getBytecodeNum();
