@@ -56,9 +56,9 @@ public class Util {
         RobotType.SAGE,
         RobotType.SOLDIER,
         RobotType.WATCHTOWER,
-        RobotType.ARCHON,
         RobotType.LABORATORY,
         RobotType.BUILDER,
+        RobotType.ARCHON,
         RobotType.MINER
     };
 
@@ -67,9 +67,9 @@ public class Util {
             case SAGE: return 0;
             case SOLDIER: return 1;
             case WATCHTOWER: return 2;
-            case ARCHON: return 3;
-            case LABORATORY: return 4;
-            case BUILDER: return 5;
+            case LABORATORY: return 3;
+            case BUILDER: return 4;
+            case ARCHON: return 5;
             case MINER: return 6;
             default: return 7;
         }
