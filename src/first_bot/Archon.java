@@ -210,7 +210,7 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SAGE, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        if (round > 100 && numBuilders == 0) {
+        if (round > 150 && numBuilders == 0 && rank == 1 && prevIncome > 3) {
             if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 numBuilders = 1;
                 rc.buildRobot(RobotType.BUILDER, dir);
@@ -286,14 +286,14 @@ public class Archon extends RobotCommon{
                 switch (robot.getType()){
                     case ARCHON:
                         continue;
-                    case SOLDIER:
+                    case SAGE:
                         // check if the fraction of health is lower for this robot
-                        if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
+                        if (mostNeedy.getType() != RobotType.SAGE || robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
                             mostNeedy = robot;
                         }
                         break;
                     default:
-                        if (mostNeedy.getType() != RobotType.SOLDIER && robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
+                        if (mostNeedy.getType() != RobotType.SAGE && robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
                             mostNeedy = robot;
                         }
                         break;

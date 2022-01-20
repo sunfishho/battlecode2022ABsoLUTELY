@@ -131,14 +131,27 @@ public class Builder extends Unit {
             
             rc.setIndicatorString("Trying to build lab");
             rc.writeSharedArray(31, 1);
+            Direction bestDir = Direction.CENTER;
+            int bestRubble = 101;
+            
+            // Try to find the best location closest to corner and with lowest rubble
+            int minDistToCorner = 100;
+            MapLocation corner = Util.getCorner(me);
             for (Direction d : Direction.allDirections()) {
                 MapLocation loc = me.add(d);
-                if (rc.getTeamLeadAmount(us) > 350 && rc.canBuildRobot(RobotType.LABORATORY, d) && Util.labElig(loc)) {
-                    rc.buildRobot(RobotType.LABORATORY, d);
-                    labBuilder = false;
-                    rc.writeSharedArray(31, 0);
-                    return true;
+                int distToCorner = loc.distanceSquaredTo(corner);
+                if (rc.canSenseLocation(loc) && (rc.senseRubble(loc) < bestRubble || (rc.senseRubble(loc) == bestRubble && distToCorner < minDistToCorner))) {
+                    bestRubble = rc.senseRubble(loc);
+                    minDistToCorner = distToCorner;
+                    bestDir = d;
                 }
+            }
+            if (rc.getTeamLeadAmount(us) >= 180 && rc.canBuildRobot(RobotType.LABORATORY, bestDir) && Util.labElig(me.add(bestDir))) {
+                rc.buildRobot(RobotType.LABORATORY, bestDir);
+                labBuilder = false;
+                rc.writeSharedArray(31, 0);
+                target = chooseRandomInitialDestination();
+                return true;
             }
         }
         return false;
@@ -154,11 +167,11 @@ public class Builder extends Unit {
         }
         // Dont move if there are prototypes nearby
         for (RobotInfo sq : rc.senseNearbyRobots(5)) {
-            if (sq.team.equals(rc.getTeam()) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
+            if (sq.team.equals(rc.getTeam()) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
                 return true;
             }
         }
-        Direction dir = pf.findBestDirection(target, 20);
+        Direction dir = pf.findBestDirection(target, 50);
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();

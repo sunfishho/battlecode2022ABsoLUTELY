@@ -12,7 +12,8 @@ public class Laboratory extends RobotCommon{
 
     //TODO
     public void takeTurn() throws GameActionException {
-        if (rc.canTransmute()) {
+        round = rc.getRoundNum();
+        if (rc.canTransmute() && round % 16 < 10) {
             rc.transmute();
         }
     }
