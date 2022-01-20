@@ -12,87 +12,34 @@ public class Miner extends Unit{
     static int numEnemies;
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static int maxBytecodeUsed = 0;
-    static int income;
-    static boolean needsHeal;
-    static int loopingIncrement = 1;//experiment w/ this maybe idk
-    static int loopingPenalty;
-    static boolean isDefended; // If the miner is close to a soldier our team or does not need defense
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) {
         super(rc, r, loc);
         isRetreating = false;
         target = t;
-        needsHeal = false;
     }
     
     public void takeTurn() throws GameActionException {
-        isDefended = true;
-        income = 0;
-        targetCountdown++;
-        if(loopingPenalty > 50){//let's just pick a new target at this point
-            target = chooseRandomInitialDestination();
-            targetCountdown = 0;
-            loopingPenalty = 0;
-        }
         targetCountdown++;
         if (targetCountdown == 150){
             target = chooseRandomInitialDestination();
             targetCountdown = 0;
-            loopingPenalty = 0;
-        }
-        if (isRetreating) {
-            target = chooseRandomInitialDestination();
         }
         isRetreating = false;
-        switch(checkLoop()){
-            case 1: //cycling
-                loopingPenalty += loopingIncrement;
-                break;
-            case 2: //not cycling
-                loopingPenalty = 0;
-                break;
-            default: break;
-        }
-        
         takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         archonLocation = nearestArchon(me);
-        // If previously not on offense and low health set target to nearest archon
-        if (rc.getHealth() < 10 && round < 200) {
-            needsHeal = true;
-            target = archonLocation;
-        }
-        
         rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
         robotLocations = rc.senseNearbyRobots(20);
-        // Sometimes we don't want to step on the target
-        if (rc.canSenseLocation(target) && me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
-            target = chooseRandomInitialDestination();
+        if (me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
+            target = target.translate(rng.nextInt(Util.WIDTH) - target.x, rng.nextInt(Util.HEIGHT) - target.y);
             targetCountdown = 0;
-            if (isRetreating) {
-                tryToMine(0);
-            } else {
-                tryToMine(1);
-            }
-            target = archonLocation;
-            if (me.distanceSquaredTo(archonLocation) > 13) {
-                tryToMove(30);
-                moveLowerRubble(true);
-            }
-            if (rc.getHealth() > 45) {
-                needsHeal = false;
-                target = chooseRandomInitialDestination();
-            } else {
-                return;
-            }
         }
-        int bytecodeBeforeMoving0 = Clock.getBytecodeNum();
         if (observe()){
             int enemyCentroidx = 0;
             int enemyCentroidy = 0;
             int numEnemies = 0;
-            isDefended = false;
             MapLocation enemyLoc = me;
             for (RobotInfo bot : robotLocations){
                 if (bot.getTeam() == myTeam){
@@ -100,19 +47,12 @@ public class Miner extends Unit{
                 }
                 switch(bot.getType()){
                     case SOLDIER:
-                        if (bot.getTeam() == myTeam && bot.getLocation().distanceSquaredTo(me) <= 8){
-                            isDefended = true;
-                            break;
-                        }
                         enemyLoc = bot.getLocation();
                         numEnemies++;
                         enemyCentroidx += enemyLoc.x;
                         enemyCentroidy += enemyLoc.y;
                         break;
                     case ARCHON:
-                        if (bot.getTeam() == myTeam){
-                            break;
-                        }
                         enemyLoc = bot.getLocation();
                         numEnemies++;
                         enemyCentroidx += enemyLoc.x;
@@ -122,24 +62,13 @@ public class Miner extends Unit{
                 }
             }
             if (numEnemies != 0){
-                enemyCentroidx = (int) ((enemyCentroidx / (numEnemies + 0.0)) + 0.5);
-                enemyCentroidy = (int) ((enemyCentroidy / (numEnemies + 0.0)) + 0.5);
-                Direction dir = retreat(new MapLocation(enemyCentroidx, enemyCentroidy));
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                }
-                tryToMine(0);
-                rc.writeSharedArray(30, rc.readSharedArray(30) + income);
-                return;
+                enemyCentroidx /= numEnemies;
+                enemyCentroidy /= numEnemies;
+                retreat(new MapLocation(enemyCentroidx, enemyCentroidy));
             }
         }
-        int bytecodeBeforeMoving1 = Clock.getBytecodeNum();
         observeSymmetry();
-        if (isRetreating) {
-            tryToMine(0);
-        } else {
-            tryToMine(1);
-        }
+        tryToMine(1);
         /*
         // If there are mineable neighboring deposits, don't keep moving
         */
@@ -153,10 +82,10 @@ public class Miner extends Unit{
                 }
             }
         }
-        int bytecodeBeforeMoving2 = Clock.getBytecodeNum();
 
         // Case when Archon could not assign a Location to the Miner
         if(target.equals(archonLocation) && isRetreating == false) {
+            // explore();
             // System.out.println(rc.getID() + ": finding new location");
             tryToWriteTarget(true);
         }
@@ -166,16 +95,44 @@ public class Miner extends Unit{
             reachedTarget = true;
             tryToWriteTarget(true);
         }
-        int bytecodeBeforeMoving3 = Clock.getBytecodeNum();
-        tryToMove(30 + loopingPenalty);
+        tryToMove();
         tryToWriteTarget(false);
-        if (isRetreating) {
-            tryToMine(0);
-        } else {
-            tryToMine(1);
+        tryToMine(1);
+    }
+
+    // When the Archon has no valid targets for Miner, it should explore until it reaches a far away lead location.
+    //This function should be replaced with a better exploration algorithm once we think of one
+    public void explore() throws GameActionException {
+        // stay put if you're on lattice and you can mine
+        if(Util.onLattice(Util.getIntFromLocation(me))) {
+            MapLocation loc = me;
+            if (rc.senseNearbyLocationsWithLead(2).length > 0) {
+                target = me;
+                targetCountdown = 0;
+                return;
+            }
         }
-        rc.writeSharedArray(30, rc.readSharedArray(30) + income);
-        // rc.setIndicatorString(bytecodeBeforeMoving0 + " " + bytecodeBeforeMoving1 + " " + bytecodeBeforeMoving2 + " " + bytecodeBeforeMoving3);
+        // otherwise, explore with higher chance of moving away from Archon
+        int dirIndex = rng.nextInt(Util.directions.length + 4);
+        Direction dir = Direction.CENTER;
+        if(dirIndex < Util.directions.length) {
+            dir = Util.directions[dirIndex];
+        }
+        else {
+            dir = me.directionTo(archonLocation).opposite();
+        }
+        
+        Direction dirLeft = dir.rotateLeft();
+        Direction dirRight = dir.rotateRight();
+
+        if(rc.canMove(dir)) {
+            rc.move(dir);
+        } else if (rc.canMove(dirLeft)) {
+            rc.move(dirLeft);
+        } else if (rc.canMove(dirRight)) {
+            rc.move(dirRight);
+        }
+        me = rc.getLocation();
     }
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
@@ -185,7 +142,6 @@ public class Miner extends Unit{
         
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
         int numGoldLocations = goldLocations.length;
-        // Whether we want to change target
         boolean change = false;
         robotLocations = rc.senseNearbyRobots();
         if(numGoldLocations > 0) {
@@ -230,6 +186,10 @@ public class Miner extends Unit{
         
         int numLeadLocations = leadLocations.length;
         if(numLeadLocations > 0) {
+            // int initialBytecode = 0;
+            // if (rc.getID() == 10080){
+            //     initialBytecode = Clock.getBytecodeNum();
+            // }
             MapLocation bestLoc = archonLocation;
             int bestDist = 100000;
             
@@ -250,11 +210,36 @@ public class Miner extends Unit{
                 return;
             }
         }
+        if (rc.readSharedArray(17) == 65535 && !change){
+            MapLocation minerLoc = me;
+            int minerCentroidx = 0;
+            int minerCentroidy = 0;
+            int numMiners = 0;
+            for (int idx = robotLocations.length - 1; idx >= 0; idx--){
+                if (robotLocations[idx].getTeam() == myTeam && robotLocations[idx].getType() == RobotType.MINER){
+                    minerLoc = robotLocations[idx].getLocation();
+                    numMiners++;
+                    minerCentroidx += minerLoc.x;
+                    minerCentroidy += minerLoc.y;
+                }
+            }
+            if (numMiners != 0){
+                minerCentroidx /= numMiners;
+                minerCentroidy /= numMiners;
+                Direction dirRetreat = retreat(new MapLocation(minerCentroidx, minerCentroidy));
+                isRetreating = false;
+                if (rc.canMove(dirRetreat)){
+                    rc.move(dirRetreat);
+                    return;
+                }
+            }
+
+        }
         // Choose random location
         if (resetLoc || reachedTarget) {
-            MapLocation bestLoc = chooseRandomInitialDestination();
+            MapLocation bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
             while (bestLoc.distanceSquaredTo(archonLocation) <= 10) {
-                bestLoc = chooseRandomInitialDestination();
+                bestLoc = new MapLocation(rng.nextInt(Util.WIDTH), rng.nextInt(Util.HEIGHT));
             }
             target = bestLoc;
             targetCountdown = 0;
@@ -274,45 +259,21 @@ public class Miner extends Unit{
                 MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
                 while (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
                     rc.mineGold(mineLocation);
-                    loopingPenalty = 0;
                 }
                 while (rc.canMineLead(mineLocation) && rc.senseLead(mineLocation) > leaveLead) {
                     rc.mineLead(mineLocation);
-                    loopingPenalty = 0;
-                    income++;
                 }
             }
         }
     }
 
     // Moves toward target through pathfinding
-    public void tryToMove(int avgRubble) throws GameActionException {
-        int curRubble = rc.senseRubble(me);
+    public void tryToMove() throws GameActionException {
         Direction dir = Direction.CENTER;
-        if (!isRetreating && !needsHeal) {
-            if (rc.canSenseLocation(target) && me.distanceSquaredTo(target) <= 2 && (rc.senseLead(target) > 1 || rc.senseGold(target) > 0)) {
-                int bestRubble = curRubble;
-                // try to get on a better rubble square
-                for (int i = 0; i < Util.directions.length; i++) {
-                    MapLocation newLoc = me.add(Util.directions[i]);
-                    if (rc.canSenseLocation(newLoc) && newLoc.distanceSquaredTo(target) <= 2 && rc.senseRubble(newLoc) <= bestRubble && rc.canMove(Util.directions[i])) {
-                        bestRubble = rc.senseRubble(newLoc);
-                        dir = Util.directions[i];
-                    }
-                }
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
-                return;
-            }
-            dir = pf.findBestDirection(target, avgRubble);
+        if (!isRetreating) {
+            dir = pf.findBestDirection(target, 80);
         } else {
-            if (needsHeal && isDefended) {
-                dir = pf.findBestDirection(target, 30);
-            } else {
-                dir = pf.findBestDirection(target, 10);
-            }
+            dir = pf.findBestDirection(target, 10);
         }
         
         if (rc.canMove(dir)) {

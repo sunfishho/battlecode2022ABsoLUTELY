@@ -69,7 +69,6 @@ public class Archon extends RobotCommon{
         if (rank == numArchons){
             rc.writeSharedArray(28, 0);
             rc.writeSharedArray(29, 0);
-            rc.writeSharedArray(30, 0);
         }
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
 
@@ -119,7 +118,6 @@ public class Archon extends RobotCommon{
         }
         // System.out.println("Symmetry: " + rc.readSharedArray(16));
         int alarm = rc.readSharedArray(18);
-        int prevIncome = rc.readSharedArray(30);
 
         if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) + 1 && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
             relocCheck();
@@ -154,7 +152,7 @@ public class Archon extends RobotCommon{
       
         Archon Relocation is way too slow for now oops
          */
-        // rc.setIndicatorString(rank + " " + newRankInfo);
+        rc.setIndicatorString(rank + " " + newRankInfo);
 
         int numBuilders = 0;
         Team us = rc.getTeam();
@@ -196,15 +194,12 @@ public class Archon extends RobotCommon{
         boolean enemiesNear = observe();
         if (alarm == 65535 || alarm == 65534) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
-                heal();
                 return;
             }
         }
         else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount < 50 || (targetArchon % numArchons) != (rank % numArchons)) {
-                if (heal()) {
-                    return;
-                }
+            if (teamLeadAmount <= numArchons * 50 && !enemiesNear && rank != rc.readSharedArray(17) / 10000) {
+                return;
             }
         }
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
@@ -212,7 +207,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(20, targetArchon + 1);
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 10) {
+            && (((numMinersAlive < Math.max(8, Util.WIDTH * Util.HEIGHT / 150)) && (alarm == 65535 || round % 13 == 0)))) {
 
             //SCOUT CODE
             // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
@@ -238,19 +233,32 @@ public class Archon extends RobotCommon{
 
             //FORAGER CODE
             //Foragers head to the closest guesses of where an enemy archon is.
-            
-            int targetLoc = findLocalLocation();
-            if(targetLoc != -1 && rng.nextInt(2) == 1) {
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), targetLoc);
-                dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
+            if(numForagersSent < numArchons) { // subtype 2: FORAGERS
+                System.out.println("FORAGER: " + numForagersSent + " " + numArchons);
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), 
+                    Util.getIntFromLocation(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent)))) 
+                        + 2 * Util.MAX_LOC);
+                numForagersSent++;
+                dir = pf.findBestDirection(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent))), 60);
+                rc.writeSharedArray(19, rc.readSharedArray(19) + 1); 
+                rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
             }
-            else {
-                int minerReport = findMinerReport();
+            else if(rc.readSharedArray(19) >= numArchons * numArchons) { // want all of the foragers to be sent first
+                int targetLoc = findLocalLocation();
+                if(targetLoc != -1 && rng.nextInt(2) == 1) {
+                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank), targetLoc);
+                    dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
+                }
+                else {
+                    int minerReport = findMinerReport();
                     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), minerReport);
-                dir = pf.findBestDirection(Util.getLocationFromInt(minerReport), 60);
+
+                    dir = pf.findBestDirection(Util.getLocationFromInt(minerReport), 60);
+                }
+                rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
             }
-            rc.buildRobot(RobotType.MINER, dir);
-            rc.writeSharedArray(20, targetArchon + 1);
         }
         else if (rc.getTeamLeadAmount(rc.getTeam()) >= 400 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             rc.buildRobot(RobotType.BUILDER, dir);
@@ -261,11 +269,6 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        heal();
-    }
-
-    public boolean heal() throws GameActionException {
-        // System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
         if (nearbyTeammatesWithinHealingRange.length != 0){
             RobotInfo mostNeedy = null;
 
@@ -278,30 +281,24 @@ public class Archon extends RobotCommon{
                     continue;
                 }
                 switch (robot.getType()){
-                    case ARCHON:
-                        continue;
                     case SOLDIER:
                         // check if the fraction of health is lower for this robot
-                        if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
+                        if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health <= mostNeedy.health * robot.getType().health){
                             mostNeedy = robot;
                         }
                         break;
                     default:
-                        if (mostNeedy.getType() != RobotType.SOLDIER && robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
+                        if (mostNeedy.getType() != RobotType.SOLDIER && robot.health * mostNeedy.getType().health <= mostNeedy.health * robot.getType().health){
                             mostNeedy = robot;
                         }
                         break;
                 }
             }
-            // System.out.println("HEALABLE: " + healable);
-            if (mostNeedy != null && rc.canRepair(mostNeedy.getLocation())){
-                MapLocation targetBot = mostNeedy.getLocation();
-                rc.repair(targetBot);
-                rc.setIndicatorString(targetBot.x + ", " + targetBot.y);
-                return true;
+
+            if (mostNeedy != null){
+                rc.repair(mostNeedy.getLocation());
             }
         }
-        return false;
     }
 
     //returns the change in lead count since the last turn and updates oppLeadCount

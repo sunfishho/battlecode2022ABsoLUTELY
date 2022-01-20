@@ -6,45 +6,11 @@ public class Unit extends RobotCommon {
     static boolean isRetreating; // whether retreating
     static MapLocation target; 
     static int targetCountdown = 0;
-    public static int locationCounter;
-    public static int[] recentDists;
-    public static int[] recentLocations;
-    /*
-    - recentLocations stores 10 most recent locations
-    - locationCounter cycles mod 10, each time we move we increment locationCounter and evict recentLocations[locationCounter]
-    */
-
     public Unit (RobotController rc, int r, MapLocation loc) {
         super(rc, r, loc);
-        locationCounter = 0;
-        recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
-        recentLocations = new int[] {-1, -1, -1, -1, -1, -1, -1, -1};
     }
-
     public void takeTurn() throws GameActionException {
 
-    }
-
-    public int checkLoop() {//checks recent locations to see if we have looped
-        //0 = haven't moved, 1 = cycling, 2 = not cycling
-        int loc = Util.getIntFromLocation(rc.getLocation());
-        //else, we have moved and need to update recentLocations and check for a loop
-        locationCounter = (locationCounter + 1) % recentDists.length;
-        int dist = me.distanceSquaredTo(target);
-        // If old distance is not farther from new distance, it's probably in a loop
-        // System.out.print(rc.getRoundNum() + ", " + rc.getID() + ", [");
-        // for (int i = 0; i < recentDists.length; i++) {
-        //     System.out.print(recentDists[i] + " ");
-        // }
-        // System.out.println("]");
-        if (recentDists[locationCounter] <= dist) {
-            recentLocations[locationCounter] = loc;
-            recentDists[locationCounter] = dist;
-            return 1;
-        }
-        recentLocations[locationCounter] = loc;
-        recentDists[locationCounter] = dist;
-        return 2;
     }
 
     //Tries to run away. First checks the point opposite of enemy centroid, and if that's not on the map, try going to your archon.
@@ -136,29 +102,4 @@ public class Unit extends RobotCommon {
         }
         return hasNearby;
     }
-
-    //use this when you are certain that we actually want to move
-    public void moveLowerRubble(boolean toRetreat) throws GameActionException{
-        rc.setIndicatorString("MOVING TO LOWER RUBBLE, target = " + target);
-        int bestRubble = rc.senseRubble(me);
-        Direction bestDir = Direction.CENTER;
-        for (Direction dir: Util.directions){
-            if (rc.canMove(dir) && rc.senseRubble(me.add(dir))/10 < bestRubble/10){
-                bestDir = dir;
-                bestRubble = rc.senseRubble(me.add(bestDir));
-            }
-            if (rc.canMove(dir) && toRetreat && rc.senseRubble(me.add(dir))/10 == bestRubble/10){
-                MapLocation nearestArchonLoc = nearestArchon(me);
-                if (Util.distanceMetric(me.add(dir), nearestArchonLoc) <= Util.distanceMetric(me.add(bestDir), nearestArchonLoc)){
-                    bestDir = dir;
-                    bestRubble = rc.senseRubble(me.add(bestDir));
-                }
-            }
-        }
-        if (rc.canMove(bestDir) && bestDir != Direction.CENTER){
-            rc.move(bestDir);
-            me = rc.getLocation();
-        }
-    }
-
 }
