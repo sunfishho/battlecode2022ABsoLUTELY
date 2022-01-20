@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0117v2;
 
 import battlecode.common.*;
 import java.util.ArrayList;
@@ -201,7 +201,7 @@ public class Archon extends RobotCommon{
             }
         }
         else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount < 50 || (targetArchon % numArchons) != (rank % numArchons)) {
+            if (teamLeadAmount <= 50) {
                 if (heal()) {
                     return;
                 }
@@ -238,19 +238,32 @@ public class Archon extends RobotCommon{
 
             //FORAGER CODE
             //Foragers head to the closest guesses of where an enemy archon is.
-            
-            int targetLoc = findLocalLocation();
-            if(targetLoc != -1 && rng.nextInt(2) == 1) {
-                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), targetLoc);
-                dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
+            if(numForagersSent < numArchons) { // subtype 2: FORAGERS
+                System.out.println("FORAGER: " + numForagersSent + " " + numArchons);
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank), 
+                    Util.getIntFromLocation(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent)))) 
+                        + 2 * Util.MAX_LOC);
+                numForagersSent++;
+                dir = pf.findBestDirection(computeMirrorGuess(Util.getLocationFromInt(rc.readSharedArray(numForagersSent))), 60);
+                rc.writeSharedArray(19, rc.readSharedArray(19) + 1); 
+                rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
             }
-            else {
-                int minerReport = findMinerReport();
+            else if(rc.readSharedArray(19) >= numArchons * numArchons) { // want all of the foragers to be sent first
+                int targetLoc = findLocalLocation();
+                if(targetLoc != -1 && rng.nextInt(2) == 1) {
+                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank), targetLoc);
+                    dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
+                }
+                else {
+                    int minerReport = findMinerReport();
                     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), minerReport);
-                dir = pf.findBestDirection(Util.getLocationFromInt(minerReport), 60);
+
+                    dir = pf.findBestDirection(Util.getLocationFromInt(minerReport), 60);
+                }
+                rc.buildRobot(RobotType.MINER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
             }
-            rc.buildRobot(RobotType.MINER, dir);
-            rc.writeSharedArray(20, targetArchon + 1);
         }
         else if (rc.getTeamLeadAmount(rc.getTeam()) >= 400 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             rc.buildRobot(RobotType.BUILDER, dir);

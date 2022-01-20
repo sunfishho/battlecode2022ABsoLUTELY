@@ -1,4 +1,4 @@
-package first_bot;
+package bot0117v2;
 import battlecode.common.*;
 
 public class Unit extends RobotCommon {
@@ -7,7 +7,6 @@ public class Unit extends RobotCommon {
     static MapLocation target; 
     static int targetCountdown = 0;
     public static int locationCounter;
-    public static int[] recentDists;
     public static int[] recentLocations;
     /*
     - recentLocations stores 10 most recent locations
@@ -17,8 +16,7 @@ public class Unit extends RobotCommon {
     public Unit (RobotController rc, int r, MapLocation loc) {
         super(rc, r, loc);
         locationCounter = 0;
-        recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
-        recentLocations = new int[] {-1, -1, -1, -1, -1, -1, -1, -1};
+        recentLocations = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     }
 
     public void takeTurn() throws GameActionException {
@@ -28,22 +26,20 @@ public class Unit extends RobotCommon {
     public int checkLoop() {//checks recent locations to see if we have looped
         //0 = haven't moved, 1 = cycling, 2 = not cycling
         int loc = Util.getIntFromLocation(rc.getLocation());
+        if (recentLocations[locationCounter] == loc){//haven't moved since last check
+            return 0;
+        }
         //else, we have moved and need to update recentLocations and check for a loop
-        locationCounter = (locationCounter + 1) % recentDists.length;
-        int dist = me.distanceSquaredTo(target);
-        // If old distance is not farther from new distance, it's probably in a loop
-        // System.out.print(rc.getRoundNum() + ", " + rc.getID() + ", [");
-        // for (int i = 0; i < recentDists.length; i++) {
-        //     System.out.print(recentDists[i] + " ");
-        // }
-        // System.out.println("]");
-        if (recentDists[locationCounter] <= dist) {
-            recentLocations[locationCounter] = loc;
-            recentDists[locationCounter] = dist;
+        locationCounter = (locationCounter + 1)%10;
+        if(recentLocations[locationCounter] == loc){//loop of length 10
             return 1;
         }
         recentLocations[locationCounter] = loc;
-        recentDists[locationCounter] = dist;
+        for(int i = 0; i < 10; i++){
+            if(recentLocations[i] == loc){
+                return 1;
+            }
+        }
         return 2;
     }
 

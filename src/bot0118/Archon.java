@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0118;
 
 import battlecode.common.*;
 import java.util.ArrayList;

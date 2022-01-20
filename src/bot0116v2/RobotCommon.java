@@ -1,4 +1,4 @@
-package first_bot;
+package bot0116v2;
 
 import battlecode.common.*;
 
@@ -114,25 +114,9 @@ public abstract class RobotCommon {
         }
     }
 
-    // Choose a random location on the grid
     public static MapLocation chooseRandomInitialDestination(){
         Random rng2 = new Random(rc.getRoundNum());
-        // int id = rng2.nextInt(2*Util.WIDTH + 2*Util.HEIGHT - 4);
-        // int x_coord = -1;
-        // int y_coord = -1;
-        // if (id < Util.HEIGHT) {
-        //     x_coord = 0;
-        //     y_coord = id;
-        // } else if (id < Util.HEIGHT + Util.WIDTH - 1) {
-        //     x_coord = id - Util.HEIGHT + 1;
-        //     y_coord = Util.HEIGHT - 1;
-        // } else if (id < Util.HEIGHT * 2 + Util.WIDTH - 2) {
-        //     x_coord = Util.WIDTH - 1;
-        //     y_coord = id - Util.HEIGHT - Util.WIDTH + 2;
-        // } else {
-        //     x_coord = id - 2*Util.HEIGHT - Util.WIDTH + 3;
-        //     y_coord = 0;
-        // }
+        int[] initialDestinationPossibilities = new int[] {0, 1, 2, 3, 4};
         int x_coord = rng2.nextInt(rc.getMapWidth() - 2) + 1;
         int y_coord = rng2.nextInt(rc.getMapHeight() - 2) + 1;
         return new MapLocation(x_coord, y_coord);

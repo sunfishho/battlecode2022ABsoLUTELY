@@ -1,4 +1,4 @@
-package first_bot;
+package bot0117;
 
 import battlecode.common.*;
 import java.util.Random;
@@ -59,7 +59,20 @@ public strictfp class RobotPlayer {
                     break;
                 case MINER:
                     MapLocation target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank)) % Util.MAX_LOC);
-                    robot = new Miner(rc, rank, archonLocation, target);
+                    switch(subtype) {
+                        case 1: 
+                            robot = new MinerScout(rc, rank, archonLocation, target);
+                            break;
+                        case 2: 
+                            robot = new MinerForager(rc, rank, archonLocation, target);
+                            break;
+                        case 3:
+                            robot = new MinerLattice(rc, rank, archonLocation, target);
+                            break;
+                        default:
+                            robot = new Miner(rc, rank, archonLocation, target);
+                            break;
+                    }
                     break;
                 case SAGE:
                     robot = new Sage(rc, rank, archonLocation);
