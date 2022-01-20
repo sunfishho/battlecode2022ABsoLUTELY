@@ -43,7 +43,7 @@ public class Archon extends RobotCommon{
         // for Util to know the width/height of the map
         Util.WIDTH = rc.getMapWidth();
         Util.HEIGHT = rc.getMapHeight();
-        numBuilders = 0;
+        numBuilders = 1;
     }
 
     public void takeTurn() throws GameActionException {

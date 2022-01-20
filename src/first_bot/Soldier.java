@@ -37,7 +37,6 @@ public class Soldier extends Unit {
 
     public void takeTurn() throws GameActionException {
         // Update important fields
-        
         healing = false;
         if (rc.getHealth() > health) {
             healing = true;
@@ -155,7 +154,12 @@ public class Soldier extends Unit {
             }
         }
         // Act normal
+
         if (enemySoldiers < 0.000001){
+            if (goAroundNeighbors()){
+                System.out.println("AVOIDING STANDOFF: " + me);
+                tryToMove(10);
+            }
             tryToMove(30 + loopingPenalty);
             moveLowerRubble(false);
             MapLocation enemy = attackValuableEnemies(false);

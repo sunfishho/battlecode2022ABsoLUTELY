@@ -89,6 +89,10 @@ public class Util {
         }
     }
 
+    public static boolean isOnMap(MapLocation mL){
+        return (mL.x >= 0 && mL.x < Util.WIDTH && mL.y >= 0 && mL.y < Util.HEIGHT);
+    }
+
     // returns beginning of entry block
     public static int getArchonMemoryBlock(int rank) {
         return 4 + (rank - 1) * ARCHON_MEMORY_SIZE;

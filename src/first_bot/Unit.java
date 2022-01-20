@@ -161,4 +161,60 @@ public class Unit extends RobotCommon {
         }
     }
 
+    public boolean isBlockedByNeighbors() throws GameActionException{
+        Direction dir = me.directionTo(target);
+        int dirIndex = Util.getDirectionIndex(dir);
+        MapLocation squareInFront = me.add(dir);
+        for (int i = -1; i <= 1; i++){
+            MapLocation wallSquare = squareInFront.translate(i * Util.dxDiff[(dirIndex + 2) % 8], i * Util.dyDiff[(dirIndex + 2) % 8]);
+            if (rc.canSenseLocation(wallSquare) && !rc.canSenseRobotAtLocation(wallSquare)){
+                return false;
+            }
+            //if one end of the wall is an edge of the square, go the other way
+        }
+        return true;
+    }
+
+    public boolean goAroundNeighbors() throws GameActionException{
+        if (!isBlockedByNeighbors()){
+            return false;
+        }
+        Direction dir = me.directionTo(target);
+        int dirIndex = Util.getDirectionIndex(dir);
+        MapLocation poss1, poss2;
+        poss1 = new MapLocation(me.x + 2 * Util.dxDiff[(dirIndex + 2) % 8], me.y + 2 * Util.dyDiff[(dirIndex + 2) % 8]);
+        poss2 = new MapLocation(me.x - 2 * Util.dxDiff[(dirIndex + 2) % 8], me.y - 2 * Util.dyDiff[(dirIndex + 2) % 8]);
+        //now, try to go to the place closer to the center of the map
+        if (Util.distanceMetric(poss1, new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2)) <= Util.distanceMetric(poss2, new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2))){
+            if (Util.isOnMap(poss1)){
+                target.translate(2 * Util.dxDiff[(dirIndex + 2) % 8], 2 * Util.dyDiff[(dirIndex + 2) % 8]);
+                return true;
+            }
+            else{
+                if (Util.isOnMap(poss2)){
+                    target.translate(2 * Util.dxDiff[(dirIndex + 2) % 8], 2 * Util.dyDiff[(dirIndex + 2) % 8]);
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+        else{
+            if (Util.isOnMap(poss2)){
+                target.translate(-2 * Util.dxDiff[(dirIndex + 2) % 8], -2 * Util.dyDiff[(dirIndex + 2) % 8]);
+                return true;
+            }
+            else{
+                if (Util.isOnMap(poss1)){
+                    target.translate(2 * Util.dxDiff[(dirIndex + 2) % 8], 2 * Util.dyDiff[(dirIndex + 2) % 8]);
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+    }
+
 }
