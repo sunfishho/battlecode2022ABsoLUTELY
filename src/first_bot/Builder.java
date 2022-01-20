@@ -158,7 +158,7 @@ public class Builder extends Unit {
                 return true;
             }
         }
-        Direction dir = pf.findBestDirection(target, 20);
+        Direction dir = pf.findBestDirection(target, 50);
         if (rc.canMove(dir)) {
             rc.move(dir);
             me = rc.getLocation();

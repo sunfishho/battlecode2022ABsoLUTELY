@@ -47,7 +47,6 @@ public class Sage extends Unit {
         for (RobotInfo bot : nearbyBotsSeen){
             switch(bot.getType()){
                 case SOLDIER:
-                    double weight = (bot.getHealth()/3 + 5) / (10 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
                     if (bot.getTeam() != myTeam) {
                         MapLocation enemyLoc = bot.getLocation();
                         numEnemies++;
@@ -82,6 +81,7 @@ public class Sage extends Unit {
         int bestType = 10;
         int highestRubble = 0;
         int highestHealth = -1;
+        int highestOneshotHealth = -1;
         if (enemyBotsWithinRange.length == 0){
             return;
         }
@@ -102,6 +102,9 @@ public class Sage extends Unit {
                 bestType = enemyType;
                 highestRubble = rc.senseRubble(bot.getLocation());
                 highestHealth = bot.getHealth();
+                if (bot.getHealth() <= 40) {
+                    highestOneshotHealth = bot.getHealth();
+                }
                 bestBot = bot;
                 continue;
             }
@@ -109,10 +112,17 @@ public class Sage extends Unit {
                 if (highestRubble < rc.senseRubble(bot.getLocation())){
                     highestRubble = rc.senseRubble(bot.getLocation());
                     highestHealth = bot.getHealth();
+                    if (bot.getHealth() <= 40) {
+                        highestOneshotHealth = bot.getHealth();
+                    }
                     bestBot = bot;
                 }
                 else if (highestRubble == rc.senseRubble(bot.getLocation())){
-                    if (highestHealth > bot.getHealth()){
+                    
+                    if ((bot.getHealth() <= 40 && highestOneshotHealth < bot.getHealth())){
+                        highestOneshotHealth = bot.getHealth();
+                        bestBot = bot;
+                    } else if (highestOneshotHealth == 1 && highestHealth < bot.getHealth()) {
                         highestHealth = bot.getHealth();
                         bestBot = bot;
                     }

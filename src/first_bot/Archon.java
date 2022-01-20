@@ -210,7 +210,7 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SAGE, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        if (round > 100 && numBuilders == 0) {
+        if (round > 100 && numBuilders == 0 && rank == 1) {
             if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 numBuilders = 1;
                 rc.buildRobot(RobotType.BUILDER, dir);
