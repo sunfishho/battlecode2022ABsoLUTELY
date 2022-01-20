@@ -62,14 +62,6 @@ public class Miner extends Unit{
         if (rc.getHealth() < 10 && round < 200) {
             needsHeal = true;
             target = archonLocation;
-        }
-        
-        rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
-        robotLocations = rc.senseNearbyRobots(20);
-        // Sometimes we don't want to step on the target
-        if (rc.canSenseLocation(target) && me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
-            target = chooseRandomInitialDestination();
-            targetCountdown = 0;
             if (isRetreating) {
                 tryToMine(0);
             } else {
@@ -80,12 +72,22 @@ public class Miner extends Unit{
                 tryToMove(30);
                 moveLowerRubble(true);
             }
-            if (rc.getHealth() > 45) {
+            
+        }
+        if (needsHeal) {
+            if (rc.getHealth() > 35 || round >= 200) {
                 needsHeal = false;
                 target = chooseRandomInitialDestination();
             } else {
                 return;
             }
+        }
+        rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
+        robotLocations = rc.senseNearbyRobots(20);
+        // Sometimes we don't want to step on the target
+        if (rc.canSenseLocation(target) && me.isAdjacentTo(target) && rc.senseRubble(target) > 30){
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
         }
         int bytecodeBeforeMoving0 = Clock.getBytecodeNum();
         if (observe()){

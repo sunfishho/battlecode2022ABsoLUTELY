@@ -85,25 +85,25 @@ public abstract class RobotCommon {
     public static MapLocation nearestCorner(MapLocation loc) throws GameActionException{//return nearest corner
         MapLocation best = new MapLocation(-1, -1);
         int mindist = 69;
-        MapLocation corner = new MapLocation(0, 0);
+        MapLocation corner = new MapLocation(1, 1);
         int dist = Util.distanceMetric(corner, loc);
         if(dist < mindist){
             mindist = dist;
             best = corner;
         }
-        corner = new MapLocation(0, Util.HEIGHT - 1);
+        corner = new MapLocation(1, Util.HEIGHT - 2);
         dist = Util.distanceMetric(corner, loc);
         if(dist < mindist){
             mindist = dist;
             best = corner;
         }
-        corner = new MapLocation(Util.WIDTH - 1, Util.HEIGHT-1);
+        corner = new MapLocation(Util.WIDTH - 2, Util.HEIGHT-2);
         dist = Util.distanceMetric(corner, loc);
         if(dist < mindist){
             mindist = dist;
             best = corner;
         }
-        corner = new MapLocation(Util.WIDTH - 1, 0);
+        corner = new MapLocation(Util.WIDTH - 2, 1);
         dist = Util.distanceMetric(corner, loc);
         if(dist < mindist){
             mindist = dist;

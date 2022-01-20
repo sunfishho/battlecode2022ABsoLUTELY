@@ -446,7 +446,7 @@ public class Soldier extends Unit {
 
     
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
-    // returs if move was made
+    // returns if move was made
     public boolean tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
         if (!isRetreating) {

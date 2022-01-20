@@ -5,12 +5,13 @@ import battlecode.common.*;
 
 import java.util.Random;
 
-
 public class Sage extends Unit {
 
     private static boolean isRetreating;
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
+    static boolean isHealing;
+    static int health;
 
     public Sage(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
@@ -25,19 +26,57 @@ public class Sage extends Unit {
         else{
             target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
         }
+        isHealing = false;
+        health = RobotType.SAGE.health;
     }
 
     //TODO
     public void takeTurn() throws GameActionException {
         round = rc.getRoundNum();
         me = rc.getLocation();
+        health = rc.getHealth();
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
         }
-        if (rc.getActionCooldownTurns() < 10) {
+        if (rc.getActionCooldownTurns() < 2) {
             isRetreating = false;
         }
         observe();
+        // If low health, go to archon
+        if (rc.getHealth() < 40) {
+            if (!isHealing) {
+                // reset recentdists
+                isHealing = true;
+            }
+            target = archonLocation;
+        }
+        // If high health, leave archon
+        if (isHealing) {
+            target = archonLocation;
+            if (me.distanceSquaredTo(archonLocation) > 13) {
+                tryToMove(30);
+                int crowdCount = 0;
+                for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
+                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health) {
+                        crowdCount++;
+                    }
+                }
+
+                if (!isHealing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
+                    // We can't get healed by the archon so try to move to a different archon
+                    rank = (rank % rc.getArchonCount()) + 1;
+                    archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
+                }
+                moveLowerRubble(true);
+            }
+            if (rc.getHealth() > 95 ) {
+                isRetreating = false;
+                
+                target = chooseRandomInitialDestination();
+            } else {
+                return;
+            }
+        }
         observeSymmetry();
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
@@ -61,18 +100,26 @@ public class Sage extends Unit {
             tryToMove(40);
             moveLowerRubble(false);
             tryToAttack();
-            rc.setIndicatorString("target1: " + target.x + ", " + target.y);
+            rc.setIndicatorString("target1: " + target.x + ", " + target.y + ", " + isHealing);
             return;
         }
-        enemySoldierCentroidx /= numEnemies;
-        enemySoldierCentroidy /= numEnemies;
+        enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
+        enemySoldierCentroidy = (int) ((enemySoldierCentroidy / (numEnemies + 0.0)) + 0.5);
         enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
         
         // This whole block only runs if we have an enemy in sight
         tryToAttack();
-        retreat(enemySoldierCentroid);
+        if (rc.getActionCooldownTurns() > 2) {
+            Direction dir = retreat(enemySoldierCentroid);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+            }
+        } else {
+            target = enemySoldierCentroid;
+            tryToMove(30);
+        }
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        rc.setIndicatorString("target2: " + target.x + ", " + target.y);
+        rc.setIndicatorString("target2: " + target.x + ", " + target.y + ", " + isHealing);
 
     }
     
@@ -131,6 +178,11 @@ public class Sage extends Unit {
             // Tiebreak by enemy health
         }
         //Attack if possible
+        if (targetSoldiers() > 5 && rc.canEnvision(AnomalyType.CHARGE)) {
+            rc.envision(AnomalyType.CHARGE);
+            isRetreating = true;
+            return;
+        }
         if (rc.canAttack(bestBot.getLocation()) && bestBot.getType() != RobotType.MINER) {
             rc.attack(bestBot.getLocation());
             isRetreating = true;
@@ -142,28 +194,33 @@ public class Sage extends Unit {
 
     }
 
-    public void tryToMove(int avgRubble) throws GameActionException {
-        
-        if (rc.readSharedArray(17) < 65534) {
-            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
-        }
-        else if (target == null){
-            target = chooseRandomInitialDestination();
-        }
-        else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > 30)){
-            target = chooseRandomInitialDestination();
-        }
-        if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
-            return;
+    public boolean tryToMove(int avgRubble) throws GameActionException {
+        rc.setIndicatorString("trying to move: " + target);
+        if (!isRetreating) {
+            if (rc.readSharedArray(17) < 65534) {
+                target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+                targetCountdown = 0;
+            }
+            else if (target == null){
+                target = chooseRandomInitialDestination();
+                targetCountdown = 0;
+            }
+            if (me.distanceSquaredTo(target) <= 2 && rc.senseRobotAtLocation(target) != null) {
+                return false;
+            }
         }
         Direction dir = Direction.CENTER;
         if (target != null){
             dir = pf.findBestDirection(target, avgRubble);
         }
-        if (rc.canMove(dir)){
+        if (rc.canMove(dir) && dir != Direction.CENTER){
             rc.move(dir);
+            me = rc.getLocation();
+            return true;
         }
+        return false;
     }
+
 
     public void moveLowerRubble(boolean toRetreat) throws GameActionException{
         // rc.setIndicatorString("MOVING TO LOWER RUBBLE");
@@ -191,7 +248,7 @@ public class Sage extends Unit {
         Team opp = rc.getTeam().opponent();
         int cnt = 0;
         for(RobotInfo rob : rc.senseNearbyRobots(r, opp)){
-            if(rob.type == RobotType.SOLDIER){
+            if(rob.mode == RobotMode.DROID){
                 cnt++;
             }
         }
