@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0120;
 
 import battlecode.common.*;
 
@@ -12,7 +12,6 @@ public class Sage extends Unit {
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static boolean isHealing;
     static int health;
-
 
     public Sage(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
@@ -55,7 +54,7 @@ public class Sage extends Unit {
             target = archonLocation;
             tryToAttack();
             if (me.distanceSquaredTo(archonLocation) > 20) {
-                tryToMove(25);
+                tryToMove(30);
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(34, rc.getTeam())) {
                     //-5 for health check because soldiers often don't heal all the way to full
@@ -107,7 +106,7 @@ public class Sage extends Unit {
             }
         }
         if (numEnemies == 0){
-            tryToMove(15);
+            tryToMove(20);
             moveLowerRubble(false);
             tryToAttack();
             rc.setIndicatorString("target1: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
@@ -126,7 +125,7 @@ public class Sage extends Unit {
             }
         } else {
             target = enemySoldierCentroid;
-            tryToMove(20);
+            tryToMove(30);
         }
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
         rc.setIndicatorString("target2: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
@@ -135,113 +134,73 @@ public class Sage extends Unit {
     
     public void tryToAttack() throws GameActionException {
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
+        int bestType = 10;
+        int highestRubble = 0;
+        int highestHealth = -1;
+        int highestOneshotHealth = -1;
         if (enemyBotsWithinRange.length == 0){
             return;
         }
-        boolean canAttackArchon = false;
-        //want to maximize score: sum of damage from action + 20 points for every kill of a soldier, 40 points for every kill of a sage, 5 points for every kill of a miner
-        int chargeScore = 0;
-        int attackScore = 0;
-        int bestBotToAttackIdx = -1;
-        final int MINER_BUILDER_KILL_BONUS = 5;
-        final int SOLDIER_KILL_BONUS = 20;
-        final int SAGE_KILL_BONUS = 40;
-        final double MINER_BUILDER_HEALTH_MULTIPLIER = 0.5;
-        final double SOLDIER_HEALTH_MULTIPLIER = 1;
-        final double SAGE_HEALTH_MULTIPLIER = 2;
-        int thisAttackScore;
-
+        RobotInfo bestBot = enemyBotsWithinRange[0];
         // Go through list of enemies and find the one we want to attack the most
-        for (int idx = 0; idx < enemyBotsWithinRange.length; idx++) {
-            switch (enemyBotsWithinRange[idx].getType()){
-                case ARCHON: canAttackArchon = true;
-                case SOLDIER:
-                    if (enemyBotsWithinRange[idx].health <= 11){
-                        chargeScore += (enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER + SOLDIER_KILL_BONUS);
-                    }
-                    if (enemyBotsWithinRange[idx].health <= 45){
-                        thisAttackScore = (int)(enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER) + SOLDIER_KILL_BONUS;
-                    }
-                    else{
-                        thisAttackScore = (int)(45 * SOLDIER_HEALTH_MULTIPLIER);
-                    }
-
-                    if (thisAttackScore > attackScore){
-                        attackScore = thisAttackScore;
-                        bestBotToAttackIdx = idx;
-                    }
-                    else if (thisAttackScore == attackScore){
-                        //tiebreak on distance to the sage
-                        if (Util.distanceMetric(me, enemyBotsWithinRange[bestBotToAttackIdx].location) > Util.distanceMetric(me, enemyBotsWithinRange[idx].location)){
-                            bestBotToAttackIdx = idx;
-                        }
-                    }
-                    break;
-                case SAGE:
-                    if (enemyBotsWithinRange[idx].health <= 22){
-                        chargeScore += (enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER + SAGE_KILL_BONUS);
-                    }
-                    if (enemyBotsWithinRange[idx].health <= 45){
-                        thisAttackScore = (int)(enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER) + SAGE_KILL_BONUS;
-                    }
-                    else{
-                        thisAttackScore = (int)(45 * SAGE_HEALTH_MULTIPLIER);
-                    }
-
-                    if (thisAttackScore > attackScore){
-                        attackScore = thisAttackScore;
-                        bestBotToAttackIdx = idx;
-                    }
-                    else if (thisAttackScore == attackScore){
-                        //tiebreak on rubble for sages
-                        if (rc.senseRubble(enemyBotsWithinRange[bestBotToAttackIdx].location) > rc.senseRubble(enemyBotsWithinRange[idx].location)){
-                            bestBotToAttackIdx = idx;
-                        }
-                    }
-                default:
-                    if (enemyBotsWithinRange[idx].getType() == RobotType.MINER || enemyBotsWithinRange[idx].getType() == RobotType.BUILDER){
-                        if (enemyBotsWithinRange[idx].health <= (int) (enemyBotsWithinRange[idx].getType().health * 0.22)){
-                            chargeScore += (enemyBotsWithinRange[idx].health * MINER_BUILDER_HEALTH_MULTIPLIER + MINER_BUILDER_KILL_BONUS);
-                        }
-                        thisAttackScore = (int)(enemyBotsWithinRange[idx].health * MINER_BUILDER_HEALTH_MULTIPLIER) + MINER_BUILDER_KILL_BONUS;
-                        if (thisAttackScore > attackScore){
-                            attackScore = thisAttackScore;
-                            bestBotToAttackIdx = idx;
-                        }
-                        else if (thisAttackScore == attackScore){
-                            //tiebreak on rubble for sages
-                            if (rc.senseRubble(enemyBotsWithinRange[bestBotToAttackIdx].location) > rc.senseRubble(enemyBotsWithinRange[idx].location)){
-                                bestBotToAttackIdx = idx;
-                            }
-                        }
-                    }
+        for (RobotInfo bot: enemyBotsWithinRange) {
+            if (bot.getTeam() == myTeam){
+                continue;
             }
+            int enemyType = 8;
+            for (int j = 0; j < 7; j++) {
+                if (bot.getType().equals(Util.attackOrder[j])) {
+                    enemyType = j;
+                    break;
+                }
+            }
+            if (enemyType < bestType) {
+                bestType = enemyType;
+                highestRubble = rc.senseRubble(bot.getLocation());
+                highestHealth = bot.getHealth();
+                if (bot.getHealth() <= 45) {
+                    highestOneshotHealth = bot.getHealth();
+                }
+                bestBot = bot;
+                continue;
+            }
+            else if (bestType == enemyType){
+                if (highestRubble < rc.senseRubble(bot.getLocation())){
+                    highestRubble = rc.senseRubble(bot.getLocation());
+                    highestHealth = bot.getHealth();
+                    if (bot.getHealth() <= 45) {
+                        highestOneshotHealth = bot.getHealth();
+                    }
+                    bestBot = bot;
+                }
+                else if (highestRubble == rc.senseRubble(bot.getLocation())){
+                    
+                    if ((bot.getHealth() <= 45 && highestOneshotHealth < bot.getHealth())){
+                        highestOneshotHealth = bot.getHealth();
+                        bestBot = bot;
+                    } else if (highestOneshotHealth == 1 && highestHealth < bot.getHealth()) {
+                        highestHealth = bot.getHealth();
+                        bestBot = bot;
+                    }
+                }
+            }
+            // Tiebreak by enemy health
         }
-        
-        //Checking if it's not worth to attack
-        if (Math.max(attackScore, chargeScore) < 30 && round > 100){
+        //Attack if possible
+        if ((targetSoldiers() >= 5 || bestBot.health <= bestBot.type.health/5) && rc.canEnvision(AnomalyType.CHARGE)) {
+            rc.envision(AnomalyType.CHARGE);
+            isRetreating = true;
             return;
         }
-        if (chargeScore > attackScore && rc.canEnvision(AnomalyType.CHARGE)){
-            rc.envision(AnomalyType.CHARGE);
+        if (rc.canAttack(bestBot.getLocation()) && bestBot.getType() != RobotType.MINER) {
+            rc.attack(bestBot.getLocation());
+            isRetreating = true;
+            return;
         }
-        if (rc.canEnvision(AnomalyType.FURY) && canAttackArchon){
-            //make sure we don't accidentally friendly fire on our archon
-            MapLocation nearestFriendlyArchon = nearestArchon(me);
-            boolean canSafelyFury = true;
-            if (me.distanceSquaredTo(nearestFriendlyArchon) <= actionRadius){
-                canSafelyFury = false;
-                //TODO: check later if it's portable or not
-            }
-            if (canSafelyFury){
-                rc.envision(AnomalyType.FURY);
-                return;
-            }
-        }
-        if (rc.canAttack(enemyBotsWithinRange[bestBotToAttackIdx].getLocation())) {
-            rc.attack(enemyBotsWithinRange[bestBotToAttackIdx].getLocation());
-        }
-        return;
+    }
+
+    public void tryToCastAnomaly() throws GameActionException {
+
     }
 
     public boolean tryToMove(int avgRubble) throws GameActionException {
