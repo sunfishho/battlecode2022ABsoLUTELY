@@ -74,7 +74,7 @@ public class Soldier extends Unit {
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         // If previously not on offense and low health set target to nearest archon
-        if (rc.getHealth() < 10) {
+        if (rc.getHealth() < 12) {
             if (!isRetreating) {
                 // reset recentdists
                 recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
@@ -134,7 +134,7 @@ public class Soldier extends Unit {
                 tryToMove(30 + loopingPenalty);
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
-                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.TURRET && robot.getHealth() < robot.getType().health) {
+                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health) {
                         crowdCount++;
                     }
                 }

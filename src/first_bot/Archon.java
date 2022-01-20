@@ -19,6 +19,7 @@ public class Archon extends RobotCommon{
     static MapLocation archonLocs;
     static int numMinersAlive, numSoldiersAlive;
     static RobotInfo[] nearbyTeammatesWithinHealingRange;
+    static int numBuilders;
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -42,6 +43,7 @@ public class Archon extends RobotCommon{
         // for Util to know the width/height of the map
         Util.WIDTH = rc.getMapWidth();
         Util.HEIGHT = rc.getMapHeight();
+        numBuilders = 0;
     }
 
     public void takeTurn() throws GameActionException {
@@ -156,14 +158,6 @@ public class Archon extends RobotCommon{
          */
         // rc.setIndicatorString(rank + " " + newRankInfo);
 
-        int numBuilders = 0;
-        Team us = rc.getTeam();
-        for (RobotInfo robot : rc.senseNearbyRobots()) {
-            if (robot.getTeam() == us && robot.getType() == RobotType.BUILDER) {
-                numBuilders++;
-            }
-        }
-
         // Try to pick a direction to build in based on nearby rubble counts
         int minRubbleCount = 101;
         Direction dir = Direction.CENTER;
@@ -207,9 +201,21 @@ public class Archon extends RobotCommon{
                 }
             }
         }
+        if (rc.readSharedArray(31) == 1) {
+            heal();
+            rc.setIndicatorString("Halting production for labs");
+            return;
+        }
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
             rc.writeSharedArray(20, targetArchon + 1);
+        }
+        if (round > 100 && numBuilders == 0) {
+            if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
+                numBuilders = 1;
+                rc.buildRobot(RobotType.BUILDER, dir);
+                rc.writeSharedArray(20, targetArchon + 1);
+            } 
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 10) {

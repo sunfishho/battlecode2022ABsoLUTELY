@@ -82,6 +82,37 @@ public abstract class RobotCommon {
         return best;
     }
 
+    public static MapLocation nearestCorner(MapLocation loc) throws GameActionException{//return nearest corner
+        MapLocation best = new MapLocation(-1, -1);
+        int mindist = 69;
+        MapLocation corner = new MapLocation(0, 0);
+        int dist = Util.distanceMetric(corner, loc);
+        if(dist < mindist){
+            mindist = dist;
+            best = corner;
+        }
+        corner = new MapLocation(0, Util.HEIGHT - 1);
+        dist = Util.distanceMetric(corner, loc);
+        if(dist < mindist){
+            mindist = dist;
+            best = corner;
+        }
+        corner = new MapLocation(Util.WIDTH - 1, Util.HEIGHT-1);
+        dist = Util.distanceMetric(corner, loc);
+        if(dist < mindist){
+            mindist = dist;
+            best = corner;
+        }
+        corner = new MapLocation(Util.WIDTH - 1, 0);
+        dist = Util.distanceMetric(corner, loc);
+        if(dist < mindist){
+            mindist = dist;
+            best = corner;
+        }
+            
+        return best;
+    }
+
     public static int rankOfNearestArchon(MapLocation loc) throws GameActionException{
         int best = 0;
         int mindist = 69;

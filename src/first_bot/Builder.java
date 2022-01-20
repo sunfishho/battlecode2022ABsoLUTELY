@@ -9,18 +9,20 @@ import java.awt.*;
 public class Builder extends Unit {
 
     public static boolean isSacrifice = false;
-    public static boolean labBuilder = false;
+    public static boolean labBuilder = true;
+    public static boolean labBuilt = false;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
-        
-        rc.transform();
+        labBuilder = true;
+
     }
 
     public Builder(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException{
         super(rc, r, loc);
-        target = t;
-        System.out.println("BUILDER TARGET IS: " + t.x + " " + t.y);
+        labBuilder = true;
+        target = nearestCorner(loc);
+        System.out.println("BUILDER TARGET IS: " + target.x + " " + target.y);
     }
 
     public Builder(RobotController rc, int r, MapLocation loc, MapLocation t, int type) throws GameActionException{
@@ -36,6 +38,7 @@ public class Builder extends Unit {
 
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("Not repairing anything");
+        me = rc.getLocation();
         observe();
         observeSymmetry();
         boolean a = tryToRepair();
@@ -115,16 +118,25 @@ public class Builder extends Unit {
             }
         }
         else{
+            rc.setIndicatorString("Trying to go to lab");
             //if we sense any labs nearby, don't build a lab (for solitude) and disintegrate
+            if (target.distanceSquaredTo(me) >= 1) {
+                return false;
+            }
             for(RobotInfo r : rc.senseNearbyRobots(20, us)){
                 if(r.type == RobotType.LABORATORY){
                     rc.disintegrate();
                 }
             }
+            
+            rc.setIndicatorString("Trying to build lab");
+            rc.writeSharedArray(31, 1);
             for (Direction d : Direction.allDirections()) {
                 MapLocation loc = me.add(d);
                 if (rc.getTeamLeadAmount(us) > 350 && rc.canBuildRobot(RobotType.LABORATORY, d) && Util.labElig(loc)) {
                     rc.buildRobot(RobotType.LABORATORY, d);
+                    labBuilder = false;
+                    rc.writeSharedArray(31, 0);
                     return true;
                 }
             }
