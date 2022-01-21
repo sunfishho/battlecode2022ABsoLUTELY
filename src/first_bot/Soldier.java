@@ -10,7 +10,7 @@ public class Soldier extends Unit {
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     static double teammateSoldiers, enemySoldiers;
     static int numEnemies;
-    static int loopingIncrement = 0;//experiment w/ this maybe idk
+    static int loopingIncrement = 1;//experiment w/ this maybe idk
     static int loopingPenalty;//increase rubble tolerance if we're stuck in a loop
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static boolean healing;
@@ -34,7 +34,7 @@ public class Soldier extends Unit {
         }
         health = 50;
         isPatrol = false;
-        if (rng.nextInt(10) == 1) {
+        if (rng.nextInt(10) == 100) {
             isPatrol = true;
             target = chooseRandomInitialDestination();
         }
@@ -142,7 +142,7 @@ public class Soldier extends Unit {
             attack();
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
-                tryToMove(30 + loopingPenalty);
+                tryToMove(30 + 5 * loopingPenalty);
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
                     if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health) {
