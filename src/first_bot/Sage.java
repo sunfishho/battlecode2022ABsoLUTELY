@@ -43,7 +43,7 @@ public class Sage extends Unit {
         }
         observe();
         // If low health, go to archon
-        if (rc.getHealth() <= 45) {
+        if (rc.getHealth() <= 25) {
             if (!isHealing) {
                 // reset recentdists
                 isHealing = true;

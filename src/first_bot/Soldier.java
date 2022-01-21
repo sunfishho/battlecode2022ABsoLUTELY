@@ -142,7 +142,12 @@ public class Soldier extends Unit {
             attack();
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
-                tryToMove(30 + 5 * loopingPenalty);
+                if (healing){
+                    tryToMove(50 + 5 * loopingPenalty);
+                }
+                else{
+                    tryToMove(30 + 5 * loopingPenalty);
+                }
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
                     if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health - 10) {
