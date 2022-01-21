@@ -143,13 +143,16 @@ public class Sage extends Unit {
         //want to maximize score: sum of damage from action + 20 points for every kill of a soldier, 40 points for every kill of a sage, 5 points for every kill of a miner
         int chargeScore = 0;
         int attackScore = 0;
+        int furyScore = 0;
         int bestBotToAttackIdx = -1;
         final int MINER_BUILDER_KILL_BONUS = 5;
         final int SOLDIER_KILL_BONUS = 20;
         final int SAGE_KILL_BONUS = 40;
+        final int WATCHTOWER_KILL_BONUS = 60;
         final double MINER_BUILDER_HEALTH_MULTIPLIER = 0.5;
         final double SOLDIER_HEALTH_MULTIPLIER = 1;
         final double SAGE_HEALTH_MULTIPLIER = 2;
+        final double WATCHTOWER_HEALTH_MULTIPLIER = 2.5;
         int thisAttackScore;
 
         // Go through list of enemies and find the one we want to attack the most
@@ -159,6 +162,9 @@ public class Sage extends Unit {
                 case SOLDIER:
                     if (enemyBotsWithinRange[idx].health <= 11){
                         chargeScore += (enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER + SOLDIER_KILL_BONUS);
+                    }
+                    else{
+                        chargeScore += (enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER);
                     }
                     if (enemyBotsWithinRange[idx].health <= 45){
                         thisAttackScore = (int)(enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER) + SOLDIER_KILL_BONUS;
@@ -182,11 +188,38 @@ public class Sage extends Unit {
                     if (enemyBotsWithinRange[idx].health <= 22){
                         chargeScore += (enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER + SAGE_KILL_BONUS);
                     }
+                    else{
+                        chargeScore += (enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER);
+                    }
                     if (enemyBotsWithinRange[idx].health <= 45){
                         thisAttackScore = (int)(enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER) + SAGE_KILL_BONUS;
                     }
                     else{
                         thisAttackScore = (int)(45 * SAGE_HEALTH_MULTIPLIER);
+                    }
+
+                    if (thisAttackScore > attackScore){
+                        attackScore = thisAttackScore;
+                        bestBotToAttackIdx = idx;
+                    }
+                    else if (thisAttackScore == attackScore){
+                        //tiebreak on rubble for sages
+                        if (rc.senseRubble(enemyBotsWithinRange[bestBotToAttackIdx].location) > rc.senseRubble(enemyBotsWithinRange[idx].location)){
+                            bestBotToAttackIdx = idx;
+                        }
+                    }
+                case WATCHTOWER:
+                    if (enemyBotsWithinRange[idx].health <= enemyBotsWithinRange[idx].getType().health / 10){
+                        furyScore += (enemyBotsWithinRange[idx].health * WATCHTOWER_HEALTH_MULTIPLIER + WATCHTOWER_KILL_BONUS);
+                    }
+                    else{
+                        furyScore += (enemyBotsWithinRange[idx].health * WATCHTOWER_HEALTH_MULTIPLIER);
+                    }
+                    if (enemyBotsWithinRange[idx].health <= 45){
+                        thisAttackScore = (int)(enemyBotsWithinRange[idx].health * WATCHTOWER_HEALTH_MULTIPLIER) + WATCHTOWER_KILL_BONUS;
+                    }
+                    else{
+                        thisAttackScore = (int)(45 * WATCHTOWER_HEALTH_MULTIPLIER);
                     }
 
                     if (thisAttackScore > attackScore){
@@ -219,21 +252,24 @@ public class Sage extends Unit {
             }
         }
         
+        boolean canSafelyFury = true;
+        MapLocation nearestFriendlyArchon = nearestArchon(me);
+        if (me.distanceSquaredTo(nearestFriendlyArchon) <= actionRadius){
+            canSafelyFury = false;
+            //TODO: check later if it's portable or not
+        }
         //Checking if it's not worth to attack
-        if (Math.max(attackScore, chargeScore) < 30 && round > 100){
+        if (attackScore < 30 && chargeScore < 30 && furyScore < 30 && round > 100){
             return;
+        }
+        if (furyScore > chargeScore && furyScore > attackScore && canSafelyFury && rc.canEnvision(AnomalyType.FURY)){
+            rc.envision(AnomalyType.FURY);
         }
         if (chargeScore > attackScore && rc.canEnvision(AnomalyType.CHARGE)){
             rc.envision(AnomalyType.CHARGE);
         }
         if (rc.canEnvision(AnomalyType.FURY) && canAttackArchon){
             //make sure we don't accidentally friendly fire on our archon
-            MapLocation nearestFriendlyArchon = nearestArchon(me);
-            boolean canSafelyFury = true;
-            if (me.distanceSquaredTo(nearestFriendlyArchon) <= actionRadius){
-                canSafelyFury = false;
-                //TODO: check later if it's portable or not
-            }
             if (canSafelyFury){
                 rc.envision(AnomalyType.FURY);
                 return;

@@ -17,6 +17,8 @@ public class Miner extends Unit{
     static int loopingIncrement = 1;//experiment w/ this maybe idk
     static int loopingPenalty;
     static boolean isDefended; // If the miner is close to a soldier our team or does not need defense
+    static int friendlyMinerCount = 1;
+    static int enemyMinerCount = 0;
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
         super(rc, r, loc);
@@ -49,7 +51,6 @@ public class Miner extends Unit{
                 tryToMove(30);
                 moveLowerRubble(true);
             }
-            
         }
         if (needsHeal) {
             if (rc.getHealth() > 35 || round >= 200) {
@@ -76,9 +77,14 @@ public class Miner extends Unit{
             MapLocation enemyLoc = me;
             for (RobotInfo bot : robotLocations){
                 if (bot.getTeam() == myTeam){
+                    if (bot.getType() == RobotType.MINER){
+                        friendlyMinerCount++;
+                    }
                     continue;
                 }
                 switch(bot.getType()){
+                    case MINER:
+                        enemyMinerCount++;
                     case SOLDIER:
                         if (bot.getTeam() == myTeam && bot.getLocation().distanceSquaredTo(me) <= 8){
                             isDefended = true;
@@ -115,13 +121,15 @@ public class Miner extends Unit{
                     target = archonLocation;
                     tryToMove(20);
                 }
-                
-                tryToMine(0);
+                //only do scorched earth if we're far enough from our Archon
+                if (me.distanceSquaredTo(nearestArchon(me)) > 100) tryToMine(0);
+                else{
+                    tryToMine(1);
+                }
                 rc.writeSharedArray(30, rc.readSharedArray(30) + income);
                 return;
             }
         }
-        int bytecodeBeforeMoving1 = Clock.getBytecodeNum();
         observeSymmetry();
         tryToMine();
         /*
@@ -138,7 +146,6 @@ public class Miner extends Unit{
                 }
             }
         }
-        int bytecodeBeforeMoving2 = Clock.getBytecodeNum();
 
         // Case when Archon could not assign a Location to the Miner
         if(target.equals(archonLocation) && isRetreating == false) {
@@ -248,7 +255,7 @@ public class Miner extends Unit{
     }
     // Tries to mine by determining how much lead we want to leave
     public void tryToMine() throws GameActionException {
-        if (isRetreating) {
+        if ((isRetreating || friendlyMinerCount < enemyMinerCount) && me.distanceSquaredTo(nearestArchon(me)) > 25) {
             tryToMine(0);
         } else {
             tryToMine(1);
