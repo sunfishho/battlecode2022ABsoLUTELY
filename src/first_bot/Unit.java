@@ -167,7 +167,7 @@ public class Unit extends RobotCommon {
         MapLocation squareInFront = me.add(dir);
         for (int i = -1; i <= 1; i++){
             MapLocation wallSquare = squareInFront.translate(i * Util.dxDiff[(dirIndex + 2) % 8], i * Util.dyDiff[(dirIndex + 2) % 8]);
-            if (rc.canSenseLocation(wallSquare) && (!rc.canSenseRobotAtLocation(wallSquare) || rc.senseRubble(wallSquare) >= 80)){
+            if (rc.canSenseLocation(wallSquare) && (!rc.canSenseRobotAtLocation(wallSquare) && rc.senseRubble(wallSquare) < 80)){
                 return false;
             }
             //if one end of the wall is an edge of the square, go the other way

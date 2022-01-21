@@ -34,6 +34,10 @@ public class Soldier extends Unit {
         }
         health = 50;
         isPatrol = false;
+        if (rng.nextInt(10) == 1) {
+            isPatrol = true;
+            target = chooseRandomInitialDestination();
+        }
         patrollingRounds = 0;
         //do more stuff later
     }
@@ -135,11 +139,7 @@ public class Soldier extends Unit {
             }
         }
         if (isRetreating) {
-            MapLocation enemy = attackValuableEnemies(false);
-            if (enemy != null){
-                rc.attack(enemy);
-                loopingPenalty = 0;
-            }
+            attack();
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30 + loopingPenalty);
@@ -174,11 +174,7 @@ public class Soldier extends Unit {
             }
             tryToMove(30 + loopingPenalty);
             moveLowerRubble(false);
-            MapLocation enemy = attackValuableEnemies(false);
-            if (enemy != null){
-                rc.attack(enemy);
-                loopingPenalty = 0;
-            }
+            attack();
             return;
         }
         enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
@@ -217,32 +213,17 @@ public class Soldier extends Unit {
             Direction dir = retreat(enemySoldierCentroid);
             //if stepping onto rubble is better for cooldown, do that
             if (enemy == null){
-                if (rc.canMove(dir) && dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
+                move(dir);
+                attack();
             }
             else if (rc.senseRubble(me.add(dir)) / 10 + 2 < rc.senseRubble(me) / 10 && me.add(dir).distanceSquaredTo(enemy) <= 13){
-                if (rc.canMove(dir) && dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
+                move(dir);
                 //in case we have a new best enemy to attack
-                enemy = attackValuableEnemies(false);
-                if (enemy != null){
-                    rc.attack(enemy);
-                    loopingPenalty = 0;
-                }                
+                attack();         
             }
             else{
-                if (enemy != null){
-                    rc.attack(enemy);
-                    loopingPenalty = 0;
-                }
-                if (rc.canMove(dir) && dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
+                attack(enemy);
+                move(dir);
             }
         }
     }
@@ -254,42 +235,24 @@ public class Soldier extends Unit {
         loopingPenalty = 0;
         //move first so cooldown is less when you attack
         //go to your archon if your health is lower than that of your opponent's
-        Direction dir = findDirectionLowerRubbleSquare(rc.getHealth() <= soldier.health);
-        MapLocation enemy = attackValuableEnemies(false);
-        if (enemy == null){
-            if (dir != Direction.CENTER){
-                rc.move(dir);
-                me = rc.getLocation();
-            }
-            else{
-                return;
-            }
-            enemy = attackValuableEnemies(false);
-            if (enemy != null){
-                rc.attack(enemy);
-            }
+        Direction dir = findDirectionLowerRubbleSquare(rc.getHealth() <= soldier.health || me.distanceSquaredTo(archonLocation) <= 20);
+        MapLocation enemy = soldier.location;
+        if (soldier.health * (rc.senseRubble(me)/10 + 1) < rc.getHealth() * (rc.senseRubble(me)/10 + 1)) {
+            target = enemy;
+            tryToMove(20);
+            attack();
             return;
         }
-        if (me.add(dir).distanceSquaredTo(enemy) <= 13){
-            if (dir != Direction.CENTER){
-                rc.move(dir);
-                me = rc.getLocation();
-            }
-            enemy = attackValuableEnemies(false);
-            if (enemy != null){
-                rc.attack(enemy);
-                loopingPenalty = 0;
-            }
+        if (enemy == null){
+            move(dir);
+            attack();
+        } else if (me.add(dir).distanceSquaredTo(enemy) <= 13){
+            attack();
+            move(dir);
         }
         else{
-            if (enemy != null){
-                rc.attack(enemy);
-                loopingPenalty = 0;
-            }
-            if (dir != Direction.CENTER){
-                rc.move(dir);
-                me = rc.getLocation();
-            }
+            move(dir);
+            attack();
         }
     }
 
@@ -310,10 +273,7 @@ public class Soldier extends Unit {
             //don't retreat if possible
             //always good to do it in this order
             moveLowerRubble(false);
-            enemy = attackValuableEnemies(false);
-            if (enemy != null){
-                rc.attack(enemy);
-            }
+            attack();
         }
         //when we have more soldiers
         if (pushing){    
@@ -322,7 +282,7 @@ public class Soldier extends Unit {
             //if no enemies, try to move to your destination
             //if sufficiently far we can probably traverse higher rubble without being too scared
             if (enemy == null && me.distanceSquaredTo(target) >= 40){
-                tryToMove(30 + loopingPenalty);
+                tryToMove(40 + loopingPenalty);
                 return;
             }
             //if not sufficiently far then we should be cautious
@@ -332,26 +292,12 @@ public class Soldier extends Unit {
             }
             dir = findDirectionLowerRubbleSquare(false);
             if (me.add(dir).distanceSquaredTo(enemy) <= 13){
-                if (dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
-                enemy = attackValuableEnemies(false);
-                if (enemy != null){
-                    rc.attack(enemy);
-                    loopingPenalty = 0;
-                }
+                move(dir);
+                attack();
             }
             else{
-                enemy = attackValuableEnemies(false);
-                if (enemy != null){
-                    rc.attack(enemy);
-                    loopingPenalty = 0;
-                }
-                if (dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
+                attack();
+                move(dir);
             }
         }
         //this is if we have fewer soldiers than the opponent does
@@ -360,33 +306,17 @@ public class Soldier extends Unit {
             dir = retreat(enemySoldierCentroid);
             //if stepping onto rubble is better for cooldown, do that
             if (enemy == null){
-                if (rc.canMove(dir) && dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
+                move(dir);
+                attack();
             }
-            else if (rc.senseRubble(me.add(dir)) / 10 + 2 < rc.senseRubble(me) / 10 && me.add(dir).distanceSquaredTo(enemy) <= 13){
-
-                if (rc.canMove(dir) && dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
+            else if (rc.senseRubble(me.add(dir)) / 10 < rc.senseRubble(me) / 10 && me.add(dir).distanceSquaredTo(enemy) <= 13){
+                move(dir);
                 //in case we have a new best enemy to attack
-                enemy = attackValuableEnemies(false);
-                if (enemy != null){
-                    rc.attack(enemy);
-                    loopingPenalty = 0;
-                }
+                attack();
             }
             else{
-                if (enemy != null){
-                    rc.attack(enemy);
-                    loopingPenalty = 0;
-                }
-                if (rc.canMove(dir) && dir != Direction.CENTER){
-                    rc.move(dir);
-                    me = rc.getLocation();
-                }
+                attack(enemy);
+                move(dir);
             }
         }
     }
@@ -480,7 +410,7 @@ public class Soldier extends Unit {
                 target = chooseRandomInitialDestination();
                 targetCountdown = 0;
             }
-            else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > avgRubble) && !onOffense){
+            else if ((rc.canSenseLocation(target) && rc.senseRubble(target) > avgRubble + 20) && !onOffense){
                 target = chooseRandomInitialDestination();
                 targetCountdown = 0;
             }
@@ -492,12 +422,7 @@ public class Soldier extends Unit {
         if (target != null){
             dir = pf.findBestDirection(target, avgRubble);
         }
-        if (rc.canMove(dir) && dir != Direction.CENTER){
-            rc.move(dir);
-            me = rc.getLocation();
-            return true;
-        }
-        return false;
+        return move(dir);
     }
 
     //how many enemy soldiers can attack us if we move in direction dir?
@@ -515,5 +440,29 @@ public class Soldier extends Unit {
             }
         }
         return cnt;        
+    }
+    // Find and attack enemy if possible
+    public void attack() throws GameActionException {
+        MapLocation enemy = attackValuableEnemies(false);
+        if (enemy != null){
+            rc.attack(enemy);
+            loopingPenalty = 0;
+        }
+    }
+    // Attack enemy
+    public void attack(MapLocation enemy) throws GameActionException {
+        if (enemy != null){
+            rc.attack(enemy);
+            loopingPenalty = 0;
+        }
+    }
+    // Move if possible
+    public boolean move(Direction dir) throws GameActionException {
+        if (rc.canMove(dir) && dir != Direction.CENTER){
+            rc.move(dir);
+            me = rc.getLocation();
+            return true;
+        }
+        return false;
     }
 }

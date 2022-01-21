@@ -281,8 +281,16 @@ public class Archon extends RobotCommon{
                             mostNeedy = robot;
                         }
                         break;
+                    case SOLDIER:
+                        if (mostNeedy.getType() == RobotType.SAGE) {
+                            break;
+                        }
+                        if (mostNeedy.getType() != RobotType.SOLDIER || robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
+                            mostNeedy = robot;
+                        }
+                        break;
                     default:
-                        if (mostNeedy.getType() != RobotType.SAGE && robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
+                        if (mostNeedy.getType() != RobotType.SAGE && mostNeedy.getType() != RobotType.SOLDIER && robot.health * mostNeedy.getType().health >= mostNeedy.health * robot.getType().health){
                             mostNeedy = robot;
                         }
                         break;
