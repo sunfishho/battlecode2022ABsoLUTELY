@@ -38,15 +38,16 @@ public class Sage extends Unit {
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
         }
-        if (rc.getActionCooldownTurns() < 20) {
+        if (rc.getActionCooldownTurns() < 20 && !isHealing) {
             isRetreating = false;
         }
         observe();
         // If low health, go to archon
-        if (rc.getHealth() < 20) {
+        if (rc.getHealth() <= 45) {
             if (!isHealing) {
                 // reset recentdists
                 isHealing = true;
+                isRetreating = true;
             }
             target = archonLocation;
         }
@@ -55,7 +56,7 @@ public class Sage extends Unit {
             target = archonLocation;
             tryToAttack();
             if (me.distanceSquaredTo(archonLocation) > 20) {
-                tryToMove(25);
+                tryToMove(50);
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(34, rc.getTeam())) {
                     //-5 for health check because soldiers often don't heal all the way to full
@@ -64,16 +65,16 @@ public class Sage extends Unit {
                     }
                 }
 
-                if (!isHealing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
-                    // We can't get healed by the archon so try to move to a different archon
-                    rank = (rank % rc.getArchonCount()) + 1;
-                    archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
-                }
+                // if (!isHealing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
+                //     // We can't get healed by the archon so try to move to a different archon
+                //     rank = (rank % rc.getArchonCount()) + 1;
+                //     archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
+                // }
                 moveLowerRubble(true);
             }
             if (rc.getHealth() > 95 ) {
                 isHealing = false;
-                
+                isRetreating = false;
                 target = chooseRandomInitialDestination();
             } else {
                 return;

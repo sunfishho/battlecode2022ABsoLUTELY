@@ -145,7 +145,7 @@ public class Soldier extends Unit {
                 tryToMove(30 + 5 * loopingPenalty);
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
-                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health) {
+                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health - 10) {
                         crowdCount++;
                     }
                 }
