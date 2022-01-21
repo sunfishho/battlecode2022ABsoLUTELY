@@ -145,14 +145,16 @@ public class Sage extends Unit {
         int attackScore = 0;
         int furyScore = 0;
         int bestBotToAttackIdx = -1;
-        final int MINER_BUILDER_KILL_BONUS = 5;
+        final int MINER_BUILDER_KILL_BONUS = 10;
         final int SOLDIER_KILL_BONUS = 20;
         final int SAGE_KILL_BONUS = 40;
         final int WATCHTOWER_KILL_BONUS = 60;
+        final int LAB_KILL_BONUS = 100;
         final double MINER_BUILDER_HEALTH_MULTIPLIER = 0.5;
         final double SOLDIER_HEALTH_MULTIPLIER = 1;
         final double SAGE_HEALTH_MULTIPLIER = 2;
         final double WATCHTOWER_HEALTH_MULTIPLIER = 2.5;
+        final double LAB_HEALTH_MULTIPLIER = 4;
         int thisAttackScore;
 
         // Go through list of enemies and find the one we want to attack the most
@@ -164,7 +166,7 @@ public class Sage extends Unit {
                         chargeScore += (enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER + SOLDIER_KILL_BONUS);
                     }
                     else{
-                        chargeScore += (enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER);
+                        chargeScore += (11 * SOLDIER_HEALTH_MULTIPLIER);
                     }
                     if (enemyBotsWithinRange[idx].health <= 45){
                         thisAttackScore = (int)(enemyBotsWithinRange[idx].health * SOLDIER_HEALTH_MULTIPLIER) + SOLDIER_KILL_BONUS;
@@ -189,7 +191,7 @@ public class Sage extends Unit {
                         chargeScore += (enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER + SAGE_KILL_BONUS);
                     }
                     else{
-                        chargeScore += (enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER);
+                        chargeScore += (22 * SAGE_HEALTH_MULTIPLIER);
                     }
                     if (enemyBotsWithinRange[idx].health <= 45){
                         thisAttackScore = (int)(enemyBotsWithinRange[idx].health * SAGE_HEALTH_MULTIPLIER) + SAGE_KILL_BONUS;
@@ -209,11 +211,13 @@ public class Sage extends Unit {
                         }
                     }
                 case WATCHTOWER:
-                    if (enemyBotsWithinRange[idx].health <= enemyBotsWithinRange[idx].getType().health / 10){
-                        furyScore += (enemyBotsWithinRange[idx].health * WATCHTOWER_HEALTH_MULTIPLIER + WATCHTOWER_KILL_BONUS);
-                    }
-                    else{
-                        furyScore += (enemyBotsWithinRange[idx].health * WATCHTOWER_HEALTH_MULTIPLIER);
+                    if (enemyBotsWithinRange[idx].getMode() == RobotMode.TURRET){
+                        if (enemyBotsWithinRange[idx].health <= enemyBotsWithinRange[idx].getType().health / 10){
+                            furyScore += (enemyBotsWithinRange[idx].health * WATCHTOWER_HEALTH_MULTIPLIER + WATCHTOWER_KILL_BONUS);
+                        }
+                        else{
+                            furyScore += (enemyBotsWithinRange[idx].getType().health / 10 * WATCHTOWER_HEALTH_MULTIPLIER);
+                        }
                     }
                     if (enemyBotsWithinRange[idx].health <= 45){
                         thisAttackScore = (int)(enemyBotsWithinRange[idx].health * WATCHTOWER_HEALTH_MULTIPLIER) + WATCHTOWER_KILL_BONUS;
@@ -232,10 +236,40 @@ public class Sage extends Unit {
                             bestBotToAttackIdx = idx;
                         }
                     }
+
+                case LABORATORY:
+                    if (enemyBotsWithinRange[idx].getMode() == RobotMode.TURRET){
+                        if (enemyBotsWithinRange[idx].health <= enemyBotsWithinRange[idx].getType().health / 10){
+                            furyScore += (enemyBotsWithinRange[idx].health * LAB_HEALTH_MULTIPLIER + LAB_KILL_BONUS);
+                        }
+                        else{
+                            furyScore += (enemyBotsWithinRange[idx].getType().health / 10 * LAB_HEALTH_MULTIPLIER);
+                        }
+                    }
+                    if (enemyBotsWithinRange[idx].health <= 45){
+                        thisAttackScore = (int)(enemyBotsWithinRange[idx].health * LAB_HEALTH_MULTIPLIER) + LAB_KILL_BONUS;
+                    }
+                    else{
+                        thisAttackScore = (int)(45 * LAB_HEALTH_MULTIPLIER);
+                    }
+
+                    if (thisAttackScore > attackScore){
+                        attackScore = thisAttackScore;
+                        bestBotToAttackIdx = idx;
+                    }
+                    else if (thisAttackScore == attackScore){
+                        //tiebreak on rubble for sages
+                        if (rc.senseRubble(enemyBotsWithinRange[bestBotToAttackIdx].location) > rc.senseRubble(enemyBotsWithinRange[idx].location)){
+                            bestBotToAttackIdx = idx;
+                        }
+                    }
                 default:
                     if (enemyBotsWithinRange[idx].getType() == RobotType.MINER || enemyBotsWithinRange[idx].getType() == RobotType.BUILDER){
                         if (enemyBotsWithinRange[idx].health <= (int) (enemyBotsWithinRange[idx].getType().health * 0.22)){
                             chargeScore += (enemyBotsWithinRange[idx].health * MINER_BUILDER_HEALTH_MULTIPLIER + MINER_BUILDER_KILL_BONUS);
+                        }
+                        else{
+                            chargeScore += ((enemyBotsWithinRange[idx].getType().health * 0.22) * MINER_BUILDER_HEALTH_MULTIPLIER);
                         }
                         thisAttackScore = (int)(enemyBotsWithinRange[idx].health * MINER_BUILDER_HEALTH_MULTIPLIER) + MINER_BUILDER_KILL_BONUS;
                         if (thisAttackScore > attackScore){
