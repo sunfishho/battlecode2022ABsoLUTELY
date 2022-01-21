@@ -232,31 +232,6 @@ public class Archon extends RobotCommon{
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
             && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 10) {
-
-            //SCOUT CODE
-            // want to send two scouts, one in the two orthogonal directions to try to find the symmetry of the map
-            // if(rank == 1 && numScoutsSent < 2) { // subtype 1: SCOUT
-            //     MapLocation target = new MapLocation(0, 0);
-            //     //First scout should be sent to the horizontal reflection of the current archon.
-            //     if (numScoutsSent == 0){
-            //         target = Util.horizontalRefl(me);
-            //         System.out.println(me.x + " " + me.y);
-            //         System.out.println("MINER TARGET IS: " + target);
-            //     }
-            //     //Second scout should be sent to the vertical reflection of the current archon.
-            //     else{
-            //         target = Util.verticalRefl(me);
-            //         System.out.println(me.x + " " + me.y);
-            //         System.out.println("MINER TARGET IS: " + target);
-            //     }
-            //     numScoutsSent++;
-            //     rc.writeSharedArray(Util.getArchonMemoryBlock(rank), Util.getIntFromLocation(target) + Util.MAX_LOC);
-            //     rc.buildRobot(RobotType.MINER, dir);
-            //     rc.writeSharedArray(20, targetArchon + 1);
-            // }
-
-            //FORAGER CODE
-            //Foragers head to the closest guesses of where an enemy archon is.
             
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && rng.nextInt(2) == 1) {
@@ -418,14 +393,10 @@ public class Archon extends RobotCommon{
     public int findLocalLocation() throws GameActionException {
         // iterate through gold locations that have not been targets before
         MapLocation[] goldLocations = rc.senseNearbyLocationsWithGold(getVisionRadiusSquared());
-        for(int i = 0; i < goldLocations.length; i++) {
-            int loc = Util.moveOnLattice(Util.getIntFromLocation(goldLocations[i]));
-            if(knownMap[loc] == 0) {
-                knownMap[loc] = 5;
-                return loc;
-            }
+        if (goldLocations.length > 0) {
+            int loc = Util.moveOnLattice(Util.getIntFromLocation(goldLocations[0]));
+            return loc;
         }
-
         // iterate through lead locations that have not been targets before
         MapLocation[] leadLocations = rc.senseNearbyLocationsWithLead(getVisionRadiusSquared());
         for(int i = 0; i < leadLocations.length; i++) {

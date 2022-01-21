@@ -15,7 +15,8 @@ public class Soldier extends Unit {
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static boolean healing;
     static int health;
-
+    static boolean isPatrol;
+    static int patrollingRounds;
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
@@ -32,11 +33,22 @@ public class Soldier extends Unit {
             // target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
         }
         health = 50;
+        isPatrol = false;
+        patrollingRounds = 0;
         //do more stuff later
     }
 
     public void takeTurn() throws GameActionException {
         // Update important fields
+        if (isPatrol) {
+            patrollingRounds++;
+        }
+        if (patrollingRounds > 100) {
+            isPatrol = false;
+            if (rc.getHealth() < 12) {
+                isRetreating = true;
+            }
+        }
         healing = false;
         if (rc.getHealth() > health) {
             healing = true;
@@ -73,7 +85,7 @@ public class Soldier extends Unit {
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         // If previously not on offense and low health set target to nearest archon
-        if (rc.getHealth() < 12) {
+        if (rc.getHealth() < 12 && !isPatrol) {
             if (!isRetreating) {
                 // reset recentdists
                 recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
@@ -139,9 +151,10 @@ public class Soldier extends Unit {
                 }
 
                 if (!healing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
-                    // We can't get healed by the archon so try to move to a different archon
-                    rank = (rank % rc.getArchonCount()) + 1;
-                    archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
+                    // We can't get healed by the archon so patrol instead
+                    isPatrol = true;
+                    isRetreating = false;
+                    target = chooseRandomInitialDestination();
                 }
                 moveLowerRubble(true);
             }
@@ -309,7 +322,7 @@ public class Soldier extends Unit {
             //if no enemies, try to move to your destination
             //if sufficiently far we can probably traverse higher rubble without being too scared
             if (enemy == null && me.distanceSquaredTo(target) >= 40){
-                tryToMove(40 + loopingPenalty);
+                tryToMove(30 + loopingPenalty);
                 return;
             }
             //if not sufficiently far then we should be cautious
@@ -395,7 +408,11 @@ public class Soldier extends Unit {
         RobotInfo bestBot = enemyBotsWithinRange[0];
         // Go through list of enemies and find the one we want to attack the most
         for (RobotInfo bot: enemyBotsWithinRange) {
+            // We only want patrols to fight miners
             if (bot.getTeam() == myTeam){
+                continue;
+            }
+            if (isPatrol && bot.getType() != RobotType.MINER) {
                 continue;
             }
             // if (bot.getType() == RobotType.ARCHON && bot.getHealth() < 3 * 3 * teammateSoldiers){
@@ -406,6 +423,8 @@ public class Soldier extends Unit {
             // }
             int enemyType = 8;
             for (int j = 0; j < 7; j++) {
+
+                
                 if (bot.getType().equals(Util.attackOrder[j])) {
                     enemyType = j;
                     break;
@@ -453,7 +472,7 @@ public class Soldier extends Unit {
     public boolean tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
         if (!isRetreating) {
-            if (rc.readSharedArray(17) < 65534) {
+            if (rc.readSharedArray(17) < 65534 && !isPatrol) {
                 target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
                 targetCountdown = 0;
             }

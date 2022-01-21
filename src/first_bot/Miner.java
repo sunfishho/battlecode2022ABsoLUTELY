@@ -26,48 +26,25 @@ public class Miner extends Unit{
     }
     
     public void takeTurn() throws GameActionException {
-        isDefended = true;
-        income = 0;
-        targetCountdown++;
-        if(loopingPenalty > 50){//let's just pick a new target at this point
-            target = chooseRandomInitialDestination();
-            targetCountdown = 0;
-            loopingPenalty = 0;
-        }
-        targetCountdown++;
-        if (targetCountdown == 150){
-            target = chooseRandomInitialDestination();
-            targetCountdown = 0;
-            loopingPenalty = 0;
-        }
-        if (isRetreating) {
-            target = chooseRandomInitialDestination();
-        }
-        isRetreating = false;
-        switch(checkLoop()){
-            case 1: //cycling
-                loopingPenalty += loopingIncrement;
-                break;
-            case 2: //not cycling
-                loopingPenalty = 0;
-                break;
-            default: break;
-        }
-        
+        // Set general variables
         takeAttendance();
         me = rc.getLocation();
         round = rc.getRoundNum();
         archonLocation = nearestArchon(me);
+        isDefended = true;
+        income = 0;
+        preventLooping();
+        // We don't want miner to go back once the enemy leaves because they're probably still somewhere nearby
+        if (isRetreating) {
+            tryToWriteTarget(true);
+        }
+        isRetreating = false;
+        
         // If previously not on offense and low health set target to nearest archon
         if (rc.getHealth() < 10 && round < 200) {
             needsHeal = true;
             target = archonLocation;
-            if (isRetreating) {
-                tryToMine(0);
-            } else {
-                tryToMine(1);
-            }
-            target = archonLocation;
+            tryToMine();
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30);
                 moveLowerRubble(true);
@@ -82,15 +59,16 @@ public class Miner extends Unit{
                 return;
             }
         }
-        rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget);
+        rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget + " " + loopingPenalty);
         robotLocations = rc.senseNearbyRobots(20);
         // Sometimes we don't want to step on the target
         if (rc.canSenseLocation(target) && rc.senseRubble(target) > 30){
             tryToWriteTarget(true);
             targetCountdown = 0;
         }
-        int bytecodeBeforeMoving0 = Clock.getBytecodeNum();
-        if (observe()){
+        // If we observe enemies, compute centroid and try to run away
+        boolean observeResult = observe();
+        if (observeResult){
             int enemyCentroidx = 0;
             int enemyCentroidy = 0;
             int numEnemies = 0;
@@ -126,10 +104,18 @@ public class Miner extends Unit{
             if (numEnemies != 0){
                 enemyCentroidx = (int) ((enemyCentroidx / (numEnemies + 0.0)) + 0.5);
                 enemyCentroidy = (int) ((enemyCentroidy / (numEnemies + 0.0)) + 0.5);
-                Direction dir = retreat(new MapLocation(enemyCentroidx, enemyCentroidy));
-                if (rc.canMove(dir)) {
-                    rc.move(dir);
+                MapLocation enemyCentroid = new MapLocation(enemyCentroidx, enemyCentroidy);
+                // If too close to enemy centroid then just go back to archon
+                if (enemyCentroid.distanceSquaredTo(me) > 2) {
+                    Direction dir = retreat(enemyCentroid);
+                    if (rc.canMove(dir)) {  
+                        rc.move(dir);
+                    }
+                } else {
+                    target = archonLocation;
+                    tryToMove(20);
                 }
+                
                 tryToMine(0);
                 rc.writeSharedArray(30, rc.readSharedArray(30) + income);
                 return;
@@ -137,16 +123,13 @@ public class Miner extends Unit{
         }
         int bytecodeBeforeMoving1 = Clock.getBytecodeNum();
         observeSymmetry();
-        if (isRetreating) {
-            tryToMine(0);
-        } else {
-            tryToMine(1);
-        }
+        tryToMine();
         /*
         // If there are mineable neighboring deposits, don't keep moving
         */
         // System.out.println(round + ": " + rc.getID() + ", " + Clock.getBytecodeNum());
         if (rc.canSenseLocation(target)) {
+            
             RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
             for (RobotInfo robot : robotAtTarget) {
                 if (robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID()) {
@@ -162,20 +145,15 @@ public class Miner extends Unit{
             // System.out.println(rc.getID() + ": finding new location");
             tryToWriteTarget(true);
         }
-        
+        // If we've reached the target try to find a new target
         if(!reachedTarget && me.equals(target)) {
             // somehow stay still if lots of lead
             reachedTarget = true;
             tryToWriteTarget(true);
         }
-        int bytecodeBeforeMoving3 = Clock.getBytecodeNum();
         tryToMove(30 + loopingPenalty);
         tryToWriteTarget(false);
-        if (isRetreating) {
-            tryToMine(0);
-        } else {
-            tryToMine(1);
-        }
+        tryToMine();
         rc.writeSharedArray(30, rc.readSharedArray(30) + income);
         // rc.setIndicatorString(bytecodeBeforeMoving0 + " " + bytecodeBeforeMoving1 + " " + bytecodeBeforeMoving2 + " " + bytecodeBeforeMoving3);
     }
@@ -268,6 +246,14 @@ public class Miner extends Unit{
         }
         return;
     }
+    // Tries to mine by determining how much lead we want to leave
+    public void tryToMine() throws GameActionException {
+        if (isRetreating) {
+            tryToMine(0);
+        } else {
+            tryToMine(1);
+        }
+    }
 
     // Tries to mine in 3x3 square around Miner, and leaves leaveLead amount at location
     public void tryToMine(int leaveLead) throws GameActionException {
@@ -322,6 +308,30 @@ public class Miner extends Unit{
             rc.move(dir);
             
             me = rc.getLocation();
+        }
+    }
+    // Check if we're cycling, and if so we want to increase rubble tolerance
+    public void preventLooping() throws GameActionException {
+        targetCountdown++;
+        if(loopingPenalty > 50){//let's just pick a new target at this point
+        tryToWriteTarget(true);
+            targetCountdown = 0;
+            loopingPenalty = 0;
+        }
+        targetCountdown++;
+        if (targetCountdown == 150){
+            tryToWriteTarget(true);
+            targetCountdown = 0;
+            loopingPenalty = 0;
+        }
+        switch(checkLoop()){
+            case 1: //cycling
+                loopingPenalty += loopingIncrement;
+                break;
+            case 2: //not cycling
+                loopingPenalty = 0;
+                break;
+            default: break;
         }
     }
 }

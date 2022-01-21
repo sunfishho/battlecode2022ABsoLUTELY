@@ -147,7 +147,7 @@ public abstract class RobotCommon {
 
     // Choose a random location on the grid
     public static MapLocation chooseRandomInitialDestination(){
-        Random rng2 = new Random(rc.getRoundNum());
+        Random rng2 = new Random(rc.getRoundNum() + rc.getID() * 1000);
         // int id = rng2.nextInt(2*Util.WIDTH + 2*Util.HEIGHT - 4);
         // int x_coord = -1;
         // int y_coord = -1;
