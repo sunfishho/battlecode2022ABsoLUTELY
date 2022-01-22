@@ -53,9 +53,9 @@ public class Util {
     };
 
     static final RobotType[] attackOrder = new RobotType[] {
+        RobotType.WATCHTOWER,
         RobotType.SAGE,
         RobotType.SOLDIER,
-        RobotType.WATCHTOWER,
         RobotType.LABORATORY,
         RobotType.BUILDER,
         RobotType.ARCHON,
@@ -64,9 +64,9 @@ public class Util {
 
     static int getAttackPref(RobotType rt){
         switch (rt){
-            case SAGE: return 0;
-            case SOLDIER: return 1;
-            case WATCHTOWER: return 2;
+            case WATCHTOWER: return 0;
+            case SAGE: return 1;
+            case SOLDIER: return 2;
             case LABORATORY: return 3;
             case BUILDER: return 4;
             case ARCHON: return 5;
