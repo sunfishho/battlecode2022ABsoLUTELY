@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0122;
 
 import battlecode.common.*;
 import java.util.*;
@@ -148,7 +148,6 @@ public class Archon extends RobotCommon{
             numBuilders++;
         } 
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-            if (rc.getRoundNum() < 10) System.out.println(numMinersAlive + " " + alarm + " " + prevIncome);
             // System.out.println("SOLDIER on round " + round);
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(52, targetArchon + 1);

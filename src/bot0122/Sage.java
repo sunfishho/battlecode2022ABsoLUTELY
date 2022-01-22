@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0122;
 
 import battlecode.common.*;
 
@@ -22,10 +22,10 @@ public class Sage extends Unit {
             target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
         }
         else if (rc.readSharedArray(49) == 65534){
-            target = new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
+            target = chooseRandomInitialDestination();
         }
         else{
-            target = new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
+            target = Util.getLocationFromInt(rc.readSharedArray(53)/3 - 1);
         }
         isHealing = false;
         health = RobotType.SAGE.health;
