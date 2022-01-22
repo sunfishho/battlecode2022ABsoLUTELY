@@ -34,10 +34,10 @@ public abstract class RobotCommon {
     public static void takeAttendance() throws GameActionException{
         switch(rc.getType()){
             case MINER: 
-                rc.writeSharedArray(28, rc.readSharedArray(28) + 1);
+                rc.writeSharedArray(60, rc.readSharedArray(60) + 1);
                 return;
             case SOLDIER: 
-                rc.writeSharedArray(29, rc.readSharedArray(29) + 1);
+                rc.writeSharedArray(61, rc.readSharedArray(61) + 1);
                 return;
             default: return;
         }
@@ -175,6 +175,8 @@ public abstract class RobotCommon {
 
     //if we view array as 1024 bits rather than 64 ints
 
+    /*
+
     public static void updateBitsSharedArray(int st, int en, long x) throws GameActionException{//write x into bits in [st, en]
         for(int i = 0; i < 64; i++){
             int a = 16 * i;
@@ -233,11 +235,13 @@ public abstract class RobotCommon {
         return res;
     }
 
+     */
+
     //if we're near a midline or the center, use rubble counts to try and infer symmetry
     public void observeSymmetry() throws GameActionException{
         MapLocation[] squaresToCheck = new MapLocation[]{rc.getLocation()};
         int length = squaresToCheck.length;
-        int currentSymmetry = rc.readSharedArray(16);//current knowledge about symmetry
+        int currentSymmetry = rc.readSharedArray(Util.getSymmetryMemoryBlock());//current knowledge about symmetry
         //horizontal symmetry not ruled out yet
         if(currentSymmetry % 2 == 1) {
             for (int i = 0; i < length; i++) {

@@ -139,7 +139,7 @@ public class Builder extends Unit {
             }
             
             rc.setIndicatorString("Trying to build lab");
-            rc.writeSharedArray(31, 1);
+            rc.writeSharedArray(63, 1);
             Direction bestDir = Direction.CENTER;
             int bestRubble = 101;
             
@@ -158,7 +158,7 @@ public class Builder extends Unit {
             if (rc.getTeamLeadAmount(us) >= 180 && rc.canBuildRobot(RobotType.LABORATORY, bestDir) && Util.labElig(me.add(bestDir))) {
                 rc.buildRobot(RobotType.LABORATORY, bestDir);
                 labBuilder = false;
-                rc.writeSharedArray(31, 2);
+                rc.writeSharedArray(63, 2);
                 target = archonLocation;
                 return true;
             }

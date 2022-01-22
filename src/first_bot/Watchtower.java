@@ -75,8 +75,8 @@ public class Watchtower extends RobotCommon{
     }
     //note: maybe should order based on distance to Archon if it's a defensive soldier.
     public void tryToMove() throws GameActionException {
-        if (rc.readSharedArray(17) != 65535) {
-            initialDestination = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+        if (rc.readSharedArray(49) != 65535) {
+            initialDestination = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
         }
         Direction dir = Direction.CENTER;
         if (initialDestination != null){

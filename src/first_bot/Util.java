@@ -11,18 +11,18 @@ public class Util {
             0-3: location of Archons 1-4
             4-15: memory blocks
             16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
-            17: alarm indicator (location) + 10000 * rank
-            18: alarm indicator (round)
-            19: number of foragers sent in total
-            20: targetted archon for robot production mod numArchons
-            21: slot to let archons know to save for soldiers
-            22: warning for locating archon
-            23: round number + 2000 * number of archons processed (used for updating rank numbers when archons die)
-            24-27: archon initial locations
-            28: each miner increments this every turn, last archon resets it to 0
-            29: each soldier increments this every turn, last archon resets it to 0
-            30: income
-            31: ready to build lab (0 if no, 1 if yes, 2 if built already)
+            49: alarm indicator (location) + 10000 * rank
+            50: alarm indicator (round)
+            51: number of foragers sent in total
+            52: targetted archon for robot production mod numArchons
+            53: slot to let archons know to save for soldiers
+            54: warning for locating archon
+            55: round number + 2000 * number of archons processed (used for updating rank numbers when archons die)
+            56-59: archon initial locations
+            60: each miner increments this every turn, last archon resets it to 0
+            61: each soldier increments this every turn, last archon resets it to 0
+            62: income
+            63: ready to build lab (0 if no, 1 if yes, 2 if built already)
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value

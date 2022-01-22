@@ -20,16 +20,16 @@ public class Soldier extends Unit {
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
         //if no alarm:
-        if (rc.readSharedArray(17) < 65534){
-            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+        if (rc.readSharedArray(49) < 65534){
+            target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
         }
-        else if (rc.readSharedArray(17) == 65534){
+        else if (rc.readSharedArray(49) == 65534){
             target = chooseRandomInitialDestination();
             
         }
         else{
             target = chooseRandomInitialDestination();
-            // target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
+            // target = Util.getLocationFromInt(rc.readSharedArray(53)/3 - 1);
         }
         health = 50;
         patrollingRounds = 0;
@@ -398,8 +398,8 @@ public class Soldier extends Unit {
     public boolean tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
         if (!isRetreating) {
-            if (rc.readSharedArray(17) < 65534 && mode != 2) {
-                target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+            if (rc.readSharedArray(49) < 65534 && mode != 2) {
+                target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
                 targetCountdown = 0;
             }
             else if (target == null){
