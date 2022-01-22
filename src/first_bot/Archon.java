@@ -61,6 +61,7 @@ public class Archon extends RobotCommon{
             writeArchonLocations();
             for (int archonIndex = 0; archonIndex < numArchonsAtStart; archonIndex++){
                 archonLocationsInitial[archonIndex] = Util.getLocationFromInt(rc.readSharedArray(archonIndex));
+                rc.writeSharedArray(56 + archonIndex, Util.getIntFromLocation(archonLocationsInitial[archonIndex]));
             }
         }
         int alarm = rc.readSharedArray(50);
