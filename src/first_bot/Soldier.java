@@ -13,9 +13,8 @@ public class Soldier extends Unit {
     static int loopingIncrement = 1;//experiment w/ this maybe idk
     static int loopingPenalty;//increase rubble tolerance if we're stuck in a loop
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
-    static boolean healing;
     static int health;
-    static boolean isPatrol;
+    static int mode; // 0 for normal, 1 for healing, 2 for patrolling
     static int patrollingRounds;
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
@@ -33,29 +32,24 @@ public class Soldier extends Unit {
             // target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
         }
         health = 50;
-        isPatrol = false;
-        if (rng.nextInt(10) == 100) {
-            isPatrol = true;
-            target = chooseRandomInitialDestination();
-        }
         patrollingRounds = 0;
+        mode = 0;
         //do more stuff later
     }
 
     public void takeTurn() throws GameActionException {
         // Update important fields
-        if (isPatrol) {
+        if (mode == 2) {
             patrollingRounds++;
         }
         if (patrollingRounds > 100) {
-            isPatrol = false;
+            mode = 0;
             if (rc.getHealth() < 12) {
                 isRetreating = true;
             }
         }
-        healing = false;
         if (rc.getHealth() > health) {
-            healing = true;
+            mode = 1;
         }
         health = rc.getHealth();
         switch(checkLoop()){
@@ -89,7 +83,7 @@ public class Soldier extends Unit {
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         // If previously not on offense and low health set target to nearest archon
-        if (rc.getHealth() < 12 && !isPatrol) {
+        if (rc.getHealth() < 12 && mode != 2) {
             if (!isRetreating) {
                 // reset recentdists
                 recentDists = new int[] {200, 200, 200, 200, 200, 200, 200, 200};
@@ -142,12 +136,7 @@ public class Soldier extends Unit {
             attack();
             target = archonLocation;
             if (me.distanceSquaredTo(archonLocation) > 13) {
-                if (healing){
-                    tryToMove(50 + 5 * loopingPenalty);
-                }
-                else{
-                    tryToMove(30 + 5 * loopingPenalty);
-                }
+                tryToMove(30 + 5 * loopingPenalty);
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
                     if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health - 10) {
@@ -155,9 +144,9 @@ public class Soldier extends Unit {
                     }
                 }
 
-                if (!healing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
+                if (mode != 1 && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
                     // We can't get healed by the archon so patrol instead
-                    isPatrol = true;
+                    mode = 2;
                     isRetreating = false;
                     target = chooseRandomInitialDestination();
                 }
@@ -165,7 +154,7 @@ public class Soldier extends Unit {
             }
             if (rc.getHealth() > 45) {
                 isRetreating = false;
-                
+                mode = 0;                
                 target = chooseRandomInitialDestination();
             } else {
                 return;
@@ -180,6 +169,7 @@ public class Soldier extends Unit {
             tryToMove(30 + loopingPenalty);
             moveLowerRubble(false);
             attack();
+            rc.setIndicatorString("target: " + target.x + ", " + target.y + "; " + isRetreating + ", " + mode);
             return;
         }
         enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
@@ -189,10 +179,11 @@ public class Soldier extends Unit {
         // This whole block only runs if we have an enemy in sight
         tryToAttackAndMove();
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        rc.setIndicatorString("target: " + target.x + ", " + target.y + "; " + isRetreating);
+        rc.setIndicatorString("target: " + target.x + ", " + target.y + "; " + isRetreating + ", " + mode);
     }
     //right now this only deals with soldier skirmishes + archon stuff
     public void tryToAttackAndMove() throws GameActionException{
+        
         rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
         //1 on 1 combat
         if (numEnemies == 1 && teammateSoldiers < 0.000001){
@@ -347,7 +338,7 @@ public class Soldier extends Unit {
             if (bot.getTeam() == myTeam){
                 continue;
             }
-            if (isPatrol && bot.getType() != RobotType.MINER) {
+            if (mode == 2 && bot.getType() != RobotType.MINER) {
                 continue;
             }
             // if (bot.getType() == RobotType.ARCHON && bot.getHealth() < 3 * 3 * teammateSoldiers){
@@ -407,7 +398,7 @@ public class Soldier extends Unit {
     public boolean tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
         if (!isRetreating) {
-            if (rc.readSharedArray(17) < 65534 && !isPatrol) {
+            if (rc.readSharedArray(17) < 65534 && mode != 2) {
                 target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
                 targetCountdown = 0;
             }
