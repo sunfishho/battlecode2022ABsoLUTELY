@@ -23,7 +23,6 @@ public class Miner extends Unit{
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
         super(rc, r, loc);
         isRetreating = false;
-        tryToWriteTarget(true);
         needsHeal = false;
         target = chooseRandomInitialDestination();
     }
