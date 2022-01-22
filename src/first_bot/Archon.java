@@ -37,11 +37,11 @@ public class Archon extends RobotCommon{
         numScoutsSent = 0;
         //initialize the Symmetry bit
         rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 3);
-        rc.writeSharedArray(17, 65535);
-        rc.writeSharedArray(18, 65535);
-        rc.writeSharedArray(19, 100);
-        rc.writeSharedArray(20, 0);
-        rc.writeSharedArray(23, 0);
+        rc.writeSharedArray(49, 65535);
+        rc.writeSharedArray(50, 65535);
+        rc.writeSharedArray(51, 100);
+        rc.writeSharedArray(52, 0);
+        rc.writeSharedArray(55, 0);
         
         // for Util to know the width/height of the map
         Util.WIDTH = rc.getMapWidth();
@@ -63,8 +63,8 @@ public class Archon extends RobotCommon{
                 archonLocationsInitial[archonIndex] = Util.getLocationFromInt(rc.readSharedArray(archonIndex));
             }
         }
-        int alarm = rc.readSharedArray(18);
-        int prevIncome = rc.readSharedArray(30);
+        int alarm = rc.readSharedArray(50);
+        int prevIncome = rc.readSharedArray(62);
 
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
@@ -73,12 +73,12 @@ public class Archon extends RobotCommon{
         }
         
         if (rank == rc.getArchonCount()) {
-            rc.writeSharedArray(30, 0);
+            rc.writeSharedArray(62, 0);
         }
 
         if (alarm < round - 3) {
-            rc.writeSharedArray(18, 65535);
-            rc.writeSharedArray(17, 65535);
+            rc.writeSharedArray(50, 65535);
+            rc.writeSharedArray(49, 65535);
         }
 
         //archon relocation code
@@ -104,7 +104,7 @@ public class Archon extends RobotCommon{
             }
         }
 
-        if (rc.readSharedArray(31) == 1) {
+        if (rc.readSharedArray(63) == 1) {
             heal();
             rc.setIndicatorString("Halting production for labs");
             return;
@@ -116,13 +116,13 @@ public class Archon extends RobotCommon{
     public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException{ 
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
-            rc.writeSharedArray(20, targetArchon + 1);
+            rc.writeSharedArray(52, targetArchon + 1);
         }
         if (round > 150 && numBuilders == 0 && rank == 1 && incomeSum > 150) {
             if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 numBuilders++;
                 rc.buildRobot(RobotType.BUILDER, dir);
-                rc.writeSharedArray(20, targetArchon + 1);
+                rc.writeSharedArray(52, targetArchon + 1);
             } 
         }
         if (rc.canBuildRobot(RobotType.MINER, dir) 
@@ -139,17 +139,17 @@ public class Archon extends RobotCommon{
                 dir = pf.findBestDirection(Util.getLocationFromInt(minerReport), 60);
             }
             rc.buildRobot(RobotType.MINER, dir);
-            rc.writeSharedArray(20, targetArchon + 1);
+            rc.writeSharedArray(52, targetArchon + 1);
         }
         else if (numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             rc.buildRobot(RobotType.BUILDER, dir);
-            rc.writeSharedArray(20, targetArchon + 1);
+            rc.writeSharedArray(52, targetArchon + 1);
             numBuilders++;
         } 
         else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             // System.out.println("SOLDIER on round " + round);
             rc.buildRobot(RobotType.SOLDIER, dir);
-            rc.writeSharedArray(20, targetArchon + 1);
+            rc.writeSharedArray(52, targetArchon + 1);
         }
     }
 
@@ -227,40 +227,40 @@ public class Archon extends RobotCommon{
         round = rc.getRoundNum();
         numArchons = rc.getArchonCount();
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
-        targetArchon = rc.readSharedArray(20);
+        targetArchon = rc.readSharedArray(52);
 
         // update ranks of archons if changed
 
 
 
-        int rankInfo = rc.readSharedArray(23);
+        int rankInfo = rc.readSharedArray(55);
         int newRankInfo = rankInfo + 2000;
         if (rankInfo % 2000 != round) {
             newRankInfo = round + 2000;
         }
-        rc.writeSharedArray(23, newRankInfo);
+        rc.writeSharedArray(55, newRankInfo);
         rank = newRankInfo / 2000;
         int loc = Util.getIntFromLocation(me);
         rc.writeSharedArray(rank-1, loc);
-        numMinersAlive = rc.readSharedArray(28);
-        numSoldiersAlive = rc.readSharedArray(29);
+        numMinersAlive = rc.readSharedArray(60);
+        numSoldiersAlive = rc.readSharedArray(61);
 
         if (rank == numArchons){
-            rc.writeSharedArray(28, 0);
-            rc.writeSharedArray(29, 0);
-            rc.writeSharedArray(30, 0);
+            rc.writeSharedArray(60, 0);
+            rc.writeSharedArray(61, 0);
+            rc.writeSharedArray(62, 0);
         }
         // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
 
         if (changeOppLeadCount > 51 && round > 10){
-            rc.writeSharedArray(17, 65534);
+            rc.writeSharedArray(49, 65534);
         }
     }
 
     public void doRoundOneDuties() throws GameActionException{
         relocCheck();
-        if(rc.readSharedArray(16) == 0){//array initialized to 0, but we should initialize to 7
-            rc.writeSharedArray(16, 7);
+        if(rc.readSharedArray(Util.getSymmetryMemoryBlock()) == 0){//array initialized to 0, but we should initialize to 7
+            rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 7);
         }
         observeSymmetry();
         vortexRndNums = new ArrayList<Integer>();
@@ -345,13 +345,13 @@ public class Archon extends RobotCommon{
             switch (robot.getType()){
                     case MINER: continue;
                     case ARCHON: 
-                        rc.writeSharedArray(22, Util.getIntFromLocation(robot.location));
-                        rc.writeSharedArray(17, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                        rc.writeSharedArray(18, round);
+                        rc.writeSharedArray(54, Util.getIntFromLocation(robot.location));
+                        rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
+                        rc.writeSharedArray(50, round);
                         return true;
                     default:
-                        rc.writeSharedArray(17, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                        rc.writeSharedArray(18, round);
+                        rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
+                        rc.writeSharedArray(50, round);
                         return true;
                 }
         }

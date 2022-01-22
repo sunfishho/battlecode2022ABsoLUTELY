@@ -127,7 +127,7 @@ public class Miner extends Unit{
                 else{
                     tryToMine(1);
                 }
-                rc.writeSharedArray(30, rc.readSharedArray(30) + income);
+                rc.writeSharedArray(62, rc.readSharedArray(62) + income);
                 return;
             }
         }
@@ -162,7 +162,7 @@ public class Miner extends Unit{
         tryToMove(30 + loopingPenalty);
         tryToWriteTarget(false);
         tryToMine();
-        rc.writeSharedArray(30, rc.readSharedArray(30) + income);
+        rc.writeSharedArray(62, rc.readSharedArray(62) + income);
         // rc.setIndicatorString(bytecodeBeforeMoving0 + " " + bytecodeBeforeMoving1 + " " + bytecodeBeforeMoving2 + " " + bytecodeBeforeMoving3);
     }
 

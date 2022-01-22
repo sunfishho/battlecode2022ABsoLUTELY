@@ -18,14 +18,14 @@ public class Sage extends Unit {
         super(rc, r, loc);
         isRetreating = false;
         //if no alarm:
-        if (rc.readSharedArray(17) < 65534){
-            target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+        if (rc.readSharedArray(49) < 65534){
+            target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
         }
-        else if (rc.readSharedArray(17) == 65534){
+        else if (rc.readSharedArray(49) == 65534){
             target = chooseRandomInitialDestination();
         }
         else{
-            target = Util.getLocationFromInt(rc.readSharedArray(21)/3 - 1);
+            target = Util.getLocationFromInt(rc.readSharedArray(53)/3 - 1);
         }
         isHealing = false;
         health = RobotType.SAGE.health;
@@ -318,8 +318,8 @@ public class Sage extends Unit {
     public boolean tryToMove(int avgRubble) throws GameActionException {
         rc.setIndicatorString("trying to move: " + target);
         if (!isRetreating) {
-            if (rc.readSharedArray(17) < 65534) {
-                target = Util.getLocationFromInt(rc.readSharedArray(17) % 10000);
+            if (rc.readSharedArray(49) < 65534) {
+                target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
                 targetCountdown = 0;
             }
             else if (target == null){
