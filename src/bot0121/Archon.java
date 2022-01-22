@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0121;
 
 import battlecode.common.*;
 import java.util.*;
@@ -22,7 +22,6 @@ public class Archon extends RobotCommon{
     static int numBuilders;
     static int incomeSum;
     static Queue<Integer> incomeQueue;
-    MapLocation archonTarget;
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -60,8 +59,6 @@ public class Archon extends RobotCommon{
         targetArchon = rc.readSharedArray(20);
 
         // update ranks of archons if changed
-
-
 
         int rankInfo = rc.readSharedArray(23);
         int newRankInfo = rankInfo + 2000;
@@ -106,6 +103,27 @@ public class Archon extends RobotCommon{
                 archonLocationsInitial[archonIndex] = Util.getLocationFromInt(rc.readSharedArray(archonIndex));
             }
         }
+
+
+        if (rc.readSharedArray(22) != 0 && round >= 2){
+            /*
+            MapLocation archonSpotted = Util.getLocationFromInt(rc.readSharedArray(22));
+            for (int archonIndex = 0; archonIndex < numArchonsAtStart; archonIndex++){
+                if (archonSpotted.equals(Util.horizontalRefl(archonLocationsInitial[archonIndex]))){
+                    //then symmetry = 1
+                    rc.writeSharedArray(16, 1);
+                }
+                else if (archonSpotted.equals(Util.verticalRefl(archonLocationsInitial[archonIndex]))){
+                    rc.writeSharedArray(16, 2);
+                }
+                else if (archonSpotted.equals(Util.centralRefl(archonLocationsInitial[archonIndex]))){
+                    rc.writeSharedArray(16, 4);
+                }
+                //if none of these are true for any archonIndex we apparently have an archon walker on our hands
+            }
+             */
+        }
+        // System.out.println("Symmetry: " + rc.readSharedArray(16));
         int alarm = rc.readSharedArray(18);
         int prevIncome = rc.readSharedArray(30);
         incomeQueue.add(prevIncome);
@@ -122,52 +140,35 @@ public class Archon extends RobotCommon{
             relocCheck();
             vortexCnt++;
         }
-
-        if (alarm < round - 3) {
-            rc.writeSharedArray(18, 65535);
-            rc.writeSharedArray(17, 65535);
-        }
-
-        //archon relocation code
-        if (round % 10 == 0 && round > 20 && rc.senseRubble(me) > 20 && (archonTarget == null || (!me.equals(archonTarget)))){
-            MapLocation bestLocation = me;
-            int rubbleHere = rc.senseRubble(me);
-            int bestRubble = rubbleHere;
-            int lowestDistance = 10000;
-            for (MapLocation mL : rc.getAllLocationsWithinRadiusSquared(me, 34)){
-                if (rc.senseRubble(mL)/10 < bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2){
-                    bestLocation = mL;
-                    bestRubble = rc.senseRubble(mL);
-                    lowestDistance = Util.distanceMetric(me, mL);
-                }
-                else if (rc.senseRubble(mL) / 10 == bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2 && lowestDistance > Util.distanceMetric(me, mL))    {
-                    bestLocation = mL;
-                    bestRubble = rc.senseRubble(mL);
-                    lowestDistance = Util.distanceMetric(me, mL);
-                }
-            }
-            archonTarget = bestLocation;
-            if (rc.canTransform() && rc.getMode() == RobotMode.TURRET){
+        /*if(round == 500) {
+            rc.disintegrate();
+        }*/
+        /*
+        if(me != home && rc.getMode() == RobotMode.TURRET){//we should try moving to home
+            if(rc.canTransform()) {
                 rc.transform();
-            }
-        }
-
-        if (archonTarget != null && !archonTarget.equals(me)){
-            if (rc.getMode() == RobotMode.TURRET && rc.canTransform()){
-                rc.transform();
-            }
-            else if (rc.getMode() == RobotMode.TURRET){
                 return;
             }
-            tryToMove(70);
         }
-        else if (archonTarget != null && archonTarget.equals(me)){
-            if (rc.getMode() == RobotMode.PORTABLE){
-                if (rc.canTransform()){
-                    rc.transform();
-                }
+        else if(me != home){//already on the move, keep going to home
+            //Pathfinding pf = new Pathfinding(this);
+            System.out.println("ON THE MOVE: " + me.x + " " + me.y + " ---> " + home.x + " " + home.y + rc.getRoundNum());
+            Direction dir = me.directionTo(home);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+                me = rc.getLocation();
+            }
+            return;
+        }
+        else if(me == home && rc.getMode() == RobotMode.PORTABLE){//we're home, settle down
+            if(rc.canTransform()){
+                rc.transform();
+                return;
             }
         }
+      
+        Archon Relocation is way too slow for now oops
+         */
         // rc.setIndicatorString(rank + " " + newRankInfo);
 
         // Try to pick a direction to build in based on nearby rubble counts
@@ -191,6 +192,10 @@ public class Archon extends RobotCommon{
             }
         }
 
+        if (alarm < round - 3) {
+            rc.writeSharedArray(18, 65535);
+            rc.writeSharedArray(17, 65535);
+        }
 
 
         // System.out.println("ALARM: " + alarm);
@@ -420,18 +425,5 @@ public class Archon extends RobotCommon{
         }
         rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.getIntFromLocation(me));
         return ret;
-    }
-
-    public void tryToMove(int avgRubble) throws GameActionException {
-        MapLocation target = archonTarget;
-        Direction dir = Direction.CENTER;
-        dir = pf.findBestDirection(target, avgRubble);
-        
-        if (rc.canMove(dir)) {
-            rc.setIndicatorLine(me, me.translate(dir.dx, dir.dy), 0, 100, 0);
-            rc.move(dir);
-            
-            me = rc.getLocation();
-        }
     }
 }
