@@ -148,12 +148,12 @@ public class Sage extends Unit {
         final int MINER_BUILDER_KILL_BONUS = 10;
         final int SOLDIER_KILL_BONUS = 20;
         final int SAGE_KILL_BONUS = 40;
-        final int WATCHTOWER_KILL_BONUS = 60;
+        final int WATCHTOWER_KILL_BONUS = 80;
         final int LAB_KILL_BONUS = 100;
         final double MINER_BUILDER_HEALTH_MULTIPLIER = 0.5;
         final double SOLDIER_HEALTH_MULTIPLIER = 1;
         final double SAGE_HEALTH_MULTIPLIER = 2;
-        final double WATCHTOWER_HEALTH_MULTIPLIER = 2.5;
+        final double WATCHTOWER_HEALTH_MULTIPLIER = 4;
         final double LAB_HEALTH_MULTIPLIER = 4;
         int thisAttackScore;
 

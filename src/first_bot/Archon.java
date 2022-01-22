@@ -129,7 +129,7 @@ public class Archon extends RobotCommon{
         }
 
         //archon relocation code
-        if (round % 10 == 0 && round > 20 && rc.senseRubble(me) > 20 && (archonTarget == null || (!me.equals(archonTarget)))){
+        if (round % 10 == 0 && round >= 20 && rc.senseRubble(me) > 20 && (archonTarget == null || (!me.equals(archonTarget)))){
             MapLocation bestLocation = me;
             int rubbleHere = rc.senseRubble(me);
             int bestRubble = rubbleHere;

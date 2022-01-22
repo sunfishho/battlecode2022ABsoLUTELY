@@ -25,6 +25,7 @@ public class Miner extends Unit{
         isRetreating = false;
         tryToWriteTarget(true);
         needsHeal = false;
+        target = chooseRandomInitialDestination();
     }
     
     public void takeTurn() throws GameActionException {
@@ -350,7 +351,7 @@ public class Miner extends Unit{
             return new MapLocation(x_coord, y_coord);
         }
         else{
-            int whichMiddleOrCorner = rng2.nextInt(5);
+            int whichMiddleOrCorner = rng2.nextInt(10);
             switch(whichMiddleOrCorner){
                 case 0: return new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
                 case 1: return new MapLocation(0, 0);
@@ -358,9 +359,7 @@ public class Miner extends Unit{
                 case 3: return new MapLocation(Util.WIDTH - 1, Util.HEIGHT - 1);
                 case 4: return new MapLocation(Util.WIDTH - 1, 0);
                 default:
-                    int x_coord = rng2.nextInt(rc.getMapWidth() - 2) + 1;
-                    int y_coord = rng2.nextInt(rc.getMapHeight() - 2) + 1;
-                    return new MapLocation(x_coord, y_coord);
+                    return new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
             }
         }
     }

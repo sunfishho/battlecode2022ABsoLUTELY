@@ -20,6 +20,8 @@ public strictfp class RobotPlayer {
      **/
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
+        Util.HEIGHT = rc.getMapHeight();
+        Util.WIDTH = rc.getMapWidth();
         RobotCommon robot;
         if(rc.getType() == RobotType.ARCHON) {
             robot = new Archon(rc, -1, rc.getLocation());
