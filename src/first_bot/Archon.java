@@ -52,53 +52,10 @@ public class Archon extends RobotCommon{
     }
 
     public void takeTurn() throws GameActionException {
-        nearbyTeammatesWithinHealingRange = rc.senseNearbyRobots(20, myTeam);
-        // update variables
-        round = rc.getRoundNum();
-        numArchons = rc.getArchonCount();
-        teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
-        targetArchon = rc.readSharedArray(20);
-
-        // update ranks of archons if changed
-
-
-
-        int rankInfo = rc.readSharedArray(23);
-        int newRankInfo = rankInfo + 2000;
-        if (rankInfo % 2000 != round) {
-            newRankInfo = round + 2000;
-        }
-        rc.writeSharedArray(23, newRankInfo);
-        rank = newRankInfo / 2000;
-        int loc = Util.getIntFromLocation(me);
-        rc.writeSharedArray(rank-1, loc);
-        numMinersAlive = rc.readSharedArray(28);
-        numSoldiersAlive = rc.readSharedArray(29);
-        // System.out.println(round + " " + numMinersAlive + " " + numSoldiersAlive);
-        if (rank == numArchons){
-            rc.writeSharedArray(28, 0);
-            rc.writeSharedArray(29, 0);
-            rc.writeSharedArray(30, 0);
-        }
-        // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
-
-        if (changeOppLeadCount > 51 && round > 10){
-            rc.writeSharedArray(17, 65534);
-        }
+        initializeEachTurn();
 
         if(round == 1) {
-            relocCheck();
-            if(rc.readSharedArray(16) == 0){//array initialized to 0, but we should initialize to 7
-                rc.writeSharedArray(16, 7);
-            }
-            observeSymmetry();
-            vortexRndNums = new ArrayList<Integer>();
-            AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
-            for (AnomalyScheduleEntry a : sched){
-                if(a.anomalyType == AnomalyType.VORTEX){
-                    vortexRndNums.add(a.roundNumber);
-                }
-            }
+            doRoundOneDuties();
         }
         if(round == 2){
             writeArchonLocations();
@@ -108,6 +65,7 @@ public class Archon extends RobotCommon{
         }
         int alarm = rc.readSharedArray(18);
         int prevIncome = rc.readSharedArray(30);
+
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
         if (incomeQueue.size() > 50) {
@@ -118,84 +76,20 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(30, 0);
         }
 
-        if(vortexCnt < vortexRndNums.size() && round == vortexRndNums.get(vortexCnt) + 1 && alarm == 65535){//vortex --> we might have been moved onto lots of rubble
-            relocCheck();
-            vortexCnt++;
-        }
-
         if (alarm < round - 3) {
             rc.writeSharedArray(18, 65535);
             rc.writeSharedArray(17, 65535);
         }
 
         //archon relocation code
-        if (round % 10 == 0 && round >= 20 && rc.senseRubble(me) > 20 && (archonTarget == null || (!me.equals(archonTarget)))){
-            MapLocation bestLocation = me;
-            int rubbleHere = rc.senseRubble(me);
-            int bestRubble = rubbleHere;
-            int lowestDistance = 10000;
-            for (MapLocation mL : rc.getAllLocationsWithinRadiusSquared(me, 34)){
-                if (rc.senseRubble(mL)/10 < bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2){
-                    bestLocation = mL;
-                    bestRubble = rc.senseRubble(mL);
-                    lowestDistance = Util.distanceMetric(me, mL);
-                }
-                else if (rc.senseRubble(mL) / 10 == bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2 && lowestDistance > Util.distanceMetric(me, mL))    {
-                    bestLocation = mL;
-                    bestRubble = rc.senseRubble(mL);
-                    lowestDistance = Util.distanceMetric(me, mL);
-                }
-            }
-            archonTarget = bestLocation;
-            if (rc.canTransform() && rc.getMode() == RobotMode.TURRET){
-                rc.transform();
-            }
-        }
+        checkIfArchonShouldRelocate();
 
-        if (archonTarget != null && !archonTarget.equals(me)){
-            if (rc.getMode() == RobotMode.TURRET && rc.canTransform()){
-                rc.transform();
-            }
-            else if (rc.getMode() == RobotMode.TURRET){
-                return;
-            }
-            tryToMove(70);
-        }
-        else if (archonTarget != null && archonTarget.equals(me)){
-            if (rc.getMode() == RobotMode.PORTABLE){
-                if (rc.canTransform()){
-                    rc.transform();
-                }
-            }
-        }
+        moveIfArchonHasTarget();
         // rc.setIndicatorString(rank + " " + newRankInfo);
 
-        // Try to pick a direction to build in based on nearby rubble counts
-        int minRubbleCount = 101;
-        Direction dir = Direction.CENTER;
-        for (int i = 0; i < Util.directions.length; i++) {
-            Direction temp = Util.directions[i];
-            if (rc.canBuildRobot(RobotType.BUILDER, temp)) {
-                int rubble = rc.senseRubble(rc.getLocation().add(temp));
-                if (rubble < minRubbleCount) {
-                    minRubbleCount = rubble;
-                    dir = temp;
-                }
-            }
-        }
-        if (rng.nextInt(4) == 1) {
-            dir = Util.directions[rng.nextInt(Util.directions.length)];
-            for (int i = 0; i < 15; i++) {
-                if (rc.canBuildRobot(RobotType.BUILDER, dir)) break;
-                dir = Util.directions[rng.nextInt(Util.directions.length)];
-            }
-        }
-
-
-
-        // System.out.println("ALARM: " + alarm);
-        // System.out.println("LOCATION: " + rc.readSharedArray(17));
-        boolean enemiesNear = observe();
+        
+        Direction dir = findDirectionToBuildIn();
+        
         if (alarm == 65535 || alarm == 65534) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 heal();
@@ -209,11 +103,17 @@ public class Archon extends RobotCommon{
                 }
             }
         }
+
         if (rc.readSharedArray(31) == 1) {
             heal();
             rc.setIndicatorString("Halting production for labs");
             return;
         }
+        tryToBuildStuff(dir, alarm, prevIncome);
+        heal();
+    }
+
+    public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException{ 
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
             rc.writeSharedArray(20, targetArchon + 1);
@@ -251,7 +151,125 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(20, targetArchon + 1);
         }
-        heal();
+    }
+
+    public void moveIfArchonHasTarget() throws GameActionException{
+        if (archonTarget != null && !archonTarget.equals(me)){
+            if (rc.getMode() == RobotMode.TURRET && rc.canTransform()){
+                rc.transform();
+            }
+            else if (rc.getMode() == RobotMode.TURRET){
+                return;
+            }
+            tryToMove(70);
+        }
+        else if (archonTarget != null && archonTarget.equals(me)){
+            if (rc.getMode() == RobotMode.PORTABLE){
+                if (rc.canTransform()){
+                    rc.transform();
+                }
+            }
+        }
+    }
+
+    public Direction findDirectionToBuildIn() throws GameActionException{
+        // Try to pick a direction to build in based on nearby rubble counts
+        int minRubbleCount = 101;
+        Direction dir = Direction.CENTER;
+        for (int i = 0; i < Util.directions.length; i++) {
+            Direction temp = Util.directions[i];
+            if (rc.canBuildRobot(RobotType.BUILDER, temp)) {
+                int rubble = rc.senseRubble(rc.getLocation().add(temp));
+                if (rubble < minRubbleCount) {
+                    minRubbleCount = rubble;
+                    dir = temp;
+                }
+            }
+        }
+        if (rng.nextInt(4) == 1) {
+            dir = Util.directions[rng.nextInt(Util.directions.length)];
+            for (int i = 0; i < 15; i++) {
+                if (rc.canBuildRobot(RobotType.BUILDER, dir)) break;
+                dir = Util.directions[rng.nextInt(Util.directions.length)];
+            }
+        }
+        return dir;
+    }
+
+    public void checkIfArchonShouldRelocate() throws GameActionException{
+        if (round % 10 == 0 && round >= 20 && rc.senseRubble(me) > 20 && (archonTarget == null || (!me.equals(archonTarget)))){
+            MapLocation bestLocation = me;
+            int rubbleHere = rc.senseRubble(me);
+            int bestRubble = rubbleHere;
+            int lowestDistance = 10000;
+            for (MapLocation mL : rc.getAllLocationsWithinRadiusSquared(me, 34)){
+                if (rc.senseRubble(mL)/10 < bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2){
+                    bestLocation = mL;
+                    bestRubble = rc.senseRubble(mL);
+                    lowestDistance = Util.distanceMetric(me, mL);
+                }
+                else if (rc.senseRubble(mL) / 10 == bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2 && lowestDistance > Util.distanceMetric(me, mL))    {
+                    bestLocation = mL;
+                    bestRubble = rc.senseRubble(mL);
+                    lowestDistance = Util.distanceMetric(me, mL);
+                }
+            }
+            archonTarget = bestLocation;
+            if (rc.canTransform() && rc.getMode() == RobotMode.TURRET){
+                rc.transform();
+            }
+        }
+    }
+
+    public void initializeEachTurn() throws GameActionException{
+        nearbyTeammatesWithinHealingRange = rc.senseNearbyRobots(20, myTeam);
+        // update variables
+        round = rc.getRoundNum();
+        numArchons = rc.getArchonCount();
+        teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
+        targetArchon = rc.readSharedArray(20);
+
+        // update ranks of archons if changed
+
+
+
+        int rankInfo = rc.readSharedArray(23);
+        int newRankInfo = rankInfo + 2000;
+        if (rankInfo % 2000 != round) {
+            newRankInfo = round + 2000;
+        }
+        rc.writeSharedArray(23, newRankInfo);
+        rank = newRankInfo / 2000;
+        int loc = Util.getIntFromLocation(me);
+        rc.writeSharedArray(rank-1, loc);
+        numMinersAlive = rc.readSharedArray(28);
+        numSoldiersAlive = rc.readSharedArray(29);
+
+        if (rank == numArchons){
+            rc.writeSharedArray(28, 0);
+            rc.writeSharedArray(29, 0);
+            rc.writeSharedArray(30, 0);
+        }
+        // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
+
+        if (changeOppLeadCount > 51 && round > 10){
+            rc.writeSharedArray(17, 65534);
+        }
+    }
+
+    public void doRoundOneDuties() throws GameActionException{
+        relocCheck();
+        if(rc.readSharedArray(16) == 0){//array initialized to 0, but we should initialize to 7
+            rc.writeSharedArray(16, 7);
+        }
+        observeSymmetry();
+        vortexRndNums = new ArrayList<Integer>();
+        AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
+        for (AnomalyScheduleEntry a : sched){
+            if(a.anomalyType == AnomalyType.VORTEX){
+                vortexRndNums.add(a.roundNumber);
+            }
+        }
     }
 
     public boolean heal() throws GameActionException {
