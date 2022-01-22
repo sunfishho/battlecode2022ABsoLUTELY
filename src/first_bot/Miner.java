@@ -19,6 +19,7 @@ public class Miner extends Unit{
     static boolean isDefended; // If the miner is close to a soldier our team or does not need defense
     static int friendlyMinerCount = 1;
     static int enemyMinerCount = 0;
+    static MapLocation prevTarget = null;
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
         super(rc, r, loc);
@@ -46,6 +47,7 @@ public class Miner extends Unit{
         if (rc.getHealth() < 10 && round < 200) {
             needsHeal = true;
             target = archonLocation;
+            prevTarget = null;
             tryToMine();
             if (me.distanceSquaredTo(archonLocation) > 13) {
                 tryToMove(30);
@@ -118,6 +120,7 @@ public class Miner extends Unit{
                         rc.move(dir);
                     }
                 } else {
+                    prevTarget = target;
                     target = archonLocation;
                     tryToMove(20);
                 }
@@ -201,6 +204,9 @@ public class Miner extends Unit{
             }
 
             if(change) {
+                if (prevTarget == null) {
+                    prevTarget = target;
+                }
                 target = bestLoc;
                 targetCountdown = 0;
                 if (target.equals(me) == false) {
@@ -229,6 +235,9 @@ public class Miner extends Unit{
             }
 
             if(change) {
+                if (prevTarget == null) {
+                    prevTarget = target;
+                }
                 target = bestLoc;
                 targetCountdown = 0;
                 if (target.equals(me) == false) {
@@ -239,10 +248,20 @@ public class Miner extends Unit{
         }
         // Choose random location
         if (resetLoc || reachedTarget) {
+            if (prevTarget != null) {
+                target = prevTarget;
+                prevTarget = null;
+                targetCountdown = 0;
+                if (target.equals(me) == false) {
+                    reachedTarget = false;
+                }
+                return;
+            }
             MapLocation bestLoc = chooseRandomInitialDestination();
             while (bestLoc.distanceSquaredTo(archonLocation) <= 10) {
                 bestLoc = chooseRandomInitialDestination();
             }
+            
             target = bestLoc;
             targetCountdown = 0;
             if (target.equals(me) == false) {
