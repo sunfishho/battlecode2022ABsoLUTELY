@@ -12,7 +12,9 @@ public class Sage extends Unit {
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static boolean isHealing;
     static int health;
-
+    static int loopingPenalty = 0;//increase rubble tolerance if we're stuck in a loop
+    static int loopingIncrement = 1;
+    static int targetCountdown = 0;
 
     public Sage(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
@@ -37,6 +39,8 @@ public class Sage extends Unit {
         health = rc.getHealth();
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+            loopingPenalty = 0;
         }
         if (rc.getActionCooldownTurns() < 20 && !isHealing) {
             isRetreating = false;
@@ -50,10 +54,14 @@ public class Sage extends Unit {
                 isRetreating = true;
             }
             target = archonLocation;
+            targetCountdown = 0;
+            loopingPenalty = 0;
         }
         // If high health, leave archon
         if (isHealing) {
             target = archonLocation;
+            targetCountdown = 0;
+            loopingPenalty = 0;
             tryToAttack();
             if (me.distanceSquaredTo(archonLocation) > 20) {
                 tryToMove(50);
@@ -76,11 +84,33 @@ public class Sage extends Unit {
                 isHealing = false;
                 isRetreating = false;
                 target = chooseRandomInitialDestination();
+                targetCountdown = 0;
+                loopingPenalty = 0;
             } else {
                 return;
             }
         }
         observeSymmetry();
+        targetCountdown++;
+        switch(checkLoop()){
+            case 1: //cycling
+                loopingPenalty += loopingIncrement;
+                break;
+            case 2: //not cycling
+                loopingPenalty = 0;
+                break;
+            default: break;
+        }
+        if(loopingPenalty > 70){//let's just pick a new target at this point
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+            loopingPenalty = 0;
+        }
+        if(targetCountdown == 200) {//just pick a new target, taking too long
+            target = chooseRandomInitialDestination();
+            targetCountdown = 0;
+            loopingPenalty = 0;
+        }
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
         numEnemies = 0;
@@ -108,7 +138,7 @@ public class Sage extends Unit {
             }
         }
         if (numEnemies == 0){
-            tryToMove(15);
+            tryToMove(15 + loopingPenalty);
             moveLowerRubble(false);
             tryToAttack();
             rc.setIndicatorString("target1: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
@@ -127,6 +157,8 @@ public class Sage extends Unit {
             }
         } else {
             target = enemySoldierCentroid;
+            targetCountdown = 0;
+            loopingPenalty = 0;
             tryToMove(20);
         }
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
@@ -320,7 +352,6 @@ public class Sage extends Unit {
         if (!isRetreating) {
             if (rc.readSharedArray(49) < 65534) {
                 target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
-                targetCountdown = 0;
             }
             else if (target == null){
                 target = chooseRandomInitialDestination();
