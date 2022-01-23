@@ -231,8 +231,6 @@ public class Miner extends MinerFarmer{
                 if (target.equals(me) == false) {
                     reachedTarget = false;
                 }
-                // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
-                // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), gold, turn " + round);
                 return;
             }
         }

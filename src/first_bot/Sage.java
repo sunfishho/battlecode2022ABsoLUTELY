@@ -141,12 +141,24 @@ public class Sage extends Unit {
                         numTeammates++;
                     }
                     break;
+                case WATCHTOWER:
+                    if (bot.getMode() == RobotMode.PORTABLE){
+                        continue;
+                    }
+                    if (bot.getTeam() != myTeam){
+                        MapLocation enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemySoldierCentroidy += enemyLoc.y;
+                        enemySoldierCentroidx += enemyLoc.x;
+                    }
+                    else{
+                        numTeammates++;
+                    }
                 default:
             }
         }
 
         if (shouldSendMinerHere(isRetreating, numTeammates, numEnemies)){
-            System.out.println("SENDING MINERS TO: " + me);
             rc.writeSharedArray(57, Util.getIntFromLocation(me));
         }
 
