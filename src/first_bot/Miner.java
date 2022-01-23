@@ -20,7 +20,6 @@ public class Miner extends Unit{
     static int friendlyMinerCount = 1;
     static int enemyMinerCount = 0;
     static MapLocation prevTarget = null;
-
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
         super(rc, r, loc);
         isRetreating = false;
@@ -140,13 +139,21 @@ public class Miner extends Unit{
         */
         // System.out.println(round + ": " + rc.getID() + ", " + Clock.getBytecodeNum());
         if (rc.canSenseLocation(target)) {
-            
             RobotInfo[] robotAtTarget = rc.senseNearbyRobots(target, 2, rc.getTeam());
             for (RobotInfo robot : robotAtTarget) {
                 if (robot.getType().equals(RobotType.MINER) && robot.getID() < rc.getID()) {
                     tryToWriteTarget(true);
                     break;
                 }
+            }
+        }
+
+
+        if (rc.readSharedArray(57) != 0 && !isRetreating){
+            MapLocation newPotentialTarget = Util.getLocationFromInt(rc.readSharedArray(57));
+            if (Util.distanceMetric(me, newPotentialTarget) < 20){
+                prevTarget = target;
+                target = newPotentialTarget;
             }
         }
 
@@ -157,6 +164,18 @@ public class Miner extends Unit{
         }
         // If we've reached the target try to find a new target
         if(!reachedTarget && me.equals(target)) {
+            if (Util.getIntFromLocation(target) == rc.readSharedArray(57)){
+                RobotInfo[] nearbyRobots = rc.senseNearbyRobots(8);
+                int teammateMinerCount = 0;
+                for (RobotInfo nearbyBot : nearbyRobots){
+                    if (nearbyBot.getType() == RobotType.MINER){
+                        teammateMinerCount++;
+                    }
+                }
+                if (teammateMinerCount > 3){
+                    rc.writeSharedArray(57, 0);
+                }
+            }
             // somehow stay still if lots of lead
             reachedTarget = true;
             tryToWriteTarget(true);
@@ -167,6 +186,8 @@ public class Miner extends Unit{
         rc.writeSharedArray(62, rc.readSharedArray(62) + income);
         // rc.setIndicatorString(bytecodeBeforeMoving0 + " " + bytecodeBeforeMoving1 + " " + bytecodeBeforeMoving2 + " " + bytecodeBeforeMoving3);
     }
+
+
 
     // When exploring, the Miner should write the furthest gold/lead location it can see to shared array.
     // Returns if target was written

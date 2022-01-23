@@ -2,7 +2,8 @@ package first_bot;
 import battlecode.common.*;
 
 public class Unit extends RobotCommon {
-    static double teammateSoldiers, enemySoldiers, numEnemies;
+    static double teammateSoldiers, enemySoldiers;
+    static int numTeammates, numEnemies;
     static boolean isRetreating; // whether retreating
     static MapLocation target; 
     static int targetCountdown = 0;

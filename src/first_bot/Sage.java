@@ -24,10 +24,10 @@ public class Sage extends Unit {
             target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
         }
         else if (rc.readSharedArray(49) == 65534){
-            target = new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
+            target = chooseRandomInitialDestination();
         }
         else{
-            target = new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
+            target = chooseRandomInitialDestination();
         }
         isHealing = false;
         health = RobotType.SAGE.health;
@@ -113,6 +113,7 @@ public class Sage extends Unit {
         }
         nearbyBotsSeen = rc.senseNearbyRobots(visionRadius);
         enemyBotsWithinRange = rc.senseNearbyRobots(actionRadius, enemyTeam);
+        numTeammates = 0;
         numEnemies = 0;
         double enemySoldierCentroidx = 0;
         double enemySoldierCentroidy = 0;
@@ -125,6 +126,9 @@ public class Sage extends Unit {
                         enemySoldierCentroidy += enemyLoc.y;
                         enemySoldierCentroidx += enemyLoc.x;
                     }
+                    else{
+                        numTeammates++;
+                    }
                     break;
                 case SAGE:
                     if (bot.getTeam() != myTeam) {
@@ -133,10 +137,19 @@ public class Sage extends Unit {
                         enemySoldierCentroidy += enemyLoc.y;
                         enemySoldierCentroidx += enemyLoc.x;
                     }
+                    else{
+                        numTeammates++;
+                    }
                     break;
                 default:
             }
         }
+
+        if (shouldSendMinerHere(isRetreating, numTeammates, numEnemies)){
+            System.out.println("SENDING MINERS TO: " + me);
+            rc.writeSharedArray(57, Util.getIntFromLocation(me));
+        }
+
         if (numEnemies == 0){
             tryToMove(15 + loopingPenalty);
             moveLowerRubble(false);
@@ -448,5 +461,6 @@ public class Sage extends Unit {
     public int targetSoldiers() throws GameActionException {//counts number of enemey soldiers that we can attack
         return soldiersInRange(25);//sage attacking radius
     }
+
     
 }

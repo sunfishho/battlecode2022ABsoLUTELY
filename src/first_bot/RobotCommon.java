@@ -292,6 +292,20 @@ public abstract class RobotCommon {
         }
     }
 
+    public boolean shouldSendMinerHere(boolean isRetreating, int numTeammates, int numEnemies) throws GameActionException{
+        if (isRetreating && numTeammates < 5 && numEnemies == 0){
+            return false;
+        }
+        MapLocation[] leadNearby = rc.senseNearbyLocationsWithLead(8);
+        int leadCounter = 0;
+        for (MapLocation leadLoc : leadNearby){
+            if (rc.senseLead(leadLoc) > 1){
+                leadCounter++;
+            }
+        }
+        // maybe tune later
+        return (leadCounter > 8);
+    }
     
 
 }

@@ -9,7 +9,7 @@ public class Soldier extends Unit {
     static boolean onOffense, onDefense;
     static RobotInfo[] nearbyBotsSeen, enemyBotsWithinRange;
     static double teammateSoldiers, enemySoldiers;
-    static int numEnemies;
+    static int numEnemies, numTeammates;
     static int loopingIncrement = 1;//experiment w/ this maybe idk
     static int loopingPenalty;//increase rubble tolerance if we're stuck in a loop
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
@@ -24,7 +24,7 @@ public class Soldier extends Unit {
             target = Util.getLocationFromInt(rc.readSharedArray(49) % 10000);
         }
         else if (rc.readSharedArray(49) == 65534){
-            target = new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
+            target = chooseRandomInitialDestination();
             
         }
         else{
@@ -99,6 +99,7 @@ public class Soldier extends Unit {
         teammateSoldiers = 0;
         enemySoldiers = 0;
         numEnemies = 0;
+        numTeammates = 0;
         double enemySoldierCentroidx = 0;
         double enemySoldierCentroidy = 0;
         for (RobotInfo bot : nearbyBotsSeen){
@@ -107,6 +108,7 @@ public class Soldier extends Unit {
                     double weight = (bot.getHealth()/3 + 5) / (10 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
                     if (bot.getTeam() == myTeam){
                         teammateSoldiers += weight;
+                        numTeammates++;
                     }
                     else{
                         enemySoldiers += weight;
@@ -131,6 +133,10 @@ public class Soldier extends Unit {
                     break;
                 default:
             }
+        }
+        if (shouldSendMinerHere(isRetreating, numTeammates, numEnemies)){
+            System.out.println("SENDING MINERS TO: " + me);
+            rc.writeSharedArray(57, Util.getIntFromLocation(me));
         }
         if (isRetreating) {
             attack();

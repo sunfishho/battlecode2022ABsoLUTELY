@@ -15,7 +15,7 @@ public class Util {
             50: alarm indicator (round)
             51: number of foragers sent in total
             52: targetted archon for robot production mod numArchons
-            53: NOT USED
+            53: Used for soldier detection of lead
             54: warning for locating archon
             55: round number + 2000 * number of archons processed (used for updating rank numbers when archons die)
             56-59: archon initial locations
