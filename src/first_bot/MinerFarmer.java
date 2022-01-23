@@ -56,6 +56,8 @@ public class MinerFarmer extends Unit {
         MapLocation[] nearby = rc.getAllLocationsWithinRadiusSquared(me, 5);
         for(MapLocation l : nearby) {
             if(rc.onTheMap(l) && rc.senseLead(l) == 0) {
+                RobotInfo r = rc.senseRobotAtLocation(l);
+                if(r != null && r.getType() == RobotType.ARCHON) continue;
                 res = l;
                 break;
             }
@@ -73,11 +75,12 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final int A = -100, B = -10, C = 1, D = 1;
+        final double A = -100, B = -10, C = 3, D = 1;
         int visibleMiners; // # of miners visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         int distArchon; // distance to archon
         int leadAround; // number of squares in radius 2 around with lead > 1
+        boolean isArchon;
         Direction dir;
 
         public LocationInfo(MapLocation loc) throws GameActionException {
@@ -96,11 +99,11 @@ public class MinerFarmer extends Unit {
             dir = me.directionTo(loc);
         }
 
-        public int compareTo(LocationInfo other) throws GameActionException {
+        public double compareTo(LocationInfo other) throws GameActionException {
             return getRating() - other.getRating();
         }
 
-        public int getRating() throws GameActionException {
+        public double getRating() throws GameActionException {
             return A * visibleMiners + B * rubble + C * leadAround + D * distArchon;
         }
     }

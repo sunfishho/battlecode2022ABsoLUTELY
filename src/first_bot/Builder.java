@@ -51,6 +51,7 @@ public class Builder extends Unit {
     }
 
     public void sacrificeTurn() throws GameActionException {
+        rc.setIndicatorString(" " + target);
         // Disintegrate if you are on a no-lead location
         if(rc.senseLead(me) == 0) {
             rc.disintegrate();
@@ -91,13 +92,16 @@ public class Builder extends Unit {
 
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final int A = 100, B = -1, C = -1;
+        final int A = -50, B = 100, C = -1, D = -1, E = -1000;
+        int visibleUnits; // # of units visible in radius LOOK_RADIUS
         int distArchon; // distance to archon
-        int leadAround; // number of squares in radius 2 around with lead > 1
+        int leadAround; // amount of lead in radius 2
         int rubble; // rubble at location
+        int leadAt; // lead at location
         Direction dir;
 
         public LocationInfo(MapLocation loc) throws GameActionException {
+            visibleUnits = rc.senseNearbyRobots(loc, LOOK_RADIUS, rc.getTeam()).length;
             distArchon = loc.distanceSquaredTo(archonLocation);
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
@@ -106,6 +110,7 @@ public class Builder extends Unit {
                 }
             }
             rubble = rc.senseRubble(loc);
+            leadAt = rc.senseLead(loc);
             dir = me.directionTo(loc);
         }
 
@@ -114,7 +119,7 @@ public class Builder extends Unit {
         }
 
         public int getRating() throws GameActionException {
-            return A * distArchon + B * leadAround + C * rubble;
+            return A * visibleUnits + B * distArchon + C * leadAround + D * rubble + E * leadAt;
         }
     }
 
