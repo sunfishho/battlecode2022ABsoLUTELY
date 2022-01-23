@@ -55,7 +55,7 @@ public class Builder extends Unit {
         if(rc.senseLead(me) == 0) {
             rc.disintegrate();
         }
-        if(me.equals(target) || rc.sense) {
+        if(me.equals(target)) {
             // If you're at the target and there's already lead, look for a no-lead location around and path towards there
             MapLocation[] nearby = rc.getAllLocationsWithinRadiusSquared(me, 20);
             for(MapLocation l : nearby) {
