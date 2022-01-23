@@ -137,7 +137,7 @@ public class Miner extends MinerFarmer{
                     tryToMove(20);
                 }
                 //only do scorched earth if we're far enough from our Archon
-                if (me.distanceSquaredTo(nearestArchon(me)) > 100) tryToMine(0);
+                if (me.distanceSquaredTo(nearestArchon(me)) > Math.max(Util.HEIGHT / 2, Util.WIDTH / 2)) tryToMine(0);
                 else{
                     tryToMine(1);
                 }
