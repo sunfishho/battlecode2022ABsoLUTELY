@@ -11,6 +11,7 @@ public class Builder extends Unit {
     public static boolean isSacrifice = false;
     public static boolean labBuilder = true;
     public static boolean labBuilt = false;
+    boolean hasTarget;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
@@ -51,75 +52,87 @@ public class Builder extends Unit {
     }
 
     public void sacrificeTurn() throws GameActionException {
-        rc.setIndicatorString(" " + target);
-        // Disintegrate if you are on a no-lead location
+        rc.setIndicatorString("" + target);
+        if(Util.getIntFromLocation(target) == 0) hasTarget = false;
+        // Disintegrate if you are on a no-lead location or in a loop
         if(rc.senseLead(me) == 0) {
+            rc.writeSharedArray(48, rc.readSharedArray(48) + 1);
             rc.disintegrate();
         }
-        if(me.equals(target)) {
-            // If you're at the target and there's already lead, look for a no-lead location around and path towards there
-            MapLocation[] nearby = rc.getAllLocationsWithinRadiusSquared(me, 20);
-            for(MapLocation l : nearby) {
-                if(rc.onTheMap(l) && rc.senseLead(l) == 0) {
-                    target = l;
-                    break;
-                }
-            }
-            // If you can't find a no-lead location around, try to move outwards
+
+        while(hasTarget) {
             if(me.equals(target)) {
-                LocationInfo best = new LocationInfo(me.add(me.directionTo(archonLocation)));
-                for(int dx = -1; dx <= 1; dx++) {
-                    for(int dy = -1; dy <= 1; dy++) {
-                        MapLocation loc = new MapLocation(me.x + dx, me.y + dy);
-                        if(!rc.onTheMap(loc)) continue;
-                        LocationInfo there = new LocationInfo(loc);
-                        if(best.compareTo(there) < 0) best = there;
+                // If you're at the target and there's already lead, look for a no-lead location around and path towards there
+                MapLocation[] nearby = rc.getAllLocationsWithinRadiusSquared(me, 20);
+                for(MapLocation l : nearby) {
+                    if(rc.onTheMap(l) && rc.senseLead(l) == 0) {
+                        target = l;
+                        break;
                     }
                 }
-                if(rc.canMove(best.dir)) {
-                    rc.move(best.dir);
+                hasTarget = false;
+            }
+            else {
+                // Otherwise, path towards the target
+                Direction dir = pf.findBestDirection(target, 50);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
                     me = rc.getLocation();
                 }
+                break;
             }
         }
-        // Move towards target
-        Direction dir = pf.findBestDirection(target, 50);
-        if (rc.canMove(dir)) {
-            rc.move(dir);
+
+        // If you have no target, greedily move in best direction
+        LocationInfo best = new LocationInfo(me);
+        for(int dx = -1; dx <= 1; dx++) {
+            for(int dy = -1; dy <= 1; dy++) {
+                MapLocation loc = new MapLocation(me.x + dx, me.y + dy);
+                if(!rc.onTheMap(loc)) continue;
+                LocationInfo there = new LocationInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+        }
+        if(best.dir == Direction.CENTER) rc.disintegrate();
+        if(rc.canMove(best.dir)) {
+            rc.move(best.dir);
             me = rc.getLocation();
         }
     }
 
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final int A = -50, B = 100, C = -1, D = -1, E = -1000;
+        final double A = -50, B = 100, C = -100, D = -1, E = 10000, F = -100000;
         int visibleUnits; // # of units visible in radius LOOK_RADIUS
-        int distArchon; // distance to archon
-        int leadAround; // amount of lead in radius 2
+        double distArchon; // distance to archon
+        int leadAround; // number of squares with lead in radius 2
         int rubble; // rubble at location
-        int leadAt; // lead at location
+        int noLead; // does location have no lead, 0 = false, 1 = true
+        int isArchon; // is it the archon, 0 = false, 1 = true
         Direction dir;
 
         public LocationInfo(MapLocation loc) throws GameActionException {
             visibleUnits = rc.senseNearbyRobots(loc, LOOK_RADIUS, rc.getTeam()).length;
-            distArchon = loc.distanceSquaredTo(archonLocation);
+            distArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
-                    MapLocation l = new MapLocation(loc.x + dx, loc.y + dy);
-                    if(rc.onTheMap(l) && rc.senseLead(l) > 0) leadAround += rc.senseLead(l);
+                    MapLocation l = me.translate(dx, dy);
+                    if(rc.onTheMap(l) && rc.senseLead(l) > 0) leadAround++;
                 }
             }
             rubble = rc.senseRubble(loc);
-            leadAt = rc.senseLead(loc);
+            RobotInfo r = rc.senseRobotAtLocation(loc);
+            if(rc.senseLead(loc) == 0 && r == null) noLead = 1; 
+            if(r != null && r.getType() == RobotType.ARCHON) isArchon = 1;
             dir = me.directionTo(loc);
         }
 
-        public int compareTo(LocationInfo other) throws GameActionException {
+        public double compareTo(LocationInfo other) throws GameActionException {
             return getRating() - other.getRating();
         }
 
-        public int getRating() throws GameActionException {
-            return A * visibleUnits + B * distArchon + C * leadAround + D * rubble + E * leadAt;
+        public double getRating() throws GameActionException {
+            return A * visibleUnits + B * distArchon + C * leadAround + D * rubble + E * noLead + F * isArchon;
         }
     }
 

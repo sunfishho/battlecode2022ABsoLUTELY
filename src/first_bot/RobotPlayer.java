@@ -71,7 +71,8 @@ public strictfp class RobotPlayer {
                             robot = new MinerFarmer(rc, rank, archonLocation);
                             break;
                         default:
-                            robot = new Miner(rc, rank, archonLocation, target);
+                            if(readValue == 0) robot = new Miner(rc, rank, archonLocation);
+                            else robot = new Miner(rc, rank, archonLocation, target);
                             break;
                     }
                     break;

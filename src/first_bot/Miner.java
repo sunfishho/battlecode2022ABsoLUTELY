@@ -20,11 +20,19 @@ public class Miner extends Unit{
     static int friendlyMinerCount = 1;
     static int enemyMinerCount = 0;
     static MapLocation prevTarget = null;
-    public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
+
+    public Miner(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
         isRetreating = false;
         needsHeal = false;
         target = chooseRandomInitialDestination();
+    }
+
+    public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
+        super(rc, r, loc);
+        isRetreating = false;
+        needsHeal = false;
+        target = t;
     }
     
     public void takeTurn() throws GameActionException {
@@ -61,7 +69,7 @@ public class Miner extends Unit{
                 return;
             }
         }
-        rc.setIndicatorString("MINER: " + me + " " + archonLocation + " " + target + " " + reachedTarget + " " + loopingPenalty);
+        rc.setIndicatorString("MINER: " + archonLocation + " " + target + " " + loopingPenalty);
         robotLocations = rc.senseNearbyRobots(20);
         // Sometimes we don't want to step on the target
         if (rc.canSenseLocation(target) && rc.senseRubble(target) > 30){

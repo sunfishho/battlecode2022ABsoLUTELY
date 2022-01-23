@@ -9,9 +9,8 @@ public class Archon extends RobotCommon{
 
     // static RobotController rc;
     static MapLocation home;
-    static int[] knownMap = new int[62 * 60];
-    static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon, numBuildersSacrificed;
-    static boolean builtMinerLast;
+    static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon, numSacrifices;
+    static boolean builtMinerLast, localMiner;
     static ArrayList<Integer> vortexRndNums;
     int numArchonsAtStart;
     static int vortexCnt = 0;
@@ -59,7 +58,6 @@ public class Archon extends RobotCommon{
             doRoundOneDuties();
         }
         if(round == 2){
-            writeArchonLocations();
             for (int archonIndex = 0; archonIndex < numArchonsAtStart; archonIndex++){
                 archonLocationsInitial[archonIndex] = Util.getLocationFromInt(rc.readSharedArray(archonIndex));
                 rc.writeSharedArray(56 + archonIndex, Util.getIntFromLocation(archonLocationsInitial[archonIndex]));
@@ -115,71 +113,66 @@ public class Archon extends RobotCommon{
         heal();
     }
 
-    public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException{ 
+    public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException { 
         int writeLocation = Util.getArchonMemoryBlock(rank);
-
+        boolean built = false;
+        
+        // Build sages always if you can
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
+            built = true;
+        }
+        // Build miners up to limit before round 100
+        if(!built && round < 100 && rc.canBuildRobot(RobotType.MINER, dir) 
+            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (alarm == 65535 || round % 13 == 0) && prevIncome < 10) {
+            int targetLoc = findLocalLocation();
+            if(targetLoc != -1 && !localMiner) { // we have local lead locations
+                rc.writeSharedArray(writeLocation, targetLoc);
+                dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
+                localMiner = true;
+            }
+            else { // create a farmer
+                rc.writeSharedArray(writeLocation, 0);
+            }
+            rc.buildRobot(RobotType.MINER, dir);
+            built = true;
+        }
+        // Build one laboratory builder with sufficient income after round 100
+        if (!built && round > 100 && numBuilders == 0 && rank == 1 && incomeSum > 150 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+            numBuilders++;
+            rc.buildRobot(RobotType.BUILDER, dir);
+            built = true;
+        }
+        // Build soldiers when there is a specific alarm
+        if(!built && alarm != 65535 && alarm != 65534 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+            rc.buildRobot(RobotType.SOLDIER, dir);
+            built = true;
+        }
+        // Build builders when there is an abundance of lead
+        if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+            rc.buildRobot(RobotType.BUILDER, dir);
+            built = true;
+            numBuilders++;
+        }
+        // Build miner-farmers if you've sacrificed at least ten builders
+        if(!built && numSacrifices % 10 == 0 && !builtMinerLast && rc.canBuildRobot(RobotType.MINER, dir)) {
+            rc.writeSharedArray(writeLocation, Util.MAX_LOC); // subtype 1
+            rc.buildRobot(RobotType.MINER, dir);
+            builtMinerLast = true;
+            built = true;
+        }
+        // Build builder-sacrifices as default case
+        if(!built && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+            int minerReport = rc.readSharedArray(writeLocation + 1);
+            rc.writeSharedArray(writeLocation, Util.MAX_LOC + minerReport); // subtype 1
+            rc.writeSharedArray(writeLocation + 1, 0);
+            rc.buildRobot(RobotType.BUILDER, dir);
+            builtMinerLast = false;
+        }
+
+        // Update the target archon value
+        if(built) {
             rc.writeSharedArray(52, targetArchon + 1);
-        }
-        if (round > 150 && numBuilders == 0 && rank == 1 && incomeSum > 150) {
-            if (rc.canBuildRobot(RobotType.BUILDER, dir)) {
-                numBuilders++;
-                rc.buildRobot(RobotType.BUILDER, dir);
-                rc.writeSharedArray(52, targetArchon + 1);
-            } 
-        }
-        if(round < 100) {
-            if (rc.canBuildRobot(RobotType.MINER, dir) 
-            && (((numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120)) && (alarm == 65535 || round % 13 == 0))) && prevIncome < 10) {
-                int targetLoc = findLocalLocation();
-                if(targetLoc != -1 && rng.nextInt(2) == 1) {
-                    rc.writeSharedArray(Util.getArchonMemoryBlock(rank), targetLoc);
-                    dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
-                }
-                else {
-                    int minerReport = findMinerReport();
-                        rc.writeSharedArray(Util.getArchonMemoryBlock(rank), minerReport);
-                    dir = pf.findBestDirection(Util.getLocationFromInt(minerReport), 60);
-                }
-                rc.buildRobot(RobotType.MINER, dir);
-                rc.writeSharedArray(52, targetArchon + 1);
-            }
-            else if (numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
-                rc.buildRobot(RobotType.BUILDER, dir);
-                rc.writeSharedArray(52, targetArchon + 1);
-                numBuilders++;
-            }
-            else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                if (rc.getRoundNum() < 10) System.out.println(numMinersAlive + " " + alarm + " " + prevIncome);
-                // System.out.println("SOLDIER on round " + round);
-                rc.buildRobot(RobotType.SOLDIER, dir);
-                rc.writeSharedArray(52, targetArchon + 1);
-                builtMinerLast = false;
-            }
-        }
-        else {
-            if(numBuildersSacrificed % 20 == 0 && !builtMinerLast && rc.canBuildRobot(RobotType.MINER, dir)) {
-                rc.writeSharedArray(writeLocation, Util.MAX_LOC); // subtype 1
-                rc.buildRobot(RobotType.MINER, dir);
-                builtMinerLast = true;
-            }
-            else if(rc.canBuildRobot(RobotType.BUILDER, dir)) {
-                numBuildersSacrificed++;
-                int minerReport = rc.readSharedArray(writeLocation + 1);
-                if(minerReport == 0) return;
-                rc.writeSharedArray(writeLocation, Util.MAX_LOC + minerReport); // subtype 1
-                rc.writeSharedArray(writeLocation + 1, 0);
-                rc.buildRobot(RobotType.BUILDER, dir);
-                builtMinerLast = false;
-            }
-            else if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                if (rc.getRoundNum() < 10) System.out.println(numMinersAlive + " " + alarm + " " + prevIncome);
-                // System.out.println("SOLDIER on round " + round);
-                rc.buildRobot(RobotType.SOLDIER, dir);
-                rc.writeSharedArray(52, targetArchon + 1);
-                builtMinerLast = false;
-            }
         }
     }
 
@@ -258,6 +251,7 @@ public class Archon extends RobotCommon{
         numArchons = rc.getArchonCount();
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
         targetArchon = rc.readSharedArray(52);
+        numSacrifices = rc.readSharedArray(48);
 
         // update ranks of archons if changed
 
@@ -280,7 +274,6 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(61, 0);
             rc.writeSharedArray(62, 0);
         }
-        // establishRank and relocCheck on turn 1, writeArchonLocations on turn 2
 
         if (changeOppLeadCount > 51 && round > 10){
             rc.writeSharedArray(49, 65534);
@@ -356,17 +349,6 @@ public class Archon extends RobotCommon{
         changeOppLeadCount = currentOppLeadCount - oppLeadCount;
         oppLeadCount = currentOppLeadCount;
         return changeOppLeadCount;
-    }
-
-    // Writes Archon locations to knownMap
-    public void writeArchonLocations() throws GameActionException {
-        int loc = Util.getIntFromLocation(me);
-        for(int i = 0; i < 4; i++) {
-            if(rc.readSharedArray(i) != 0) {
-                knownMap[rc.readSharedArray(i)] = i + 1;
-                archonLocationsInitial[i] = Util.getLocationFromInt(rc.readSharedArray(i));
-            }
-        }
     }
 
     // Check if any aggressive enemy archons nearby
@@ -456,18 +438,6 @@ public class Archon extends RobotCommon{
             }
         }
         return -1;
-    }
-
-    // Returns new location reported by miner, if not new, report default (me)
-    public int findMinerReport() throws GameActionException {
-        int locFromMiner = rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1);
-        int ret = Util.getIntFromLocation(me);
-        if(knownMap[locFromMiner] == 0) {
-            knownMap[locFromMiner] = 5;
-            ret = locFromMiner;
-        }
-        rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.getIntFromLocation(me));
-        return ret;
     }
 
     public void tryToMove(int avgRubble) throws GameActionException {
