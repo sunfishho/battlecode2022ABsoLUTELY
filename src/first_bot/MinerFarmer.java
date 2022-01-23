@@ -6,7 +6,6 @@ import battlecode.common.*;
 
 public class MinerFarmer extends Unit {
     int income;
-    boolean[][] ourMiners = new boolean[Util.LOC_BASE][Util.LOC_BASE]; // stores locations of ourMiners in radius 18
 
     // We want farmers to continually pick good spots to mine
     public MinerFarmer(RobotController rc, int r, MapLocation loc) throws GameActionException {
@@ -26,19 +25,6 @@ public class MinerFarmer extends Unit {
     public void initialize() throws GameActionException {
         me = rc.getLocation();
         income = 0;
-
-        /*MapLocation[] nearby = rc.getAllLocationsWithinRadiusSquared(me, 18);
-        for(MapLocation l : nearby) {
-            ourMiners[l.x][l.y] = false;
-        }
-        
-        RobotInfo[] neighbors = rc.senseNearbyRobots(me, 18, rc.getTeam());
-        for(RobotInfo r : neighbors) {
-            if(r.getType() == RobotType.MINER) {
-                MapLocation m = r.getLocation();
-                ourMiners[m.x][m.y] = true;
-            }
-        }*/ 
     }
 
     // Chooses best place to move to 
