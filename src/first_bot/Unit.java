@@ -112,7 +112,7 @@ public class Unit extends RobotCommon {
 
     // Observes if any enemy units nearby, returns true if this is true
     public boolean observe() throws GameActionException {
-        boolean hasNearby = false;
+        //boolean hasNearby = false;
         for (RobotInfo robot: rc.senseNearbyRobots()) {
             if (robot.getTeam() != myTeam){
                 switch (robot.getType()){
@@ -124,7 +124,7 @@ public class Unit extends RobotCommon {
                         if (rc.getType() == RobotType.MINER || rc.getType() == RobotType.BUILDER) {
                             isRetreating = true;
                         }
-                        return hasNearby == true;
+                        return true;
                     default:
                         rc.writeSharedArray(49, Util.getIntFromLocation( robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                         rc.writeSharedArray(50, round);
@@ -135,7 +135,7 @@ public class Unit extends RobotCommon {
                 }
             }
         }
-        return hasNearby;
+        return false;
     }
 
     //use this when you are certain that we actually want to move
