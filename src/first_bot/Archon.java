@@ -115,7 +115,24 @@ public class Archon extends RobotCommon{
     }
 
     public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException{ 
-        if (rc.canBuildRobot(RobotType.SAGE, dir)) {
+        int writeLocation = Util.getArchonMemoryBlock(rank);
+        if(round % 10 == 0) {
+            if(rc.canBuildRobot(RobotType.MINER, dir)) {
+                rc.writeSharedArray(writeLocation, Util.MAX_LOC); // subtype 1
+                rc.buildRobot(RobotType.MINER, dir);
+            }
+        }
+        else if (round % 2 == 0) {
+            if(rc.canBuildRobot(RobotType.BUILDER, dir)) {
+                int minerReport = rc.readSharedArray(writeLocation + 1);
+                if(minerReport == 0) return;
+                rc.writeSharedArray(writeLocation, Util.MAX_LOC + minerReport); // subtype 1
+                rc.writeSharedArray(writeLocation + 1, 0);
+                rc.buildRobot(RobotType.BUILDER, dir);
+            }
+        }
+
+        /*if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
             rc.writeSharedArray(52, targetArchon + 1);
         }
@@ -152,7 +169,7 @@ public class Archon extends RobotCommon{
             // System.out.println("SOLDIER on round " + round);
             rc.buildRobot(RobotType.SOLDIER, dir);
             rc.writeSharedArray(52, targetArchon + 1);
-        }
+        }*/
     }
 
     public void moveIfArchonHasTarget() throws GameActionException{

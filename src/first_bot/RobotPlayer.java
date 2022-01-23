@@ -48,20 +48,32 @@ public strictfp class RobotPlayer {
                     break;
                 }
             }
-            int subtype = rc.readSharedArray(Util.getArchonMemoryBlock(rank)) / Util.MAX_LOC;
+            int readValue = rc.readSharedArray(Util.getArchonMemoryBlock(rank));
+            int subtype = readValue / Util.MAX_LOC;
+            MapLocation target = Util.getLocationFromInt(readValue % Util.MAX_LOC);
             switch(rc.getType()){
                 case BUILDER:
-                    Util.WIDTH = rc.getMapWidth();
-                    Util.HEIGHT = rc.getMapHeight();
-                    //System.out.println("util width height wtf " + rc.getRoundNum() + " " + Util.WIDTH + " " + Util.HEIGHT);
-                    robot = new Builder(rc, rank, archonLocation, Util.pickBuilderTarget(archonLocation));
+                    switch(subtype) {
+                        case 1:
+                            robot = new Builder(rc, rank, archonLocation, target, 1);
+                            break;
+                        default:
+                            robot = new Builder(rc, rank, archonLocation, Util.pickBuilderTarget(archonLocation));
+                            break;
+                    }
                     break;
                 case LABORATORY:
                     robot = new Laboratory(rc, rank, archonLocation);
                     break;
                 case MINER:
-                    MapLocation target = Util.getLocationFromInt(rc.readSharedArray(Util.getArchonMemoryBlock(rank)) % Util.MAX_LOC);
-                    robot = new Miner(rc, rank, archonLocation, target);
+                    switch(subtype) {
+                        case 1:
+                            robot = new MinerFarmer(rc, rank, archonLocation);
+                            break;
+                        default:
+                            robot = new Miner(rc, rank, archonLocation, target);
+                            break;
+                    }
                     break;
                 case SAGE:
                     robot = new Sage(rc, rank, archonLocation);

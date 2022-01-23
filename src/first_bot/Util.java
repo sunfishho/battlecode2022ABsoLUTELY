@@ -26,7 +26,7 @@ public class Util {
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
-            2: unused
+            2: Builder writes to value
         Use Util.getMemoryBlock(rank) to find beginning of memory block
     */
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
