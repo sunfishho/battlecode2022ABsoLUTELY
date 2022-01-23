@@ -41,7 +41,7 @@ public class Miner extends MinerFarmer{
         tryToMine();
         MapLocation[] leadLocationsNearby = rc.senseNearbyLocationsWithLead(20);
         //if there aren't too many friendly miners nearby and there's sufficient lead, just stop and farm lol
-        if (leadLocationsNearby.length > 5 && friendlyMinerCount - 1 < leadLocationsNearby.length / 8){
+        if (leadLocationsNearby.length > 5 && friendlyMinerCount - 1 < leadLocationsNearby.length / 4){
             mine(1);
             move();
             mine(1);

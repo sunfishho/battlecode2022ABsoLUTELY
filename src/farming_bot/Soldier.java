@@ -155,16 +155,23 @@ public class Soldier extends Unit {
         if (isRetreating) {
             attack();
             target = archonLocation;
-            if (me.distanceSquaredTo(archonLocation) > 13) {
+            if (me.distanceSquaredTo(archonLocation) > 20) {
                 tryToMove(30 + 5 * loopingPenalty);
+            }
+            else{
                 int crowdCount = 0;
                 for (RobotInfo robot : rc.senseNearbyRobots(20, rc.getTeam())) {
                     if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health - 10) {
                         crowdCount++;
                     }
                 }
-
-                if (mode != 1 && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
+                if (mode != 1 && crowdCount > 3) {
+                    if (crowdCount > 5){
+                        System.out.println("Disintegrating myself");
+                        if (rc.senseLead(me) == 0){
+                            rc.disintegrate();
+                        }
+                    }
                     // We can't get healed by the archon so patrol instead
                     mode = 2;
                     isRetreating = false;
