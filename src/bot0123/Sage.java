@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0123;
 
 import battlecode.common.*;
 
@@ -37,11 +37,6 @@ public class Sage extends Unit {
         round = rc.getRoundNum();
         me = rc.getLocation();
         health = rc.getHealth();
-        if(round > 1850){
-            target = Util.getCorner(archonLocation);
-            tryToMove(20);
-            return;
-        }
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
             targetCountdown = 0;

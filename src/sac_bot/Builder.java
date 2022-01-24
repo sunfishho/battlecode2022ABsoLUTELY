@@ -1,5 +1,5 @@
 
-package first_bot;
+package sac_bot;
 
 import battlecode.common.*;
 
@@ -41,13 +41,8 @@ public class Builder extends Unit {
         observe();
         observeSymmetry();
         boolean a = tryToRepair();
-        if (a){
-            return; //should finish repairing the lab or whatever before moving on to build second lab?
-        }
         boolean b = tryToBuild();
-        if(!a) {
-            boolean c = tryToMove();
-        }
+        boolean c = tryToMove();
     }
 
     public void sacrificeTurn() throws GameActionException {
@@ -147,12 +142,6 @@ public class Builder extends Unit {
                 continue;
             }
             RobotType t = sq.getType();
-            if(t.equals(RobotType.LABORATORY) && bestType == null &&
-                    !Util.buildingHealthy(RobotType.LABORATORY, sq.health, sq.level) && sq.getMode() == RobotMode.PROTOTYPE){
-                bestType = RobotType.LABORATORY;
-                opt = loc;
-                break;
-            }
             if(t.equals(RobotType.ARCHON) && !Util.buildingHealthy(RobotType.ARCHON, sq.health, sq.level)){
                 if (rc.canMutate(loc)) {
                     rc.mutate(loc);
@@ -167,6 +156,10 @@ public class Builder extends Unit {
             }
             if(t.equals(RobotType.LABORATORY) && bestType == null &&
                     !Util.buildingHealthy(RobotType.LABORATORY, sq.health, sq.level)){
+                if (rc.canMutate(loc)) {
+                    rc.mutate(loc);
+                    return true;
+                }
                 bestType = RobotType.LABORATORY;
                 opt = loc;
             }
@@ -243,7 +236,6 @@ public class Builder extends Unit {
             if((steps >= numSteps || best.dir == Direction.CENTER) && rc.canBuildRobot(RobotType.LABORATORY, best.dir)) {
                 rc.buildRobot(RobotType.LABORATORY, best.dir);
                 labsBuilt++;
-                rc.writeSharedArray(43, rc.readSharedArray(43) + 1);
                 rc.writeSharedArray(63, rc.readSharedArray(63) + 1);
                 if(labsBuilt == totalLabs) target = archonLocation; // final lab
                 return true;
@@ -256,21 +248,24 @@ public class Builder extends Unit {
             }
         }
         else {
-            // // Build watchtowers if you have enough lead, and return to Archon
-            // for (Direction d : Direction.allDirections()) {
-            //     MapLocation loc = me.add(d);
-            //     if (rc.getTeamLeadAmount(us) > 280 && rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)) {
-            //         rc.buildRobot(RobotType.WATCHTOWER, d);
-            //         return true;
-            //     }
-            // }
+            // Build watchtowers if you have enough lead, and return to Archon
+            if(me.distanceSquaredTo(target) > 5) {
+                return false;
+            }
+            for (Direction d : Direction.allDirections()) {
+                MapLocation loc = me.add(d);
+                if (rc.getTeamLeadAmount(us) > 280 && rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)) {
+                    rc.buildRobot(RobotType.WATCHTOWER, d);
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -10, C = -10, D = -2, E = -10000;
+        final double A = -10, B = -10, C = -10, D = -1, E = -10000;
         int visibleBuildings; // number of visible buildings
         int visibleDroids; // number of visible droids
         double distToCorner; // euclidean distance to corner

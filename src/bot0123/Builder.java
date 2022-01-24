@@ -1,5 +1,5 @@
 
-package first_bot;
+package bot0123;
 
 import battlecode.common.*;
 
@@ -45,9 +45,7 @@ public class Builder extends Unit {
             return; //should finish repairing the lab or whatever before moving on to build second lab?
         }
         boolean b = tryToBuild();
-        if(!a) {
-            boolean c = tryToMove();
-        }
+        boolean c = tryToMove();
     }
 
     public void sacrificeTurn() throws GameActionException {
@@ -243,7 +241,6 @@ public class Builder extends Unit {
             if((steps >= numSteps || best.dir == Direction.CENTER) && rc.canBuildRobot(RobotType.LABORATORY, best.dir)) {
                 rc.buildRobot(RobotType.LABORATORY, best.dir);
                 labsBuilt++;
-                rc.writeSharedArray(43, rc.readSharedArray(43) + 1);
                 rc.writeSharedArray(63, rc.readSharedArray(63) + 1);
                 if(labsBuilt == totalLabs) target = archonLocation; // final lab
                 return true;
@@ -270,7 +267,7 @@ public class Builder extends Unit {
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -10, C = -10, D = -2, E = -10000;
+        final double A = -10, B = -10, C = -10, D = -1, E = -10000;
         int visibleBuildings; // number of visible buildings
         int visibleDroids; // number of visible droids
         double distToCorner; // euclidean distance to corner

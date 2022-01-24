@@ -1,5 +1,5 @@
 
-package first_bot;
+package sac_bot;
 
 import battlecode.common.*;
 
@@ -34,6 +34,7 @@ public class Soldier extends Unit {
         health = 50;
         patrollingRounds = 0;
         mode = 0;
+        //do more stuff later
         if (Util.getLocationFromInt(rc.readSharedArray(45)).equals(rc.getLocation())){
             mode = 3;
             rc.writeSharedArray(45, 0);
@@ -51,16 +52,13 @@ public class Soldier extends Unit {
                 isRetreating = true;
             }
         }
-        if (rc.getHealth() > health && mode != 3) {
+        if (rc.getHealth() > health) {
             mode = 1;
         }
         if (mode == 3){
-            if (me.distanceSquaredTo(nearestArchon(me)) > 5){
+            if (me.distanceSquaredTo(nearestArchon(me)) > 13){
                 Direction dir = pf.findBestDirection(nearestArchon(me), 50);
                 target = me.add(dir);
-                if (rc.canMove(dir)){
-                    rc.move(dir);
-                }
             }
         }
         health = rc.getHealth();
@@ -192,7 +190,7 @@ public class Soldier extends Unit {
                 }
                 moveLowerRubble(true);
             }
-            if (rc.getHealth() > 45 && mode != 3) {
+            if (rc.getHealth() > 45) {
                 isRetreating = false;
                 mode = 0;                
                 target = chooseRandomInitialDestination();

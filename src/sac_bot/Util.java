@@ -1,4 +1,4 @@
-package first_bot;
+package sac_bot;
 import battlecode.common.*;
 import java.util.Random;
 
@@ -11,11 +11,9 @@ public class Util {
             0-3: location of Archons 1-4
             4-15: memory blocks
             16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
-            42: round in which we first observe enemy miner
-            43: number of labs we have built
-            44: number of labs we should build
-            45: location of spawned defender
-            46: 1 if some archon is in portable mode, 0 else
+            45: will be the location of the defender if there should be a defender there, else 0
+            46: first miner seen
+            47: number of farmers
             48: number of useful builder sacrifices
             49: alarm indicator (location) + 10000 * rank
             50: alarm indicator (round)
@@ -28,7 +26,7 @@ public class Util {
             60: each miner increments this every turn, last archon resets it to 0
             61: each soldier increments this every turn, last archon resets it to 0
             62: income
-            63: ready to build lab (0 if no, 1 if yes, 2 if built already) (deprecated)
+            63: ready to build lab (0 if no, 1 if yes, 2 if built already)
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value

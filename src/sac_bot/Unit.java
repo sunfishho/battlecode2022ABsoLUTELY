@@ -1,4 +1,4 @@
-package first_bot;
+package sac_bot;
 import battlecode.common.*;
 
 public class Unit extends RobotCommon {
@@ -116,7 +116,9 @@ public class Unit extends RobotCommon {
         for (RobotInfo robot: rc.senseNearbyRobots()) {
             if (robot.getTeam() != myTeam){
                 switch (robot.getType()){
-                    case MINER: continue;
+                    case MINER: 
+                        if(rc.readSharedArray(42) == 0) rc.writeSharedArray(42, round);
+                        break;
                     case ARCHON: 
                         rc.writeSharedArray(54, Util.getIntFromLocation(robot.getLocation()));
                         rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
