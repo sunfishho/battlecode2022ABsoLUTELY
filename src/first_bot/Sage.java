@@ -16,6 +16,8 @@ public class Sage extends Unit {
     static int loopingIncrement = 1;
     static int targetCountdown = 0;
     static int nextCharge = 3000;
+    static int waitingTime = 0;
+    static boolean suicideMode = false;
 
     public Sage(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
@@ -35,6 +37,10 @@ public class Sage extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
+        if (round > 1850 && suicideMode){
+            suicideMode = false;
+            waitingTime = 0;
+        }
         round = rc.getRoundNum();
         me = rc.getLocation();
         archonLocation = nearestArchon(me);
@@ -70,8 +76,8 @@ public class Sage extends Unit {
             isRetreating = false;
         }
         // If low health, go to archon
-        if (rc.getHealth() <= 25) {
-            if (!isHealing) {
+        if (rc.getHealth() <= 25 && !suicideMode) {
+            if (!isHealing && !suicideMode) {
                 // reset recentdists
                 isHealing = true;
                 isRetreating = true;
@@ -81,7 +87,12 @@ public class Sage extends Unit {
             loopingPenalty = 0;
         }
         // If high health, leave archon
-        if (isHealing) {
+        if (isHealing && !suicideMode) {
+            if (waitingTime >= 100){
+                waitingTime = 0;
+                suicideMode = true;
+            }
+            waitingTime++;
             target = archonLocation;
             targetCountdown = 0;
             loopingPenalty = 0;
@@ -89,6 +100,9 @@ public class Sage extends Unit {
             if (me.distanceSquaredTo(archonLocation) > 20) {
                 tryToMove(50);
                 moveLowerRubble(true);
+            }
+            else{
+                waitingTime++;
             }
             if (rc.getHealth() > 95 ) {
                 isHealing = false;
