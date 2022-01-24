@@ -29,7 +29,7 @@ public class Builder extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
-        rc.setIndicatorString("" + rc.readSharedArray(63));
+        rc.setIndicatorString(rank + " " + rc.readSharedArray(63));
         me = rc.getLocation();
         archonLocation = nearestArchon(me);
         boolean a = tryToRepair();
@@ -170,7 +170,7 @@ public class Builder extends Unit {
             }
         }
         if (opt != null) {
-            rc.setIndicatorString("Repairing loc: (" + opt.x + ", " + opt.y + ")");
+            rc.setIndicatorString(rank + " repairing loc: (" + opt.x + ", " + opt.y + ")");
             while (rc.canRepair(opt)) {
                 rc.repair(opt);
             }
@@ -244,7 +244,7 @@ public class Builder extends Unit {
         }
 
         steps++;
-        rc.setIndicatorString(steps + " " + best.dir);
+        rc.setIndicatorString(rank + " " + steps + " " + best.dir);
         if(best.dir == Direction.CENTER) {
             // we think best location is where we are currently at
             foundLabLocation = true;

@@ -37,6 +37,13 @@ public strictfp class RobotPlayer {
             int rank = 0;
             for(RobotInfo neighbor : rc.senseNearbyRobots(2, rc.getTeam())) {
                 if(neighbor.getType() == RobotType.ARCHON) {
+                    MapLocation loc = neighbor.getLocation();
+                    for(int i = 0; i < 4; i++) {
+                        if(rc.readSharedArray(i) == Util.getIntFromLocation(loc)) {
+                            rank = i + 1;
+                            break;
+                        }
+                    }
                     int typeCommunicated = rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 2);
                     RobotType r = RobotType.MINER;
                     switch(typeCommunicated) {
@@ -53,17 +60,12 @@ public strictfp class RobotPlayer {
                             r = RobotType.MINER;
                             break;
                     }
+                    System.out.println(neighbor.getLocation() + " " + typeCommunicated);
                     if(r.equals(rc.getType())) {
                         archon = neighbor;
                         archonLocation = neighbor.getLocation();
                         break;
                     }
-                }
-            }
-            for(int i = 0; i < 4; i++) {
-                if(rc.readSharedArray(i) == Util.getIntFromLocation(archonLocation)) {
-                    rank = i + 1;
-                    break;
                 }
             }
             int readValue = rc.readSharedArray(Util.getArchonMemoryBlock(rank));

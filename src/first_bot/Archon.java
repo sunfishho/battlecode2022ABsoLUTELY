@@ -119,8 +119,8 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
-        rc.setIndicatorString(rank + " " + alarmRound + " " + labValue + " " + " attempting to build");
         tryToBuildStuff(dir, alarmRound, prevIncome);
+        rc.setIndicatorString(rank + " " + nextWriteValue  + " " + nextTypeValue + " " + " attempting to build");
         heal();
     }
 
@@ -383,7 +383,6 @@ public class Archon extends RobotCommon{
     }
 
     public boolean heal() throws GameActionException {
-        // System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
         if (nearbyTeammatesWithinHealingRange.length != 0){
             RobotInfo mostNeedy = null;
 
@@ -419,7 +418,6 @@ public class Archon extends RobotCommon{
                         break;
                 }
             }
-            // System.out.println("HEALABLE: " + healable);
             if (mostNeedy != null && rc.canRepair(mostNeedy.getLocation())){
                 MapLocation targetBot = mostNeedy.getLocation();
                 rc.repair(targetBot);
@@ -478,12 +476,10 @@ public class Archon extends RobotCommon{
 
     //see if any nearby squares have significantly less rubble
     public void relocCheck() throws GameActionException {
-        System.out.println("CHECKING RELOCATION AT ROUND " + rc.getRoundNum());
         int lx = me.x;
         int ly = me.y;
         int bestd = 0;
         int bestr = rc.senseRubble(me);
-        System.out.println(lx + " " + ly + " RUBBLE COUNT: " + bestr);
         MapLocation newhome = me;
         for(int dx = 1; dx >= -1; dx--){
             for(int dy = 1; dy >= -1; dy--){
