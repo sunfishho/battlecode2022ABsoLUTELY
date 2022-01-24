@@ -365,14 +365,14 @@ public class Archon extends RobotCommon{
             int bestRubble = rubbleHere;
             int lowestDistance = 10000;
             for (MapLocation mL : rc.getAllLocationsWithinRadiusSquared(me, 34)){
-                int rh = (rubbleHere + 10)/10;
-                int mr = (rc.senseRubble(mL) + 10)/10;
-                if (mr < (bestRubble + 10)/10 && 5 * rh - 5 * mr >= mr * rh){
+                int rh = (rubbleHere + 10);
+                int mr = (rc.senseRubble(mL) + 10);
+                if (mr < (bestRubble + 10) && 40 * rh - 40 * mr >= mr * rh){
                     bestLocation = mL;
                     bestRubble = rc.senseRubble(mL);
                     lowestDistance = Util.distanceMetric(me, mL);
                 }
-                else if (rc.senseRubble(mL) / 10 == bestRubble/10 && 5 * rh - 5 * mr >= mr * rh && lowestDistance > Util.distanceMetric(me, mL))    {
+                else if (rc.senseRubble(mL) == bestRubble && 40 * rh - 40 * mr >= mr * rh && lowestDistance > Util.distanceMetric(me, mL))    {
                     bestLocation = mL;
                     bestRubble = rc.senseRubble(mL);
                     lowestDistance = Util.distanceMetric(me, mL);
