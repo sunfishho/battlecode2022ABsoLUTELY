@@ -7,10 +7,8 @@ import java.awt.*;
 
 
 public class Builder extends Unit {
-
-    final int totalLabs = 16, numSteps = 10;
     boolean isSacrifice = false, hasTarget = false, foundLabLocation = false;
-    int labsBuilt = 0, steps = 0;
+    int totalLabs = 16, numSteps = 20, labsBuilt = 0, steps = 0;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
@@ -259,6 +257,7 @@ public class Builder extends Unit {
             labsBuilt++;
             foundLabLocation = false;
             steps = 0;
+            numSteps = 5;
             return true;
         }
         else {

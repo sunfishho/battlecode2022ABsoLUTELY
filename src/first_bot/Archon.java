@@ -90,7 +90,6 @@ public class Archon extends RobotCommon{
         moveIfArchonHasTarget();
         
         Direction dir = findDirectionToBuildIn();
-
         boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535);
         
         if (!alarmRecent && round != 1) {

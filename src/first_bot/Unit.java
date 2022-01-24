@@ -116,10 +116,13 @@ public class Unit extends RobotCommon {
             if (robot.getTeam() != myTeam){
                 switch (robot.getType()){
                     case MINER: continue;
+                    case BUILDER: continue;
                     case ARCHON: 
+                        if(rc.getType() != RobotType.MINER) {
+                            rc.writeSharedArray(50, round);
+                            rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
+                        }
                         rc.writeSharedArray(54, Util.getIntFromLocation(robot.getLocation()));
-                        rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                        rc.writeSharedArray(50, round);
                         if (rc.getType() == RobotType.MINER || rc.getType() == RobotType.BUILDER) {
                             isRetreating = true;
                         }
