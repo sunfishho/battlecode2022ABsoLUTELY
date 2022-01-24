@@ -116,7 +116,7 @@ public class Archon extends RobotCommon{
                 rc.setIndicatorString(rank + " " + labValue + " halting production for labs");
                 return;
             }
-            if (teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != rank) {
+            if (teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 // If we don't have enough lead for 50 * remaining archons, don't spawn if you're not target
                 rc.setIndicatorString(rank + " " + alarmRound + " " + round + " healing");
                 heal();
@@ -528,13 +528,13 @@ public class Archon extends RobotCommon{
         if(incomeQueue.size() == 0) return labValue;
         switch (curNumLabs) {
             case 0:
-                if(incomeSum / incomeQueue.size() >= 5) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 5 && teamLeadAmount > 150) return labValue + 100;
                 return labValue;
             case 1:
-                if(incomeSum / incomeQueue.size() >= 10) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 10 && teamLeadAmount > 150) return labValue + 100;
                 return labValue;
             default:
-                if(incomeSum / incomeQueue.size() >= 50 * curNumLabs) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 20 * curNumLabs) return labValue + 100;
                 return labValue;
         }
     }

@@ -16,8 +16,8 @@ public class MinerFarmer extends Unit {
         initialize();
         takeAttendance();
         observe();
-        move();
         mine(1);
+        move();
         report();
     }
 
@@ -77,6 +77,10 @@ public class MinerFarmer extends Unit {
         if(rc.onTheMap(loc)) {
             there = new LocationInfo(loc);
             if(best.compareTo(there) < 0) best = there;
+        }
+
+        if(best.dir == Direction.CENTER && income == 0) { 
+            rc.disintegrate();
         }
 
         rc.setIndicatorString("FARMER " + best.dir);
