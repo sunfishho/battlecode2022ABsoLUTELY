@@ -113,7 +113,7 @@ public strictfp class RobotPlayer {
         while(true){
             Util.WIDTH = rc.getMapWidth();
             Util.HEIGHT = rc.getMapHeight();
-            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.SAGE){
+            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.SAGE || rc.getType() == RobotType.MINER){
                 rc.writeSharedArray(40, rc.readSharedArray(40) + rc.getHealth());
             }
             robot.takeTurn();
