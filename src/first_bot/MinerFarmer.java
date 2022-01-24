@@ -245,7 +245,7 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -2.5, C = 3, D = 0.1, E = 1000, F = 1000;
+        final double A = -100, B = -2.5, C = 3, D = 0.1, E = -1000, F = 1000;
         int visibleFarmers; // # of farmers visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         double minDistArchon; // (not-squared) distance to archon
@@ -271,7 +271,8 @@ public class MinerFarmer extends Unit {
             for(int i = 0; i < n; i++) {
                 minDistArchon = Math.min(minDistArchon, Math.sqrt(loc.distanceSquaredTo(Util.getLocationFromInt(rc.readSharedArray(i)))));
             }
-            if(minDistArchon * minDistArchon <= 2.5) adjacentToArchon = - minDistArchon * minDistArchon;
+            System.out.println(loc + " " + minDistArchon);
+            if(minDistArchon * minDistArchon <= 4) adjacentToArchon = 4 - minDistArchon * minDistArchon;
 
             l = loc.translate(-1, -1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
