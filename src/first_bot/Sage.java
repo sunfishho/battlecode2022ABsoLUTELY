@@ -43,7 +43,9 @@ public class Sage extends Unit {
         observe();
         observeSymmetry();
         if(nextCharge - round < 20){//try to get away from our friends
+            System.out.println("RUNNING FROM CHARGE!");
             tryToEscape();
+            return;
         }
         if(round > 1850){
             target = Util.getCorner(archonLocation);
@@ -190,8 +192,37 @@ public class Sage extends Unit {
     }
 
     // tries to get away from friendly robots to avoid dying to charge
-    public void tryToEscape() throws GameActionException {
-        
+    public void tryToEscape() throws GameActionException {// move away from the centroid of friendly robots?
+        double centroidX = 0.0;
+        double centroidY = 0.0;
+        RobotInfo[] nearbyFriends = rc.senseNearbyRobots(34, rc.getTeam());
+        int f = nearbyFriends.length;
+        for (int i = 0; i < f; i++){
+            MapLocation loc = nearbyFriends[i].getLocation();
+            centroidX += loc.x;
+            centroidY += loc.y;
+        }
+        int cX = (int) ((centroidX / (f + 0.0)) + 0.5);
+        int cY = (int) ((centroidY / (f + 0.0)) + 0.5);
+        MapLocation centroid = new MapLocation(cX, cY);
+        Direction dir = centroid.directionTo(me); // move in this direction to get away from centroid
+        if(rc.canMove(dir)){
+            rc.move(dir);
+            me = rc.getLocation();
+            return;
+        }
+        //try left and right directions, still increases distance from centroid
+        Direction dirl = dir.rotateLeft();
+        Direction dirr = dir.rotateRight();
+        if(rc.canMove(dirl)){
+            rc.move(dirl);
+            me = rc.getLocation();
+            return;
+        }
+        if(rc.canMove(dirr)){
+            rc.move(dirr);
+            me = rc.getLocation();
+        }
     }
     
     public void tryToAttack() throws GameActionException {

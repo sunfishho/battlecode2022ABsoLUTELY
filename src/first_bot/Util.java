@@ -281,13 +281,17 @@ public class Util {
 
     public static int nextCharge(int rnd){//get the round number of the next charge
         int idx = 0;
+        if(charges == null){
+            return 3000;
+        }
+        //System.out.println(charges + " " + charges.length);
         while(idx < charges.length){
             if(charges[idx] > rnd){
                 return charges[idx];
             }
             idx++;
         }
-        return 3000;//will no longer be charges
+        return 3000;//no more charges
     }
 
 }
