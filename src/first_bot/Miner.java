@@ -398,15 +398,13 @@ public class Miner extends Unit{
             return new MapLocation(x_coord, y_coord);
         }
         else{
-            int whichMiddleOrCorner = rng2.nextInt(10);
+            int whichMiddleOrCorner = rng2.nextInt(5);
             switch(whichMiddleOrCorner){
                 case 0: return new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
                 case 1: return new MapLocation(0, 0);
                 case 2: return new MapLocation(0, Util.HEIGHT - 1);
                 case 3: return new MapLocation(Util.WIDTH - 1, Util.HEIGHT - 1);
-                case 4: return new MapLocation(Util.WIDTH - 1, 0);
-                default:
-                    return new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
+                default: return new MapLocation(Util.WIDTH - 1, 0);
             }
         }
     }
