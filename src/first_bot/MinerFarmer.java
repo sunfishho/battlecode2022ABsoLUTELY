@@ -271,7 +271,6 @@ public class MinerFarmer extends Unit {
             for(int i = 0; i < n; i++) {
                 minDistArchon = Math.min(minDistArchon, Math.sqrt(loc.distanceSquaredTo(Util.getLocationFromInt(rc.readSharedArray(i)))));
             }
-            System.out.println(loc + " " + minDistArchon);
             if(minDistArchon * minDistArchon <= 4) adjacentToArchon = 4 - minDistArchon * minDistArchon;
 
             l = loc.translate(-1, -1);
