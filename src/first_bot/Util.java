@@ -11,6 +11,7 @@ public class Util {
             0-3: location of Archons 1-4
             4-15: memory blocks
             16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
+            40: aggregate health
             41: farmer attendance
             42: round in which we first observe enemy miner
             45: location of spawned defender

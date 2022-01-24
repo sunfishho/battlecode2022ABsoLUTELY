@@ -455,7 +455,7 @@ public class Soldier extends Unit {
             }
         }
         Direction dir = Direction.CENTER;
-        if (target != null){
+        if (target != null && rc.isMovementReady()){
             dir = pf.findBestDirection(target, avgRubble);
         }
         return move(dir);

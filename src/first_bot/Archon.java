@@ -22,6 +22,10 @@ public class Archon extends RobotCommon{
     static int numBuilders;
     static int incomeSum;
     static Queue<Integer> incomeQueue;
+    static Queue<Integer> aggregateHealthQueue;
+    static boolean shouldFarm = false;
+    static int lastAggregateHealth = 0;
+    static int winningCounter = 0;
     MapLocation archonTarget;
 
     /*
@@ -47,11 +51,29 @@ public class Archon extends RobotCommon{
         numBuilders = 0;
         incomeSum = 0;
         incomeQueue = new LinkedList<Integer>();
+        aggregateHealthQueue = new LinkedList<Integer>();
     }
 
     public void takeTurn() throws GameActionException {
         initializeEachTurn();
+        //it's your job to reset aggregate health
 
+
+        if (aggregateHealthQueue.size() == 10){
+            if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200){
+                shouldFarm = true;
+            }
+            else{
+                shouldFarm = false;
+            }
+            aggregateHealthQueue.remove();
+        }
+        aggregateHealthQueue.add(rc.readSharedArray(40));
+
+
+        if (rank == numArchons){
+            rc.writeSharedArray(40, 0);
+        }
         if(round == 1) {
             doRoundOneDuties();
         }
@@ -157,7 +179,7 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SOLDIER, dir);
             built = true;
         }
-        if(alarm == 65535) { //incorporate foundMiner at some point
+        if(alarm == 65535 || shouldFarm) { //incorporate foundMiner at some point
             // Build builders when there is an abundance of lead
             if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 rc.buildRobot(RobotType.BUILDER, dir);
