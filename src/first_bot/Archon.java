@@ -104,7 +104,7 @@ public class Archon extends RobotCommon{
             }
         }
 
-        if (rc.readSharedArray(63) == 1) {
+        if (rc.readSharedArray(63) % 102 != 0) {
             heal();
             rc.setIndicatorString("Halting production for labs");
             return;
@@ -138,8 +138,9 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build one laboratory builder with sufficient income
-        if (!built && rank == 1 && incomeSum > 150 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+        if (!built && numBuilders == 0 && incomeSum > 150 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             numBuilders++;
+            rc.writeSharedArray(63, rc.readSharedArray(63) + 100);
             rc.buildRobot(RobotType.BUILDER, dir);
             built = true;
         }

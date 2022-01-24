@@ -58,7 +58,7 @@ public strictfp class RobotPlayer {
                             robot = new Builder(rc, rank, archonLocation, target, 1);
                             break;
                         default:
-                            robot = new Builder(rc, rank, archonLocation, Util.pickBuilderTarget(archonLocation));
+                            robot = new Builder(rc, rank, archonLocation);
                             break;
                     }
                     break;

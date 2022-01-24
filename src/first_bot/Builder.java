@@ -8,35 +8,29 @@ import java.awt.*;
 
 public class Builder extends Unit {
 
-    public static boolean isSacrifice = false;
-    public static boolean labBuilder = true;
-    public static boolean labBuilt = false;
-    boolean hasTarget;
+    final int totalLabs = 2, numSteps = 10;
+    boolean isSacrifice = false;
+    int labsBuilt = 0;
+    int steps = 0;
+    boolean hasTarget = false;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
-        labBuilder = true;
-
+        target = nearestCorner(loc);
     }
 
     public Builder(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException{
         super(rc, r, loc);
-        labBuilder = true;
-        target = nearestCorner(loc);
+        target = t;
     }
 
     public Builder(RobotController rc, int r, MapLocation loc, MapLocation t, int type) throws GameActionException{
         super(rc, r, loc);
-        target = t;
         isSacrifice = (type == 1);
-        labBuilder = (type == 2);
-        if (labBuilder) {
-            target = Util.getCorner(loc);
-        }
+        target = t;
     }
 
     public void takeTurn() throws GameActionException {
-        rc.setIndicatorString("Not repairing anything");
         me = rc.getLocation();
 
         if(isSacrifice) {
@@ -84,12 +78,12 @@ public class Builder extends Unit {
         }
 
         // If you have no target, greedily move in best direction
-        LocationInfo best = new LocationInfo(me);
+        SacrificeInfo best = new SacrificeInfo(me);
         for(int dx = -1; dx <= 1; dx++) {
             for(int dy = -1; dy <= 1; dy++) {
                 MapLocation loc = new MapLocation(me.x + dx, me.y + dy);
                 if(!rc.onTheMap(loc)) continue;
-                LocationInfo there = new LocationInfo(loc);
+                SacrificeInfo there = new SacrificeInfo(loc);
                 if(best.compareTo(there) < 0) best = there;
             }
         }
@@ -100,7 +94,7 @@ public class Builder extends Unit {
         }
     }
 
-    class LocationInfo {
+    class SacrificeInfo {
         final int LOOK_RADIUS = 9;
         final double A = -50, B = 100, C = -100, D = -1, E = 10000, F = -100000;
         int visibleUnits; // # of units visible in radius LOOK_RADIUS
@@ -111,7 +105,7 @@ public class Builder extends Unit {
         int isArchon; // is it the archon, 0 = false, 1 = true
         Direction dir;
 
-        public LocationInfo(MapLocation loc) throws GameActionException {
+        public SacrificeInfo(MapLocation loc) throws GameActionException {
             visibleUnits = rc.senseNearbyRobots(loc, LOOK_RADIUS, rc.getTeam()).length;
             distArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
             for (int dx = -1; dx <= 1; dx++) {
@@ -127,7 +121,7 @@ public class Builder extends Unit {
             dir = me.directionTo(loc);
         }
 
-        public double compareTo(LocationInfo other) throws GameActionException {
+        public double compareTo(SacrificeInfo other) throws GameActionException {
             return getRating() - other.getRating();
         }
 
@@ -181,32 +175,80 @@ public class Builder extends Unit {
         
     }
 
-    public boolean tryToBuild() throws GameActionException {//tries to build things in action radius
+    // Returns true if you moved this turn
+    public boolean tryToBuild() throws GameActionException {
         // Dont build if there are prototypes nearby
         Team us = rc.getTeam();
         for (RobotInfo sq : rc.senseNearbyRobots(5)) {
             if (sq.team.equals(us) && sq.getType().equals(RobotType.WATCHTOWER) && sq.getMode().equals(RobotMode.PROTOTYPE)) {
-                return true;
+                return false;
             }
         }
 
-        // Counter for number of towers, if too many don't build. 
-        // int counter = 0;
-        // for(Direction d : Direction.allDirections()){
-        //     MapLocation loc = me.add(d);
-        //     if (!rc.canSenseLocation(loc)) {
-        //         continue;
-        //     }
-        //     RobotInfo robot = rc.senseRobotAtLocation(loc);
-        //     if (robot != null && robot.getTeam().equals(rc.getTeam()) && robot.getMode().equals(RobotMode.DROID) == false) {
-        //         counter++;
-        //     }
-        // }
-        // if (counter > 10) {
-        //     return false;
-        // }
+        if(labsBuilt < totalLabs) {
+            MapLocation loc = me;
+            LaboratoryInfo best = new LaboratoryInfo(loc);
+            LaboratoryInfo there = best;
+    
+            loc = me.translate(-1, -1);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+            loc = me.translate(-1, 0);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+            loc = me.translate(-1, 1);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+            loc = me.translate(0, -1);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+            loc = me.translate(0, 1);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+            loc = me.translate(1, -1);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+            loc = me.translate(1, 0);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
+            loc = me.translate(1, 1);
+            if(rc.onTheMap(loc)) {
+                there = new LaboratoryInfo(loc);
+                if(best.compareTo(there) < 0) best = there;
+            }
 
-        if (!labBuilder) {
+            steps++;
+            rc.setIndicatorString(steps + " " + best.dir);
+            if((steps >= numSteps || best.dir == Direction.CENTER) && rc.canBuildRobot(RobotType.LABORATORY, best.dir)) {
+                rc.buildRobot(RobotType.LABORATORY, best.dir);
+                labsBuilt++;
+                rc.writeSharedArray(63, rc.readSharedArray(63) + 1);
+                if(labsBuilt == totalLabs) target = archonLocation; // final lab
+                return true;
+            }
+            else {
+                if (rc.canMove(best.dir)) {
+                    rc.move(best.dir);
+                    me = rc.getLocation();
+                }
+            }
+        }
+        else {
+            // Build watchtowers if you have enough lead, and return to Archon
             for (Direction d : Direction.allDirections()) {
                 MapLocation loc = me.add(d);
                 if (rc.getTeamLeadAmount(us) > 280 && rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)) {
@@ -215,45 +257,39 @@ public class Builder extends Unit {
                 }
             }
         }
-        else{
-            rc.setIndicatorString("Trying to go to lab");
-            //if we sense any labs nearby, don't build a lab (for solitude) and disintegrate
-            if (target.distanceSquaredTo(me) >= 1) {
-                return false;
-            }
-            for(RobotInfo r : rc.senseNearbyRobots(20, us)){
-                if(r.type == RobotType.LABORATORY){
-                    labBuilder = false;
-                    target = archonLocation;
-                }
-            }
-            
-            rc.setIndicatorString("Trying to build lab");
-            rc.writeSharedArray(63, 1);
-            Direction bestDir = Direction.CENTER;
-            int bestRubble = 101;
-            
-            // Try to find the best location closest to corner and with lowest rubble
-            int minDistToCorner = 100;
-            MapLocation corner = Util.getCorner(me);
-            for (Direction d : Direction.allDirections()) {
-                MapLocation loc = me.add(d);
-                int distToCorner = loc.distanceSquaredTo(corner);
-                if (rc.canSenseLocation(loc) && (rc.senseRubble(loc) < bestRubble || (rc.senseRubble(loc) == bestRubble && distToCorner < minDistToCorner))) {
-                    bestRubble = rc.senseRubble(loc);
-                    minDistToCorner = distToCorner;
-                    bestDir = d;
-                }
-            }
-            if (rc.getTeamLeadAmount(us) >= 180 && rc.canBuildRobot(RobotType.LABORATORY, bestDir) && Util.labElig(me.add(bestDir))) {
-                rc.buildRobot(RobotType.LABORATORY, bestDir);
-                labBuilder = false;
-                rc.writeSharedArray(63, 2);
-                target = archonLocation;
-                return true;
-            }
-        }
         return false;
+    }
+
+    class LaboratoryInfo {
+        final int LOOK_RADIUS = 9;
+        final double A = -10, B = -10, C = -10, D = -1, E = -10000;
+        int visibleBuildings; // number of visible buildings
+        int visibleDroids; // number of visible droids
+        double distToCorner; // euclidean distance to corner
+        int rubble; // amount of rubble at location
+        int hasUnit; // 0 if no unit, 1 if yes unit
+        Direction dir;
+
+        public LaboratoryInfo(MapLocation loc) throws GameActionException {
+            RobotInfo[] visibleUnits = rc.senseNearbyRobots(loc, LOOK_RADIUS, rc.getTeam());
+            for(RobotInfo r : visibleUnits) {
+                if(r.getMode() == RobotMode.DROID) visibleDroids++;
+                else visibleBuildings++;
+            }
+            distToCorner = Math.sqrt(loc.distanceSquaredTo(nearestCorner(loc)));
+            rubble = rc.senseRubble(loc);
+            RobotInfo r = rc.senseRobotAtLocation(loc);
+            if(r != null) hasUnit = 1;
+            dir = me.directionTo(loc);
+        }
+
+        public double compareTo(LaboratoryInfo other) throws GameActionException {
+            return getRating() - other.getRating();
+        }
+
+        public double getRating() throws GameActionException {
+            return A * visibleBuildings + B * visibleDroids + C * distToCorner + D * rubble + E * hasUnit;
+        }
     }
 
     public boolean tryToMove() throws GameActionException {
