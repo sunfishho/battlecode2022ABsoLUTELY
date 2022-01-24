@@ -281,6 +281,9 @@ public class Archon extends RobotCommon{
     }
 
     public void initializeEachTurn() throws GameActionException{
+        if (rc.readSharedArray(44) != howManyLabs()){
+            rc.writeSharedArray(44, howManyLabs());
+        }
         rc.setIndicatorString("" + rank);
         nearbyTeammatesWithinHealingRange = rc.senseNearbyRobots(20, myTeam);
         // update variables
@@ -488,5 +491,27 @@ public class Archon extends RobotCommon{
             
             me = rc.getLocation();
         }
+    }
+    //determines how many labs the Archon thinks we should build at this stage
+    public int howManyLabs() throws GameActionException{
+        int currentExpectation = rc.readSharedArray(44);
+        int curNumLabs = rc.readSharedArray(43);
+        if (currentExpectation > curNumLabs){
+            //we never want to return higher than curNumLabs + 1, to build only 1 lab each turn
+            return curNumLabs + 1;
+        }
+
+        //check if we're not mining enough lead to make the labs the determining factor
+        if (5 * curNumLabs / 2 > (incomeSum / incomeQueue.size())){
+            return curNumLabs;
+        }
+
+        if (rc.readSharedArray(42) == 0){
+            //return something
+        }
+        else{
+            //return something else
+        }
+        return 0;
     }
 }

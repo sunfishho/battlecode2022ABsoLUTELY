@@ -241,6 +241,7 @@ public class Builder extends Unit {
             if((steps >= numSteps || best.dir == Direction.CENTER) && rc.canBuildRobot(RobotType.LABORATORY, best.dir)) {
                 rc.buildRobot(RobotType.LABORATORY, best.dir);
                 labsBuilt++;
+                rc.writeSharedArray(43, rc.readSharedArray(43) + 1);
                 rc.writeSharedArray(63, rc.readSharedArray(63) + 1);
                 if(labsBuilt == totalLabs) target = archonLocation; // final lab
                 return true;

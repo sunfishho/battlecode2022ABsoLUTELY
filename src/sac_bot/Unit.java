@@ -117,7 +117,7 @@ public class Unit extends RobotCommon {
             if (robot.getTeam() != myTeam){
                 switch (robot.getType()){
                     case MINER: 
-                        if(rc.readSharedArray(46) == 0) rc.writeSharedArray(46, round);
+                        if(rc.readSharedArray(42) == 0) rc.writeSharedArray(42, round);
                         break;
                     case ARCHON: 
                         rc.writeSharedArray(54, Util.getIntFromLocation(robot.getLocation()));
