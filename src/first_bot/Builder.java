@@ -96,6 +96,7 @@ public class Builder extends Unit {
             }
         }
         if(best.dir == Direction.CENTER) rc.disintegrate();
+        if(Clock.getBytecodesLeft() <= 50) Clock.yield();
         if(rc.canMove(best.dir)) {
             rc.move(best.dir);
             me = rc.getLocation();
