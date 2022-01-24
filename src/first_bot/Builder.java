@@ -31,7 +31,7 @@ public class Builder extends Unit {
     public void takeTurn() throws GameActionException {
         rc.setIndicatorString("" + rc.readSharedArray(63));
         me = rc.getLocation();
-
+        archonLocation = nearestArchon(me);
         boolean a = tryToRepair();
 
         if(isSacrifice) {

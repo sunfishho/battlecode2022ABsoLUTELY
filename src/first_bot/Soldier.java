@@ -41,6 +41,8 @@ public class Soldier extends Unit {
     }
 
     public void takeTurn() throws GameActionException {
+        me = rc.getLocation();
+        archonLocation = nearestArchon(me);
         // Update important fields
         if (mode == 2) {
             patrollingRounds++;

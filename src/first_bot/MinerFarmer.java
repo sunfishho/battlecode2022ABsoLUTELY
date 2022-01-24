@@ -24,6 +24,7 @@ public class MinerFarmer extends Unit {
     // Resets values to fields
     public void initialize() throws GameActionException {
         me = rc.getLocation();
+        archonLocation = nearestArchon(me);
         income = 0;
     }
 

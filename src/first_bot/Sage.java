@@ -36,6 +36,7 @@ public class Sage extends Unit {
     public void takeTurn() throws GameActionException {
         round = rc.getRoundNum();
         me = rc.getLocation();
+        archonLocation = nearestArchon(me);
         health = rc.getHealth();
         if(round > 1850){
             target = Util.getCorner(archonLocation);

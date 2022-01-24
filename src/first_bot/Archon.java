@@ -27,6 +27,7 @@ public class Archon extends RobotCommon{
     static int lastAggregateHealth = 0;
     static int winningCounter = 0;
     MapLocation archonTarget;
+    static int farthestArchonFromCenterIdx;
 
     /*
         Values of important locations are stored on the map, negative values correspond to opponent:
@@ -56,11 +57,19 @@ public class Archon extends RobotCommon{
 
     public void takeTurn() throws GameActionException {
         initializeEachTurn();
-        //it's your job to reset aggregate health
+
+        farthestArchonFromCenterIdx = -1;
+        int bestDistance = -1;
+        for (int idx = 0; idx < numArchons; idx++){
+            if (bestDistance < Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)))){
+                bestDistance = Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)));
+                farthestArchonFromCenterIdx = idx + 1;
+            }
+        }
 
 
         if (aggregateHealthQueue.size() == 10){
-            if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200){
+            if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200 && rank == farthestArchonFromCenterIdx){
                 shouldFarm = true;
             }
             else{
@@ -239,7 +248,7 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SOLDIER, dir);
             built = true;
         }
-        if(alarm == 65535 || shouldFarm) { //incorporate foundMiner at some point
+        if((alarm == 65535 || shouldFarm) && rank == farthestArchonFromCenterIdx) { //incorporate foundMiner at some point
             // Build builders when there is an abundance of lead
             if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 rc.buildRobot(RobotType.BUILDER, dir);
