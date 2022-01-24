@@ -141,6 +141,19 @@ public class Sage extends Unit {
                         numTeammates++;
                     }
                     break;
+                case WATCHTOWER:
+                    if (bot.getMode() == RobotMode.PORTABLE){
+                        continue;
+                    }
+                    if (bot.getTeam() != myTeam){
+                        MapLocation enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemySoldierCentroidy += enemyLoc.y;
+                        enemySoldierCentroidx += enemyLoc.x;
+                    }
+                    else{
+                        numTeammates++;
+                    }
                 default:
             }
         }
