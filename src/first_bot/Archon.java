@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
 
     // static RobotController rc;
     static MapLocation home;
-    static int teamLeadAmount, targetArchon, nextWriteValue, labValue, nextTypeValue, writeLocation;
+    static int teamLeadAmount, teamGoldAmount, targetArchon, nextWriteValue, labValue, nextTypeValue, writeLocation;
     static boolean builtMinerLast, localMiner;
     static ArrayList<Integer> vortexRndNums;
     static ArrayList<Integer> chargeRndNums;
@@ -77,7 +77,7 @@ public class Archon extends RobotCommon{
 
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
-        if (incomeQueue.size() > 10) {
+        if (incomeQueue.size() > 20) {
             incomeSum -= incomeQueue.poll();
         }
         
@@ -107,7 +107,7 @@ public class Archon extends RobotCommon{
             }
         }
         else {
-            if (teamLeadAmount < 120 && alarmLocation != 65535 && (alarmLocation / 10000) != rank) {
+            if (teamGoldAmount < 40 && teamLeadAmount < 120 && alarmLocation != 65535 && (alarmLocation / 10000) != rank) {
                 // Only the closest archon should be spawning with limited lead if there is a valid alarm
                 rc.setIndicatorString(rank + " " + alarmLocation + " " + round + " healing");
                 heal();
@@ -126,6 +126,7 @@ public class Archon extends RobotCommon{
         round = rc.getRoundNum();
         numArchons = rc.getArchonCount();
         teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
+        teamGoldAmount = rc.getTeamGoldAmount(rc.getTeam());
         targetArchon = rc.readSharedArray(52);
         numSacrifices = rc.readSharedArray(48);
         numFarmersAlive = rc.readSharedArray(41);
@@ -541,7 +542,7 @@ public class Archon extends RobotCommon{
                 if(incomeSum / incomeQueue.size() >= 8) return labValue + 100;
                 return labValue;
             default:
-                if(incomeSum / incomeQueue.size() >= 5 + 3 * curNumLabs) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 8 + 4 * curNumLabs) return labValue + 100;
                 return labValue;
         }
     }

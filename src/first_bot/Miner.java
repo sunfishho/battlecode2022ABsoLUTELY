@@ -294,7 +294,7 @@ public class Miner extends Unit{
     }
     // Tries to mine by determining how much lead we want to leave
     public void tryToMine() throws GameActionException {
-        if ((isRetreating || friendlyMinerCount < enemyMinerCount) && me.distanceSquaredTo(nearestArchon(me)) > 25) {
+        if ((isRetreating || friendlyMinerCount < enemyMinerCount) && me.distanceSquaredTo(nearestArchon(me)) > ) {
             tryToMine(0);
         } else {
             tryToMine(1);
