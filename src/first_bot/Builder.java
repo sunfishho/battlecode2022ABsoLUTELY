@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class Builder extends Unit {
 
-    final int totalLabs = 2, numSteps = 10;
+    final int totalLabs = 16, numSteps = 10;
     boolean isSacrifice = false, hasTarget = false, foundLabLocation = false;
     int labsBuilt = 0, steps = 0;
 
@@ -174,6 +174,9 @@ public class Builder extends Unit {
             while (rc.canRepair(opt)) {
                 rc.repair(opt);
             }
+            if(!(rc.senseRobotAtLocation(opt).getMode() == RobotMode.PROTOTYPE) && labsBuilt == totalLabs) {
+                target = archonLocation; // final lab
+            }
             return true;
         }
         return false;
@@ -256,7 +259,6 @@ public class Builder extends Unit {
             labsBuilt++;
             foundLabLocation = false;
             steps = 0;
-            if(labsBuilt == totalLabs) target = archonLocation; // final lab
             return true;
         }
         else {
@@ -281,12 +283,13 @@ public class Builder extends Unit {
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -14, C = 10000, D = -10000, E = 4, F = 14;
+        final double A = -10, B = -14, C = 10000, D = -10000, E = 4, F = 14, G = -10;
         int visibleUnits;
         double distToCorner; // euclidean distance to corner
         double distToArchon; // euclidean distance to archon
         double distToCenter; // euclidean distance to center
         int rubble; // amount of rubble at location
+        double avgRubble; // avg in radius 2 around location
         int hasUnit; // 0 if no unit, 1 if yes unit
         Direction dir;
 
@@ -294,6 +297,11 @@ public class Builder extends Unit {
             visibleUnits = rc.senseNearbyRobots(loc, LOOK_RADIUS, rc.getTeam()).length;
             distToCorner = Math.sqrt(loc.distanceSquaredTo(nearestCorner(loc)));
             rubble = rc.senseRubble(loc);
+            MapLocation[] neighborhood = rc.getAllLocationsWithinRadiusSquared(loc, 2);
+            for(MapLocation l : neighborhood) {
+                avgRubble += rc.senseRubble(loc);
+            }
+            avgRubble /= neighborhood.length;
             RobotInfo r = rc.senseRobotAtLocation(loc);
             if(r != null) hasUnit = 1;
             dir = me.directionTo(loc);
@@ -306,7 +314,7 @@ public class Builder extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleUnits + B * distToCorner + C / (rubble + 10) + D * hasUnit + E * distToArchon + F * distToCenter;
+            return A * visibleUnits + B * distToCorner + C / (rubble + 10) + D * hasUnit + E * distToArchon + F * distToCenter + G * avgRubble;
         }
     }
 

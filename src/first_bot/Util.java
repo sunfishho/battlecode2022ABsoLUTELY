@@ -48,7 +48,6 @@ public class Util {
     static int HEIGHT, WIDTH;
     static int NUM_ARCHONS;
     static int[] charges;
-    //this is for distanceMetric()
     static int DISTANCE_WEIGHT_RECIPROCAL = 5;
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};

@@ -85,19 +85,15 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(62, 0);
         }
 
-        if (alarmRound < round - 3) {
-            alarmRound = 65535;
-            rc.writeSharedArray(50, 65535);
-            rc.writeSharedArray(49, 65535);
-        }
-
         checkIfArchonShouldRelocate();
 
         moveIfArchonHasTarget();
         
         Direction dir = findDirectionToBuildIn();
+
+        boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535);
         
-        if ((alarmRound == 65535 || alarmRound == 65534) && round != 1) {
+        if (!alarmRecent && round != 1) {
             if (labValue >= 10000 && (labValue % 10000) % 101 != 0) {
                 // we want to build labs and we've sent out a builder
                 heal();
@@ -119,7 +115,7 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
-        tryToBuildStuff(dir, alarmRound, prevIncome);
+        tryToBuildStuff(dir, alarmRecent, prevIncome);
         rc.setIndicatorString(rank + " " + nextWriteValue  + " " + nextTypeValue + " " + " attempting to build");
         heal();
     }
@@ -173,8 +169,8 @@ public class Archon extends RobotCommon{
         farthestArchonFromCenterIdx = -1;
         int bestDistance = -1;
         for (int idx = 0; idx < numArchons; idx++){
-            if (bestDistance < Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)))){
-                bestDistance = Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)));
+            if (bestDistance < Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx)))){
+                bestDistance = Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx)));
                 farthestArchonFromCenterIdx = idx + 1;
             }
         }
@@ -203,7 +199,7 @@ public class Archon extends RobotCommon{
         observeSymmetry();
     }
 
-    public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException { 
+    public void tryToBuildStuff(Direction dir, boolean alarmRecent, int prevIncome) throws GameActionException { 
         boolean built = false;
         
         // Build sages always if you can
@@ -224,7 +220,7 @@ public class Archon extends RobotCommon{
         }
         // Build miners up to limit before round 100
         if(!built && (round < 100 || round % 13 == 0) && rc.canBuildRobot(RobotType.MINER, dir) 
-            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (alarm == 65535 || round % 13 == 0)) {
+            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (!alarmRecent || round % 13 == 0)) {
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && numFarmersAlive < 1 && !localMiner) { // we have local lead locations, make a farmer
                 rc.setIndicatorString(rank + " making local farmer");
@@ -245,12 +241,12 @@ public class Archon extends RobotCommon{
             return;
         }
         // Build soldiers when there is a specific alarm
-        if(!built && alarm != 65535 && alarm != 65534 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+        if(!built && alarmRecent && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             built = true;
         }
-        if((alarm == 65535 || shouldFarm) && rank == farthestArchonFromCenterIdx) { //incorporate foundMiner at some point
+        if((!alarmRecent || shouldFarm) && rank == farthestArchonFromCenterIdx) { //incorporate foundMiner at some point
             // Build builders when there is an abundance of lead
             if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 rc.buildRobot(RobotType.BUILDER, dir);
@@ -543,10 +539,10 @@ public class Archon extends RobotCommon{
                 if(round > 20 && incomeSum / incomeQueue.size() >= 5 && teamLeadAmount > 50) return labValue + 100;
                 return labValue;
             case 1:
-                if(incomeSum / incomeQueue.size() >= 10 && teamLeadAmount > 50) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 8) return labValue + 100;
                 return labValue;
             default:
-                if(incomeSum / incomeQueue.size() >= 20 * curNumLabs) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 5 + 3 * curNumLabs) return labValue + 100;
                 return labValue;
         }
     }

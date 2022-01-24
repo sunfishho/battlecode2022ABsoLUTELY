@@ -25,7 +25,7 @@ public class Miner extends Unit{
         super(rc, r, loc);
         isRetreating = false;
         needsHeal = false;
-        target = chooseRandomInitialDestination();
+        target = chooseRandomInitialDestination2();
     }
 
     public Miner(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
@@ -277,9 +277,9 @@ public class Miner extends Unit{
                 }
                 return;
             }
-            MapLocation bestLoc = chooseRandomInitialDestination();
+            MapLocation bestLoc = chooseRandomInitialDestination2();
             while (bestLoc.distanceSquaredTo(archonLocation) <= 10) {
-                bestLoc = chooseRandomInitialDestination();
+                bestLoc = chooseRandomInitialDestination2();
             }
             
             target = bestLoc;
@@ -380,44 +380,5 @@ public class Miner extends Unit{
             default: break;
         }
     }
-    public static MapLocation chooseRandomInitialDestination(){
-        Random rng2 = new Random(rc.getRoundNum() + rc.getID() * 1000);
-        int goToMiddleOrCorner = rng2.nextInt(4);
-        if (goToMiddleOrCorner == 0){
-            int x_coord = rng2.nextInt(rc.getMapWidth() - 2) + 1;
-            int y_coord = rng2.nextInt(rc.getMapHeight() - 2) + 1;
-            MapLocation randPoint = new MapLocation(x_coord, y_coord);
-            if (x_coord != me.x){
-                MapLocation candidatePoint1 = new MapLocation(0, (-me.x) * (y_coord - me.y) / (x_coord - me.x) + me.y);
-                MapLocation candidatePoint2 = new MapLocation(Util.WIDTH - 1, (Util.WIDTH - 1 - me.x) * (y_coord - me.y) / (x_coord - me.x) + me.y);
-                if (Util.isOnMap(candidatePoint1) && Util.distanceMetric(candidatePoint1, me) > Util.distanceMetric(candidatePoint1, randPoint)){
-                    return candidatePoint1;
-                }
-                if (Util.isOnMap(candidatePoint2) && Util.distanceMetric(candidatePoint2, me) > Util.distanceMetric(candidatePoint2, randPoint)){
-                    return candidatePoint2;
-                }
-            }
-            if (y_coord != me.y){
-                MapLocation candidatePoint3 = new MapLocation((-me.y) * (x_coord - me.x) / (y_coord - me.y) + me.x, 0);
-                MapLocation candidatePoint4 = new MapLocation((Util.HEIGHT - 1 - me.y) * (x_coord - me.x) / (y_coord - me.y) + me.x, Util.HEIGHT - 1);
-                if (Util.isOnMap(candidatePoint3) && Util.distanceMetric(candidatePoint3, me) > Util.distanceMetric(candidatePoint3, randPoint)){
-                    return candidatePoint3;
-                }
-                if (Util.isOnMap(candidatePoint4) && Util.distanceMetric(candidatePoint4, me) > Util.distanceMetric(candidatePoint4, randPoint)){
-                    return candidatePoint4;
-                }
-            }
-            return new MapLocation(x_coord, y_coord);
-        }
-        else{
-            int whichMiddleOrCorner = rng2.nextInt(5);
-            switch(whichMiddleOrCorner){
-                case 0: return new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2);
-                case 1: return new MapLocation(0, 0);
-                case 2: return new MapLocation(0, Util.HEIGHT - 1);
-                case 3: return new MapLocation(Util.WIDTH - 1, Util.HEIGHT - 1);
-                default: return new MapLocation(Util.WIDTH - 1, 0);
-            }
-        }
-    }
+    
 }
