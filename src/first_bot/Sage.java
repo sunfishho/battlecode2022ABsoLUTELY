@@ -65,19 +65,6 @@ public class Sage extends Unit {
             tryToAttack();
             if (me.distanceSquaredTo(archonLocation) > 20) {
                 tryToMove(50);
-                int crowdCount = 0;
-                for (RobotInfo robot : rc.senseNearbyRobots(34, rc.getTeam())) {
-                    //-5 for health check because soldiers often don't heal all the way to full
-                    if (robot.getLocation().distanceSquaredTo(target) <= 20 && robot.getMode() == RobotMode.DROID && robot.getHealth() < robot.getType().health - 5) {
-                        crowdCount++;
-                    }
-                }
-
-                // if (!isHealing && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
-                //     // We can't get healed by the archon so try to move to a different archon
-                //     rank = (rank % rc.getArchonCount()) + 1;
-                //     archonLocation = Util.getLocationFromInt(rc.readSharedArray(rank - 1));
-                // }
                 moveLowerRubble(true);
             }
             if (rc.getHealth() > 95 ) {
