@@ -14,6 +14,7 @@ public class Util {
             0-3: location of Archons 1-4
             4-15: memory blocks
             16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
+            38: archon alarm special
             39: literally 0 if our aggregate health decreased over last 10, 1 if our aggregate health increased over last 10
             40: aggregate health
             41: farmer attendance
