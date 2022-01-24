@@ -197,18 +197,6 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 7);
         }
         observeSymmetry();
-        vortexRndNums = new ArrayList<Integer>();
-        chargeRndNums = new ArrayList<Integer>();
-        AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
-        for (AnomalyScheduleEntry a : sched){
-            if(a.anomalyType == AnomalyType.VORTEX){
-                vortexRndNums.add(a.roundNumber);
-            }
-            if(a.anomalyType == AnomalyType.CHARGE){
-                chargeRndNums.add(a.roundNumber);
-            }
-        }
-        Util.getChargeSchedule(chargeRndNums);
     }
 
     public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException { 

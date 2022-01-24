@@ -60,7 +60,6 @@ public strictfp class RobotPlayer {
                             r = RobotType.MINER;
                             break;
                     }
-                    System.out.println(neighbor.getLocation() + " " + typeCommunicated);
                     if(r.equals(rc.getType())) {
                         archon = neighbor;
                         archonLocation = neighbor.getLocation();
