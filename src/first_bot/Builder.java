@@ -9,10 +9,8 @@ import java.awt.*;
 public class Builder extends Unit {
 
     final int totalLabs = 2, numSteps = 10;
-    boolean isSacrifice = false;
-    int labsBuilt = 0;
-    int steps = 0;
-    boolean hasTarget = false;
+    boolean isSacrifice = false, hasTarget = false, foundLabLocation = false;
+    int labsBuilt = 0, steps = 0;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
@@ -41,13 +39,11 @@ public class Builder extends Unit {
         observe();
         observeSymmetry();
         boolean a = tryToRepair();
-        if (a){
+        if(a) {
             return; //should finish repairing the lab or whatever before moving on to build second lab?
         }
         boolean b = tryToBuild();
-        if(!a) {
-            boolean c = tryToMove();
-        }
+        boolean c = tryToMove();
     }
 
     public void sacrificeTurn() throws GameActionException {
@@ -240,18 +236,35 @@ public class Builder extends Unit {
 
             steps++;
             rc.setIndicatorString(steps + " " + best.dir);
-            if((steps >= numSteps || best.dir == Direction.CENTER) && rc.canBuildRobot(RobotType.LABORATORY, best.dir)) {
+            if(best.dir == Direction.CENTER) {
+                // we think best location is where we are currently at
+                foundLabLocation = true;
+            }
+            else if((steps >= numSteps || foundLabLocation) && rc.canBuildRobot(RobotType.LABORATORY, best.dir)) {
+                // we've either exceeded step count or found lab location and moved off
                 rc.buildRobot(RobotType.LABORATORY, best.dir);
-                labsBuilt++;
-                rc.writeSharedArray(43, rc.readSharedArray(43) + 1);
                 rc.writeSharedArray(63, rc.readSharedArray(63) + 1);
+                labsBuilt++;
+                foundLabLocation = false;
+                steps = 0;
                 if(labsBuilt == totalLabs) target = archonLocation; // final lab
                 return true;
             }
             else {
-                if (rc.canMove(best.dir)) {
-                    rc.move(best.dir);
-                    me = rc.getLocation();
+                if(foundLabLocation) {
+                    // we move off of our optimal location towards archon
+                    Direction dir = me.directionTo(archonLocation);
+                    if(rc.canMove(dir)) {
+                        rc.move(dir);
+                        me = rc.getLocation();
+                    }
+                }
+                else {
+                    // we path towards best spot
+                    if (rc.canMove(best.dir)) {
+                        rc.move(best.dir);
+                        me = rc.getLocation();
+                    }
                 }
             }
         }
@@ -270,7 +283,7 @@ public class Builder extends Unit {
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -10, C = -10, D = -2, E = -10000;
+        final double A = -10, B = -10, C = -14, D = -2, E = -10000;
         int visibleBuildings; // number of visible buildings
         int visibleDroids; // number of visible droids
         double distToCorner; // euclidean distance to corner

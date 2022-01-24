@@ -31,7 +31,7 @@ public abstract class RobotCommon {
         pf = new Pathfinding(this);
     }
 
-    public static void takeAttendance() throws GameActionException{
+    public void takeAttendance() throws GameActionException{
         switch(rc.getType()){
             case MINER: 
                 rc.writeSharedArray(60, rc.readSharedArray(60) + 1);

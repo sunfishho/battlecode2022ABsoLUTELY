@@ -27,6 +27,11 @@ public class MinerFarmer extends Unit {
         income = 0;
     }
 
+    public void takeAttendance() throws GameActionException {
+        rc.writeSharedArray(41, rc.readSharedArray(41) + 1);
+        super.takeAttendance();
+    }
+
     // Chooses best place to move to 
     public void move() throws GameActionException {
         MapLocation loc = me;
@@ -216,8 +221,8 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -3, C = 3, D = 2, E = -1000;
-        int visibleMiners; // # of miners visible in radius LOOK_RADIUS
+        final double A = -100, B = -3, C = 3, D = 0.1, E = -1000;
+        int visibleFarmers; // # of farmers visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         double distArchon; // (not-squared) distance to archon
         int leadAround; // number of squares in radius 2 around with lead > 1
@@ -229,8 +234,10 @@ public class MinerFarmer extends Unit {
 
             RobotInfo[] nearby = rc.senseNearbyRobots(loc, LOOK_RADIUS, rc.getTeam());
             for(RobotInfo r : nearby) {
-                if(r.getType() == RobotType.MINER) visibleMiners++;
+                if(r.getType() == RobotType.MINER) visibleFarmers++;
             }
+            if(rc.getRoundNum() < 100) visibleFarmers = 0;
+            // The assumption is that if we're the only miner near our Archon, we don't count any other miner (no foragers)
 
             rubble = rc.senseRubble(loc);
             distArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
@@ -271,7 +278,7 @@ public class MinerFarmer extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleMiners + B * rubble + C * leadAround + D * distArchon + E * adjacentToArchon;
+            return A * visibleFarmers + B * rubble + C * leadAround + D * distArchon + E * adjacentToArchon;
         }
     }
 }

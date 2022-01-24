@@ -68,11 +68,11 @@ public strictfp class RobotPlayer {
                 case MINER:
                     switch(subtype) {
                         case 1:
-                            robot = new MinerFarmer(rc, rank, archonLocation);
+                            if(readValue % Util.MAX_LOC == 0) robot = new Miner(rc, rank, archonLocation);
+                            else robot = new Miner(rc, rank, archonLocation, target);
                             break;
                         default:
-                            if(readValue == 0) robot = new Miner(rc, rank, archonLocation);
-                            else robot = new Miner(rc, rank, archonLocation, target);
+                            robot = new MinerFarmer(rc, rank, archonLocation);
                             break;
                     }
                     break;
