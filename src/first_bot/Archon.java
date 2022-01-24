@@ -80,10 +80,7 @@ public class Archon extends RobotCommon{
         if (incomeQueue.size() > 20) {
             incomeSum -= incomeQueue.poll();
         }
-        
-        if (rank == rc.getArchonCount()) {
-            rc.writeSharedArray(62, 0);
-        }
+        rc.writeSharedArray(62, 0);
 
         checkIfArchonShouldRelocate();
 
@@ -149,7 +146,6 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(41, 0);
             rc.writeSharedArray(60, 0);
             rc.writeSharedArray(61, 0);
-            rc.writeSharedArray(62, 0);
         }
 
         // write the next write value
@@ -189,6 +185,7 @@ public class Archon extends RobotCommon{
             aggregateHealthQueue.remove();
         }
         aggregateHealthQueue.add(rc.readSharedArray(40));
+        System.out.println(labValue);
     }
 
     public void doRoundOneDuties() throws GameActionException{
