@@ -93,7 +93,7 @@ public class Archon extends RobotCommon{
         boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535);
         
         if (!alarmRecent && round != 1) {
-            if (labValue >= 10000 && (labValue % 10000) % 101 != 0) {
+            if (teamLeadAmount < 250 && labValue >= 10000 && (labValue % 10000) % 101 != 0) {
                 // we want to build labs and we've sent out a builder
                 heal();
                 rc.setIndicatorString(rank + " " + labValue + " halting production for labs");
@@ -223,7 +223,7 @@ public class Archon extends RobotCommon{
             && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (!alarmRecent || round % 13 == 0)) {
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && numFarmersAlive < 1 && !localMiner) { // we have local lead locations, make a farmer
-                rc.setIndicatorString(rank + " making local farmer");
+                rc.setIndicatorString(rank + " making targeted farmer");
                 nextWriteValue = targetLoc;
                 dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
                 localMiner = true;
@@ -236,12 +236,15 @@ public class Archon extends RobotCommon{
             nextTypeValue = 0;
             built = true;
         }
-        if (!built && numSacrifices >= 5 && numDefenders == 0 && !rc.canBuildRobot(RobotType.SOLDIER, dir)){
-            //we should wait for a defender
-            return;
+        if(!built && localMiner && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+            rc.buildRobot(RobotType.SOLDIER, dir);
+            nextTypeValue = 2;
+            numDefenders++;
+            rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
+            built = true;
         }
-        // Build soldiers when there is a specific alarm
-        if(!built && alarmRecent && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+        // Build soldiers when there is a specific alarm and no laboratories
+        if(!built && alarmRecent && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 2) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             built = true;
@@ -262,7 +265,7 @@ public class Archon extends RobotCommon{
                 built = true;
             }
             // Build one defender if you've sacrificed at least five builders
-            if(!built && numSacrifices >= 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+            if(!built && numSacrifices >= 1 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
                 rc.buildRobot(RobotType.SOLDIER, dir);
                 nextTypeValue = 2;
                 numDefenders++;
@@ -280,14 +283,25 @@ public class Archon extends RobotCommon{
                 built = true;
             }
         }
-        // Default
-        if(!built && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-            rc.buildRobot(RobotType.SOLDIER, dir);
-            nextTypeValue = 2;
-            numDefenders++;
-            rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
-            built = true;
+        if(!built) {
+            shouldFarm = true;
+            if((numFarmersAlive == 0 || numSacrifices / numFarmersAlive > 20) && rc.canBuildRobot(RobotType.MINER, dir)) {
+                rc.buildRobot(RobotType.MINER, dir);
+                nextWriteValue = 0;
+                nextTypeValue = 0;
+                built = true;
+            }
+            if(rc.canBuildRobot(RobotType.BUILDER, dir) && numFarmersAlive > 0) {
+                int minerReport = rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 1);
+                nextWriteValue = Util.MAX_LOC + minerReport; // subtype 1
+                rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, 0);
+                rc.buildRobot(RobotType.BUILDER, dir);
+                nextTypeValue = 1;
+                numSacrifices++;
+                built = true;
+            }
         }
+
         // Update the target archon value
         if(built) {
             rc.writeSharedArray(52, targetArchon + 1);

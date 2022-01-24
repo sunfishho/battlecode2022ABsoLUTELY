@@ -41,16 +41,21 @@ public class MinerFarmer extends Unit {
     // Chooses best place to move to 
     public void move() throws GameActionException {
         if(target != null) {
-            rc.setIndicatorString("target: " + target);
-            Direction dir = pf.findBestDirection(target, 50);
-            if (rc.canMove(dir)) {
-                rc.move(dir);
-                me = rc.getLocation();
-            }
-            if(me == target) {
+            if(checkLoop() != 2) {
                 target = null;
             }
-            return;
+            else {
+                rc.setIndicatorString("target: " + target);
+                Direction dir = pf.findBestDirection(target, 50);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                    me = rc.getLocation();
+                }
+                if(me == target) {
+                    target = null;
+                }
+                return;
+            }
         }
 
         MapLocation loc = me;
@@ -96,10 +101,6 @@ public class MinerFarmer extends Unit {
         if(rc.onTheMap(loc)) {
             there = new LocationInfo(loc);
             if(best.compareTo(there) < 0) best = there;
-        }
-
-        if(best.dir == Direction.CENTER && income == 0) { 
-            rc.disintegrate();
         }
 
         rc.setIndicatorString("FARMER " + best.dir);
@@ -244,12 +245,12 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -2.5, C = 3, D = 0.1, E = -1000, F = -1000;
+        final double A = -100, B = -2.5, C = 3, D = 0.1, E = 1000, F = 1000;
         int visibleFarmers; // # of farmers visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
-        double distArchon; // (not-squared) distance to archon
+        double minDistArchon; // (not-squared) distance to archon
         int leadAround; // number of squares in radius 2 around with lead > 1
-        int adjacentToArchon; // 0 if not adjacent, 1 if adjacent
+        double adjacentToArchon; // 0 if not adjacent, squared distance to archon otherwise
         int outsideTether; // 0 if in, 1 if out
         Direction dir;
 
@@ -264,8 +265,13 @@ public class MinerFarmer extends Unit {
             // The assumption is that if we're the only miner near our Archon, we don't count any other miner (no foragers)
 
             rubble = rc.senseRubble(loc);
-            distArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
-            if(distArchon * distArchon <= 2) adjacentToArchon = 1;
+
+            minDistArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
+            int n = rc.getArchonCount();
+            for(int i = 0; i < n; i++) {
+                minDistArchon = Math.min(minDistArchon, Math.sqrt(loc.distanceSquaredTo(Util.getLocationFromInt(rc.readSharedArray(i)))));
+            }
+            if(minDistArchon * minDistArchon <= 2.5) adjacentToArchon = - minDistArchon * minDistArchon;
 
             l = loc.translate(-1, -1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
@@ -286,7 +292,7 @@ public class MinerFarmer extends Unit {
             l = loc.translate(1, 1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
 
-            if(tetherRadius != 0 && distArchon > tetherRadius) outsideTether = 1;
+            if(tetherRadius != 0 && minDistArchon > tetherRadius) outsideTether = 1;
 
             /* Original:
             for (int dx = -1; dx <= 1; dx++) {
@@ -304,7 +310,7 @@ public class MinerFarmer extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleFarmers + B * rubble + C * leadAround + D * distArchon + E * adjacentToArchon + F * outsideTether;
+            return A * visibleFarmers + B * rubble + C * leadAround + D * minDistArchon + E * adjacentToArchon + F * outsideTether;
         }
     }
 }
