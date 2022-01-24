@@ -86,6 +86,7 @@ public class Archon extends RobotCommon{
         }
 
         if (alarmRound < round - 3) {
+            alarmRound = 65535;
             rc.writeSharedArray(50, 65535);
             rc.writeSharedArray(49, 65535);
         }
@@ -93,7 +94,6 @@ public class Archon extends RobotCommon{
         checkIfArchonShouldRelocate();
 
         moveIfArchonHasTarget();
-
         
         Direction dir = findDirectionToBuildIn();
         
@@ -183,10 +183,12 @@ public class Archon extends RobotCommon{
             if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200 && rank == farthestArchonFromCenterIdx && round >= 60){
                 if ((rc.readSharedArray(42) == 0 || rc.readSharedArray(42) > 55) && (rc.readSharedArray(50) == 0 || rc.readSharedArray(50) > 55 )){
                     shouldFarm = true;
+                    rc.writeSharedArray(39, 1);
                 }
             }
             else{
                 shouldFarm = false;
+                rc.writeSharedArray(39, 0);
             }
             aggregateHealthQueue.remove();
         }

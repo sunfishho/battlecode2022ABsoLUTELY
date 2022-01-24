@@ -126,7 +126,9 @@ public class Unit extends RobotCommon {
                         return true;
                     default:
                         rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                        rc.writeSharedArray(50, round);
+                        if(rc.readSharedArray(39) == 0) {
+                            rc.writeSharedArray(50, round);
+                        }
                         if (rc.getType() == RobotType.MINER || rc.getType() == RobotType.BUILDER) {
                             isRetreating = true;
                         }
