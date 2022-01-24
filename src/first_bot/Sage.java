@@ -15,6 +15,7 @@ public class Sage extends Unit {
     static int loopingPenalty = 0;//increase rubble tolerance if we're stuck in a loop
     static int loopingIncrement = 1;
     static int targetCountdown = 0;
+    static int nextCharge = 3000;
 
     public Sage(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
@@ -38,6 +39,12 @@ public class Sage extends Unit {
         me = rc.getLocation();
         archonLocation = nearestArchon(me);
         health = rc.getHealth();
+        nextCharge = Util.nextCharge(round);
+        observe();
+        observeSymmetry();
+        if(nextCharge - round < 20){//try to get away from our friends
+            tryToEscape();
+        }
         if(round > 1850){
             target = Util.getCorner(archonLocation);
             tryToMove(20);
@@ -51,7 +58,6 @@ public class Sage extends Unit {
         if (rc.getActionCooldownTurns() < 20 && !isHealing) {
             isRetreating = false;
         }
-        observe();
         // If low health, go to archon
         if (rc.getHealth() <= 25) {
             if (!isHealing) {
@@ -83,7 +89,6 @@ public class Sage extends Unit {
                 return;
             }
         }
-        observeSymmetry();
         targetCountdown++;
         switch(checkLoop()){
             case 1: //cycling
@@ -182,6 +187,11 @@ public class Sage extends Unit {
         // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
         rc.setIndicatorString("target2: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
 
+    }
+
+    // tries to get away from friendly robots to avoid dying to charge
+    public void tryToEscape() throws GameActionException {
+        
     }
     
     public void tryToAttack() throws GameActionException {

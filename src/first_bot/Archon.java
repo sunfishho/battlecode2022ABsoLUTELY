@@ -12,6 +12,7 @@ public class Archon extends RobotCommon{
     static int numArchons, teamLeadAmount, targetArchon, nextWriteValue, labValue;
     static boolean builtMinerLast, localMiner;
     static ArrayList<Integer> vortexRndNums;
+    static ArrayList<Integer> chargeRndNums;
     int numArchonsAtStart;
     static int vortexCnt = 0;
     static int oppLeadCount = 200;
@@ -198,12 +199,17 @@ public class Archon extends RobotCommon{
         }
         observeSymmetry();
         vortexRndNums = new ArrayList<Integer>();
+        chargeRndNums = new ArrayList<Integer>();
         AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
         for (AnomalyScheduleEntry a : sched){
             if(a.anomalyType == AnomalyType.VORTEX){
                 vortexRndNums.add(a.roundNumber);
             }
+            if(a.anomalyType == AnomalyType.CHARGE){
+                chargeRndNums.add(a.roundNumber);
+            }
         }
+        Util.getChargeSchedule(chargeRndNums);
     }
 
     public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException { 

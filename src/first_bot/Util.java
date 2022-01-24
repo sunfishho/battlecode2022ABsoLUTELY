@@ -1,6 +1,7 @@
 package first_bot;
 import battlecode.common.*;
 import java.util.Random;
+import java.util.ArrayList;
 
 public class Util {
     static int TAXICAB_WEIGHT = 30;
@@ -43,6 +44,7 @@ public class Util {
     static int NUM_ARCHONS;
     //this is for distanceMetric()
     static int DISTANCE_WEIGHT_RECIPROCAL = 5;
+    static int[] charges;//charge schedule
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};
@@ -267,6 +269,25 @@ public class Util {
 
     public static boolean inGrid(MapLocation loc){
         return (0 <= loc.x) && (loc.x < WIDTH) && (0 <= loc.y) && (loc.y < HEIGHT);
+    }
+
+    public static void getChargeSchedule(ArrayList<Integer> chargeRndNums){//store charge round numbers in Util
+        int sz = chargeRndNums.size();
+        charges = new int[sz];
+        for(int i = 0; i < sz; i++){
+            charges[i] = chargeRndNums.get(i);
+        }
+    }
+
+    public static int nextCharge(int rnd){//get the round number of the next charge
+        int idx = 0;
+        while(idx < charges.length){
+            if(charges[idx] > rnd){
+                return charges[idx];
+            }
+            idx++;
+        }
+        return 3000;//will no longer be charges
     }
 
 }
