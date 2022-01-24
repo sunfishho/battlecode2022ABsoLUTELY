@@ -155,7 +155,7 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.MINER, dir);
             built = true;
         }
-        if(alarm == 65535 && (firstRoundMiner >= 60 || firstRoundMiner == 0)) {
+        if(alarm == 65535) { //incorporate foundMiner at some point
             // Build builders when there is an abundance of lead
             if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 rc.buildRobot(RobotType.BUILDER, dir);
@@ -184,7 +184,7 @@ public class Archon extends RobotCommon{
             }
         }
         // Default
-        if(!built && numSacrifices > 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+        if(!built && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             numDefenders++;
             built = true;

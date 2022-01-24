@@ -42,7 +42,9 @@ public class Builder extends Unit {
         observeSymmetry();
         boolean a = tryToRepair();
         boolean b = tryToBuild();
-        boolean c = tryToMove();
+        if(!a) {
+            boolean c = tryToMove();
+        }
     }
 
     public void sacrificeTurn() throws GameActionException {
@@ -265,7 +267,7 @@ public class Builder extends Unit {
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -10, C = -10, D = -1, E = -10000;
+        final double A = -10, B = -10, C = -10, D = -2, E = -10000;
         int visibleBuildings; // number of visible buildings
         int visibleDroids; // number of visible droids
         double distToCorner; // euclidean distance to corner
