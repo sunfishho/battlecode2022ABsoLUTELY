@@ -345,18 +345,20 @@ public class Archon extends RobotCommon{
         if(clear == 1){//another archon is on the move, so wait
             return;
         }
-        if (round % 10 == 0 && round >= 20 && rc.senseRubble(me) > 20 && (archonTarget == null || (!me.equals(archonTarget)))){
+        if (round % 10 == 0 && round >= 20 && rc.senseRubble(me) >= 10 && (archonTarget == null || (!me.equals(archonTarget)))){
             MapLocation bestLocation = me;
             int rubbleHere = rc.senseRubble(me);
             int bestRubble = rubbleHere;
             int lowestDistance = 10000;
             for (MapLocation mL : rc.getAllLocationsWithinRadiusSquared(me, 34)){
-                if (rc.senseRubble(mL)/10 < bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2){
+                int rh = (rubbleHere + 10)/10;
+                int mr = (rc.senseRubble(mL) + 10)/10;
+                if (mr < (bestRubble + 10)/10 && 5 * rh - 5 * mr >= mr * rh){
                     bestLocation = mL;
                     bestRubble = rc.senseRubble(mL);
                     lowestDistance = Util.distanceMetric(me, mL);
                 }
-                else if (rc.senseRubble(mL) / 10 == bestRubble/10 && rubbleHere / 10 - rc.senseRubble(mL) / 10 >= 2 && lowestDistance > Util.distanceMetric(me, mL))    {
+                else if (rc.senseRubble(mL) / 10 == bestRubble/10 && 5 * rh - 5 * mr >= mr * rh && lowestDistance > Util.distanceMetric(me, mL))    {
                     bestLocation = mL;
                     bestRubble = rc.senseRubble(mL);
                     lowestDistance = Util.distanceMetric(me, mL);
