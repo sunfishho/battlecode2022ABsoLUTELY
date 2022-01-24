@@ -116,9 +116,7 @@ public class Unit extends RobotCommon {
         for (RobotInfo robot: rc.senseNearbyRobots()) {
             if (robot.getTeam() != myTeam){
                 switch (robot.getType()){
-                    case MINER: 
-                        if(rc.readSharedArray(46) == 0) rc.writeSharedArray(46, round);
-                        break;
+                    case MINER: continue;
                     case ARCHON: 
                         rc.writeSharedArray(54, Util.getIntFromLocation(robot.getLocation()));
                         rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));

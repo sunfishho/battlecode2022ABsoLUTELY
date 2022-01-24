@@ -11,8 +11,6 @@ public class Util {
             0-3: location of Archons 1-4
             4-15: memory blocks
             16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
-            46: first miner seen
-            47: number of farmers
             48: number of useful builder sacrifices
             49: alarm indicator (location) + 10000 * rank
             50: alarm indicator (round)

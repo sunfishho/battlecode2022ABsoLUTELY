@@ -14,6 +14,7 @@ public class MinerFarmer extends Unit {
 
     public void takeTurn() throws GameActionException {
         initialize();
+        takeAttendance();
         observe();
         move();
         mine(1);
@@ -24,11 +25,6 @@ public class MinerFarmer extends Unit {
     public void initialize() throws GameActionException {
         me = rc.getLocation();
         income = 0;
-        takeAttendance();
-    }
-
-    public static void takeAttendance() throws GameActionException{
-        rc.writeSharedArray(47, rc.readSharedArray(47) + 1);
     }
 
     // Chooses best place to move to 
@@ -220,7 +216,7 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -4, C = 3, D = 2, E = -1000;
+        final double A = -100, B = -3, C = 3, D = 2, E = -1000;
         int visibleMiners; // # of miners visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         double distArchon; // (not-squared) distance to archon
