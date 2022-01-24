@@ -41,6 +41,9 @@ public class Builder extends Unit {
         observe();
         observeSymmetry();
         boolean a = tryToRepair();
+        if (a){
+            return; //should finish repairing the lab or whatever before moving on to build second lab?
+        }
         boolean b = tryToBuild();
         boolean c = tryToMove();
     }
