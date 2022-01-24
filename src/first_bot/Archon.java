@@ -173,8 +173,8 @@ public class Archon extends RobotCommon{
         farthestArchonFromCenterIdx = -1;
         int bestDistance = -1;
         for (int idx = 0; idx < numArchons; idx++){
-            if (bestDistance < Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)))){
-                bestDistance = Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)));
+            if (bestDistance < Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx)))){
+                bestDistance = Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx)));
                 farthestArchonFromCenterIdx = idx + 1;
             }
         }
