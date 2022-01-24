@@ -12,6 +12,7 @@ public class Util {
             4-15: memory blocks
             16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
             45: will be the location of the defender if there should be a defender there, else 0
+            46: 1 if some archon is in portable mode, 0 else
             48: number of useful builder sacrifices
             49: alarm indicator (location) + 10000 * rank
             50: alarm indicator (round)

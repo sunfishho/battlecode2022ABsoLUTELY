@@ -205,9 +205,11 @@ public class Archon extends RobotCommon{
     }
 
     public void moveIfArchonHasTarget() throws GameActionException{
+        int clear = rc.readSharedArray(46);
         if (archonTarget != null && !archonTarget.equals(me)){
-            if (rc.getMode() == RobotMode.TURRET && rc.canTransform()){
+            if (rc.getMode() == RobotMode.TURRET && rc.canTransform() && clear != 1){
                 rc.transform();
+                rc.writeSharedArray(46, 1);
             }
             else if (rc.getMode() == RobotMode.TURRET){
                 return;
@@ -218,6 +220,7 @@ public class Archon extends RobotCommon{
             if (rc.getMode() == RobotMode.PORTABLE){
                 if (rc.canTransform()){
                     rc.transform();
+                    rc.writeSharedArray(46, 0);//done moving
                 }
             }
         }
@@ -248,6 +251,10 @@ public class Archon extends RobotCommon{
     }
 
     public void checkIfArchonShouldRelocate() throws GameActionException{
+        int clear = rc.readSharedArray(46);
+        if(clear == 1){//another archon is on the move, so wait
+            return;
+        }
         if (round % 10 == 0 && round >= 20 && rc.senseRubble(me) > 20 && (archonTarget == null || (!me.equals(archonTarget)))){
             MapLocation bestLocation = me;
             int rubbleHere = rc.senseRubble(me);
@@ -268,6 +275,7 @@ public class Archon extends RobotCommon{
             archonTarget = bestLocation;
             if (rc.canTransform() && rc.getMode() == RobotMode.TURRET){
                 rc.transform();
+                rc.writeSharedArray(46, 1);
             }
         }
     }
