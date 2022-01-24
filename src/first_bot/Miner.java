@@ -132,7 +132,7 @@ public class Miner extends Unit{
                     tryToMove(20);
                 }
                 //only do scorched earth if we're far enough from our Archon
-                if (me.distanceSquaredTo(nearestArchon(me)) > 100) tryToMine(0);
+                if (Util.distanceMetric(me, nearestArchon(me)) > Math.max(Util.WIDTH, Util.HEIGHT) / 5) tryToMine(0);
                 else{
                     tryToMine(1);
                 }
@@ -155,15 +155,6 @@ public class Miner extends Unit{
                 }
             }
         }
-
-
-        // if (rc.readSharedArray(57) != 0 && !isRetreating){
-        //     MapLocation newPotentialTarget = Util.getLocationFromInt(rc.readSharedArray(57));
-        //     if (Util.distanceMetric(me, newPotentialTarget) < 20){
-        //         prevTarget = target;
-        //         target = newPotentialTarget;
-        //     }
-        // }
 
         // Case when Archon could not assign a Location to the Miner
         if(target.equals(archonLocation) && isRetreating == false) {

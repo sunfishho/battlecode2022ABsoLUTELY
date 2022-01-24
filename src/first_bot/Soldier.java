@@ -118,6 +118,23 @@ public class Soldier extends Unit {
                         enemySoldierCentroidx += enemyLoc.x;
                     }
                     break;
+                case WATCHTOWER:
+                    if (bot.getMode() == RobotMode.PORTABLE){
+                        continue;
+                    }
+                    weight = (1.1 * bot.getHealth()/3 + 5) / (10 + rc.senseRubble(bot.getLocation()) / 10.0) + 0.1;
+                    if (bot.getTeam() == myTeam){
+                        teammateSoldiers += weight;
+                        numTeammates++;
+                    }
+                    else{
+                        enemySoldiers += weight;
+                        MapLocation enemyLoc = bot.getLocation();
+                        numEnemies++;
+                        enemySoldierCentroidy += enemyLoc.y;
+                        enemySoldierCentroidx += enemyLoc.x;
+                    }
+                    break;
                 case ARCHON:
                     if (bot.getTeam() == myTeam){
                         onDefense = true;
@@ -149,7 +166,13 @@ public class Soldier extends Unit {
                     }
                 }
 
-                if (mode != 1 && crowdCount > 3 && me.distanceSquaredTo(archonLocation) < 25) {
+                if (mode != 1 && crowdCount > 3) {
+                    if (crowdCount > 5){
+                        System.out.println("Disintegrating myself");
+                        if (rc.senseLead(me) == 0){
+                            rc.disintegrate();
+                        }
+                    }
                     // We can't get healed by the archon so patrol instead
                     mode = 2;
                     isRetreating = false;
