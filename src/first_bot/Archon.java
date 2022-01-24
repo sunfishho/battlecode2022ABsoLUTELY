@@ -180,8 +180,10 @@ public class Archon extends RobotCommon{
         }
 
         if (aggregateHealthQueue.size() == 10){
-            if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200 && rank == farthestArchonFromCenterIdx){
-                shouldFarm = true;
+            if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200 && rank == farthestArchonFromCenterIdx && round >= 60){
+                if ((rc.readSharedArray(42) == 0 || rc.readSharedArray(42) > 55) && (rc.readSharedArray(50) == 0 || rc.readSharedArray(50) > 55 )){
+                    shouldFarm = true;
+                }
             }
             else{
                 shouldFarm = false;
