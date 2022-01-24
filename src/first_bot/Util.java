@@ -14,6 +14,8 @@ public class Util {
             40: aggregate health
             41: farmer attendance
             42: round in which we first observe enemy miner
+            43: alarm indicator (location) + 10000 * rank #2
+            44: alarm indicator (round)
             45: location of spawned defender
             46: 1 if some archon is in portable mode, 0 else
             48: number of useful builder sacrifices
@@ -32,7 +34,7 @@ public class Util {
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
-            2: Builder writes to value
+            2: Archon writes to value-secondarily
         Use Util.getMemoryBlock(rank) to find beginning of memory block
     */
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;

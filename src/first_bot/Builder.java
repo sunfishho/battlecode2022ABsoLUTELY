@@ -281,10 +281,11 @@ public class Builder extends Unit {
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -14, C = 10000, D = -10000, E = 4;
+        final double A = -10, B = -14, C = 10000, D = -10000, E = 4, F = 14;
         int visibleUnits;
         double distToCorner; // euclidean distance to corner
-        double distToArchon;
+        double distToArchon; // euclidean distance to archon
+        double distToCenter; // euclidean distance to center
         int rubble; // amount of rubble at location
         int hasUnit; // 0 if no unit, 1 if yes unit
         Direction dir;
@@ -297,6 +298,7 @@ public class Builder extends Unit {
             if(r != null) hasUnit = 1;
             dir = me.directionTo(loc);
             distToArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
+            distToCenter = Math.sqrt(loc.distanceSquaredTo(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2)));
         }
 
         public double compareTo(LaboratoryInfo other) throws GameActionException {
@@ -304,7 +306,7 @@ public class Builder extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleUnits + B * distToCorner + C / (rubble + 10) + D * hasUnit + E * distToArchon;
+            return A * visibleUnits + B * distToCorner + C / (rubble + 10) + D * hasUnit + E * distToArchon + F * distToCenter;
         }
     }
 
