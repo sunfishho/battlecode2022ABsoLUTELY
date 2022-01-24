@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
 
     // static RobotController rc;
     static MapLocation home;
-    static int numArchons, teamLeadAmount, targetArchon, nextWriteValue;
+    static int numArchons, teamLeadAmount, targetArchon, nextWriteValue, labValue;
     static boolean builtMinerLast, localMiner;
     static ArrayList<Integer> vortexRndNums;
     int numArchonsAtStart;
@@ -88,6 +88,12 @@ public class Archon extends RobotCommon{
         Direction dir = findDirectionToBuildIn();
         
         if ((alarmRound == 65535 || alarmRound == 65534) && round != 1) {
+            if (labValue >= 10000 && (labValue % 10000) % 101 != 0) {
+                // we want to build labs and we've sent out a builder
+                heal();
+                rc.setIndicatorString(rank + " " + labValue + " halting production for labs");
+                return;
+            }
             if (teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != rank) {
                 // If we don't have enough lead for 50 * remaining archons, don't spawn if you're not target
                 rc.setIndicatorString(rank + " " + alarmRound + " " + round + " healing");
@@ -103,25 +109,86 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
-
-        if (rc.readSharedArray(63) >= 10000 && (rc.readSharedArray(63) % 10000) % 101 != 0) {
-            // we want to build labs and we've sent out a builder
-            heal();
-            rc.setIndicatorString(rank + " " + alarmRound + " halting production for labs");
-            return;
-        }
-        rc.setIndicatorString(rank + " " + alarmRound + " attempting to build");
+        rc.setIndicatorString(rank + " " + alarmRound + " " + labValue + " " + " attempting to build");
         tryToBuildStuff(dir, alarmRound, prevIncome);
         heal();
     }
 
+    public void initializeEachTurn() throws GameActionException{
+        rc.setIndicatorString("" + rank);
+        nearbyTeammatesWithinHealingRange = rc.senseNearbyRobots(20, myTeam);
+        // update variables
+        round = rc.getRoundNum();
+        numArchons = rc.getArchonCount();
+        teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
+        targetArchon = rc.readSharedArray(52);
+        numSacrifices = rc.readSharedArray(48);
+        numFarmersAlive = rc.readSharedArray(41);
+        numMinersAlive = rc.readSharedArray(60);
+        numSoldiersAlive = rc.readSharedArray(61);
+
+        // update ranks of archons if change
+
+
+        int rankInfo = rc.readSharedArray(55);
+        int newRankInfo = rankInfo + 2000;
+        if (rankInfo % 2000 != round) {
+            newRankInfo = round + 2000;
+        }
+        rc.writeSharedArray(55, newRankInfo);
+        rank = newRankInfo / 2000;
+        int loc = Util.getIntFromLocation(me);
+        if (loc != (rc.readSharedArray(rank-1))) rc.writeSharedArray(rank-1, loc);
+
+        if (rank == numArchons){
+            rc.writeSharedArray(41, 0);
+            rc.writeSharedArray(60, 0);
+            rc.writeSharedArray(61, 0);
+            rc.writeSharedArray(62, 0);
+        }
+
+        // write the next write value
+        int writeLocation = Util.getArchonMemoryBlock(rank);
+        rc.writeSharedArray(writeLocation, nextWriteValue);
+        nextWriteValue = 0;
+        labValue = rc.readSharedArray(63);
+        labValue = computeLabValue();
+        rc.writeSharedArray(63, labValue);
+
+        if (changeOppLeadCount > 51 && round > 10){
+            rc.writeSharedArray(49, 65534);
+        }
+    }
+
+    public void doRoundOneDuties() throws GameActionException{
+        relocCheck();
+        if(rc.readSharedArray(Util.getSymmetryMemoryBlock()) == 0){//array initialized to 0, but we should initialize to 7
+            rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 7);
+        }
+        observeSymmetry();
+        vortexRndNums = new ArrayList<Integer>();
+        AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
+        for (AnomalyScheduleEntry a : sched){
+            if(a.anomalyType == AnomalyType.VORTEX){
+                vortexRndNums.add(a.roundNumber);
+            }
+        }
+    }
+
     public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException { 
-        
         boolean built = false;
         
         // Build sages always if you can
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
+            built = true;
+        }
+        // Build one laboratory builder when we want to
+        if (!built && numBuilders == 0 && (labValue % 10000) % 101 != 0 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+            numBuilders++;
+            rc.buildRobot(RobotType.BUILDER, dir);
+            labValue += 10000;
+            rc.writeSharedArray(63, labValue);
             built = true;
         }
         // Build miners up to limit before round 100
@@ -144,13 +211,6 @@ public class Archon extends RobotCommon{
         if (!built && numSacrifices >= 5 && numDefenders == 0 && !rc.canBuildRobot(RobotType.SOLDIER, dir)){
             //we should wait for a defender
             return;
-        }
-        // Build one laboratory builder when we want to
-        if (!built && numBuilders == 0 && (rc.readSharedArray(63) % 10000) % 101 != 0 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
-            numBuilders++;
-            rc.buildRobot(RobotType.BUILDER, dir);
-            rc.writeSharedArray(63, rc.readSharedArray(63) + 10000);
-            built = true;
         }
         // Build soldiers when there is a specific alarm
         if(!built && alarm != 65535 && alarm != 65534 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
@@ -272,68 +332,6 @@ public class Archon extends RobotCommon{
             if (rc.canTransform() && rc.getMode() == RobotMode.TURRET){
                 rc.transform();
                 rc.writeSharedArray(46, 1);
-            }
-        }
-    }
-
-    public void initializeEachTurn() throws GameActionException{
-        rc.setIndicatorString("" + rank);
-        nearbyTeammatesWithinHealingRange = rc.senseNearbyRobots(20, myTeam);
-        // update variables
-        round = rc.getRoundNum();
-        numArchons = rc.getArchonCount();
-        teamLeadAmount = rc.getTeamLeadAmount(rc.getTeam());
-        targetArchon = rc.readSharedArray(52);
-        numSacrifices = rc.readSharedArray(48);
-        numFarmersAlive = rc.readSharedArray(41);
-        numMinersAlive = rc.readSharedArray(60);
-        numSoldiersAlive = rc.readSharedArray(61);
-
-        // update ranks of archons if change
-
-
-        int rankInfo = rc.readSharedArray(55);
-        int newRankInfo = rankInfo + 2000;
-        if (rankInfo % 2000 != round) {
-            newRankInfo = round + 2000;
-        }
-        rc.writeSharedArray(55, newRankInfo);
-        rank = newRankInfo / 2000;
-        int loc = Util.getIntFromLocation(me);
-        if (loc != (rc.readSharedArray(rank-1))) rc.writeSharedArray(rank-1, loc);
-
-        if (rank == numArchons){
-            rc.writeSharedArray(41, 0);
-            rc.writeSharedArray(60, 0);
-            rc.writeSharedArray(61, 0);
-            rc.writeSharedArray(62, 0);
-        }
-
-        // write the next write value
-        int writeLocation = Util.getArchonMemoryBlock(rank);
-        rc.writeSharedArray(writeLocation, nextWriteValue);
-        nextWriteValue = 0;
-
-        if (rc.readSharedArray(63) != howManyLabs()){
-            rc.writeSharedArray(63, howManyLabs());
-        }
-
-        if (changeOppLeadCount > 51 && round > 10){
-            rc.writeSharedArray(49, 65534);
-        }
-    }
-
-    public void doRoundOneDuties() throws GameActionException{
-        relocCheck();
-        if(rc.readSharedArray(Util.getSymmetryMemoryBlock()) == 0){//array initialized to 0, but we should initialize to 7
-            rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 7);
-        }
-        observeSymmetry();
-        vortexRndNums = new ArrayList<Integer>();
-        AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
-        for (AnomalyScheduleEntry a : sched){
-            if(a.anomalyType == AnomalyType.VORTEX){
-                vortexRndNums.add(a.roundNumber);
             }
         }
     }
@@ -497,25 +495,25 @@ public class Archon extends RobotCommon{
     }
 
     //determines how many labs the Archon thinks we should build at this stage
-    public int howManyLabs() throws GameActionException {
-        int labValue = rc.readSharedArray(63);
-        int curExpectation = labValue / 100;
-        int curNumLabs = labValue % 100;
+    public int computeLabValue() throws GameActionException {
+        int curLabValue = labValue % 10000;
+        int curExpectation = curLabValue / 100;
+        int curNumLabs = curLabValue % 100;
         if (curExpectation > curNumLabs){
             // we haven't made enough labs to meet expectation
             return labValue;
         }
-        if (curExpectation == curNumLabs && (incomeQueue.size() != 0 && 2 * curNumLabs < (incomeSum / incomeQueue.size()))) {
-            // we want to make a new lab since we have enough income
-            return labValue + 100;
+        if(incomeQueue.size() == 0) return labValue;
+        switch (curNumLabs) {
+            case 0:
+                if(incomeSum / incomeQueue.size() >= 5) return labValue + 100;
+                return labValue;
+            case 1:
+                if(incomeSum / incomeQueue.size() >= 10) return labValue + 100;
+                return labValue;
+            default:
+                if(incomeSum / incomeQueue.size() >= 50 * curNumLabs) return labValue + 100;
+                return labValue;
         }
-
-        if (rc.readSharedArray(42) == 0){
-            //return something
-        }
-        else{
-            //return something else
-        }
-        return labValue;
     }
 }
