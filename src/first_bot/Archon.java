@@ -201,23 +201,6 @@ public class Archon extends RobotCommon{
 
     public void tryToBuildStuff(Direction dir, boolean alarmRecent, int prevIncome) throws GameActionException { 
         boolean built = false;
-        
-        // Build sages always if you can
-        if (rc.canBuildRobot(RobotType.SAGE, dir)) {
-            rc.buildRobot(RobotType.SAGE, dir);
-            nextTypeValue = 3;
-            built = true;
-        }
-        // Build one laboratory builder when we want to
-        if (!built && numBuilders == 0 && (labValue % 10000) % 101 != 0 && rc.canBuildRobot(RobotType.BUILDER, dir) && rank == farthestArchonFromCenterIdx) {
-            rc.setIndicatorString(rank + " builder built");
-            numBuilders++;
-            rc.buildRobot(RobotType.BUILDER, dir);
-            nextTypeValue = 1;
-            labValue += 10000;
-            rc.writeSharedArray(63, labValue);
-            built = true;
-        }
         // Build miners up to limit before round 100
         if(!built && (round < 100 || round % 13 == 0) && rc.canBuildRobot(RobotType.MINER, dir) 
             && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (!alarmRecent || round % 13 == 0)) {
@@ -236,6 +219,23 @@ public class Archon extends RobotCommon{
             nextTypeValue = 0;
             built = true;
         }
+        // Build sages always if you can
+        if (rc.canBuildRobot(RobotType.SAGE, dir)) {
+            rc.buildRobot(RobotType.SAGE, dir);
+            nextTypeValue = 3;
+            built = true;
+        }
+        // Build one laboratory builder when we want to
+        if (!built && numBuilders == 0 && (labValue % 10000) % 101 != 0 && rc.canBuildRobot(RobotType.BUILDER, dir) && rank == farthestArchonFromCenterIdx) {
+            rc.setIndicatorString(rank + " builder built");
+            numBuilders++;
+            rc.buildRobot(RobotType.BUILDER, dir);
+            nextTypeValue = 1;
+            labValue += 10000;
+            rc.writeSharedArray(63, labValue);
+            built = true;
+        }
+        
         if(!built && localMiner && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
