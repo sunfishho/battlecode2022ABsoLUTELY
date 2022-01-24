@@ -9,7 +9,7 @@ import java.util.*;
 
 public class Builder extends Unit {
     boolean isSacrifice = false, hasTarget = false, foundLabLocation = false;
-    int totalLabs = 16, numSteps = 20, labsBuilt = 0, steps = 0;
+    int totalLabs = 16, numSteps = 5, labsBuilt = 0, steps = 0;
 
     public Builder(RobotController rc, int r, MapLocation loc) throws GameActionException{
         super(rc, r, loc);
@@ -33,7 +33,7 @@ public class Builder extends Unit {
         archonLocation = nearestArchon(me);
         boolean a = tryToRepair();
 
-        if(isSacrifice) {
+        if(!a && isSacrifice) {
             sacrificeTurn();
             return;
         }
@@ -289,7 +289,7 @@ public class Builder extends Unit {
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -14, C = 10000, D = -10000, E = 4, F = 14, G = -10;
+        final double A = -10, B = -14, C = 10000, D = -10000, E = 6, F = 14, G = -10;
         int visibleUnits;
         double distToCorner; // euclidean distance to corner
         double distToArchon; // euclidean distance to archon

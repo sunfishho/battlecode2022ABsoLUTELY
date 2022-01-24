@@ -90,7 +90,7 @@ public class Archon extends RobotCommon{
         moveIfArchonHasTarget();
         
         Direction dir = findDirectionToBuildIn();
-        boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535);
+        boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535 && rc.readSharedArray(38) > 0);
         
         if (!alarmRecent && round != 1) {
             if (teamLeadAmount < 250 && labValue >= 10000 && (labValue % 10000) % 101 != 0) {
@@ -283,7 +283,7 @@ public class Archon extends RobotCommon{
                 built = true;
             }
         }
-        if(!built) {
+        if(!built && labValue % 100 > 0) {
             shouldFarm = true;
             if((numFarmersAlive == 0 || numSacrifices / numFarmersAlive > 20) && rc.canBuildRobot(RobotType.MINER, dir)) {
                 rc.buildRobot(RobotType.MINER, dir);
@@ -442,17 +442,18 @@ public class Archon extends RobotCommon{
     public boolean observe() throws GameActionException {
         for (RobotInfo robot : rc.senseNearbyRobots(34, enemyTeam)) {
             switch (robot.getType()){
-                    case MINER: continue;
-                    case ARCHON: 
-                        rc.writeSharedArray(54, Util.getIntFromLocation(robot.location));
-                        rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                        rc.writeSharedArray(50, round);
-                        return true;
-                    default:
-                        rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
-                        rc.writeSharedArray(50, round);
-                        return true;
-                }
+                case MINER: continue;
+                case ARCHON: 
+                    rc.writeSharedArray(54, Util.getIntFromLocation(robot.location));
+                    rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
+                    rc.writeSharedArray(50, round);
+                    return true;
+                default:
+                    rc.writeSharedArray(38, 1);
+                    rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
+                    rc.writeSharedArray(50, round);
+                    return true;
+            }
         }
         return false;
     }
