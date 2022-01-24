@@ -4,6 +4,7 @@ package first_bot;
 import battlecode.common.*;
 
 import java.awt.*;
+import java.util.*;
 
 
 public class Builder extends Unit {
@@ -86,6 +87,12 @@ public class Builder extends Unit {
                 if(!rc.onTheMap(loc)) continue;
                 SacrificeInfo there = new SacrificeInfo(loc);
                 if(best.compareTo(there) < 0) best = there;
+                if (best.compareTo(there) == 0) {
+                    Random rng2 = new Random(rc.getRoundNum() + rc.getID() * 1000);
+                    if (rng2.nextInt(8) == 1) {
+                        best = there;
+                    }
+                }
             }
         }
         if(best.dir == Direction.CENTER) rc.disintegrate();
@@ -103,7 +110,7 @@ public class Builder extends Unit {
         int leadAround; // number of squares with lead in radius 2
         int rubble; // rubble at location
         int noLead; // does location have no lead, 0 = false, 1 = true
-        int isArchon; // is it the archon, 0 = false, 1 = true
+        int isOccupied; // is it occupied, 0 = false, 1 = true
         Direction dir;
 
         public SacrificeInfo(MapLocation loc) throws GameActionException {
@@ -118,7 +125,7 @@ public class Builder extends Unit {
             rubble = rc.senseRubble(loc);
             RobotInfo r = rc.senseRobotAtLocation(loc);
             if(rc.senseLead(loc) == 0 && r == null) noLead = 1; 
-            if(r != null && r.getType() == RobotType.ARCHON) isArchon = 1;
+            if(r != null) isOccupied = 1;
             dir = me.directionTo(loc);
         }
 
@@ -127,7 +134,7 @@ public class Builder extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleUnits + B * distArchon + C * leadAround + D * rubble + E * noLead + F * isArchon;
+            return A * visibleUnits + B * distArchon + C * leadAround + D * rubble + E * noLead + F * isOccupied;
         }
     }
 
