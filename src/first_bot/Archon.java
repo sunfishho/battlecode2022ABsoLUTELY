@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
 
     // static RobotController rc;
     static MapLocation home;
-    static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon, numSacrifices;
+    static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon, numSacrifices, numFarmers;
     static boolean builtMinerLast, localMiner;
     static ArrayList<Integer> vortexRndNums;
     int numArchonsAtStart;
@@ -63,7 +63,8 @@ public class Archon extends RobotCommon{
                 rc.writeSharedArray(56 + archonIndex, Util.getIntFromLocation(archonLocationsInitial[archonIndex]));
             }
         }
-        int alarm = rc.readSharedArray(50);
+        int alarmRound = rc.readSharedArray(50);
+        int alarmLocation = rc.readSharedArray(49);
         int prevIncome = rc.readSharedArray(62);
 
         incomeQueue.add(prevIncome);
@@ -76,7 +77,7 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(62, 0);
         }
 
-        if (alarm < round - 3) {
+        if (alarmRound < round - 3) {
             rc.writeSharedArray(50, 65535);
             rc.writeSharedArray(49, 65535);
         }
@@ -90,17 +91,16 @@ public class Archon extends RobotCommon{
         
         Direction dir = findDirectionToBuildIn();
         
-        if (alarm == 65535 || alarm == 65534) {
+        if (alarmRound == 65535 || alarmRound == 65534) {
             if (teamLeadAmount <= numArchons * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 heal();
                 return;
             }
         }
         else { // figure out where the alarm is coming from and send troops
-            if (teamLeadAmount < 50 || (targetArchon % numArchons) != (rank % numArchons)) {
-                if (heal()) {
-                    return;
-                }
+            if (teamLeadAmount < 120 && ((alarmLocation / 10000) % numArchons) != (rank % numArchons)) {
+                heal();
+                return;
             }
         }
 
@@ -109,7 +109,7 @@ public class Archon extends RobotCommon{
             rc.setIndicatorString("Halting production for labs");
             return;
         }
-        tryToBuildStuff(dir, alarm, prevIncome);
+        tryToBuildStuff(dir, alarmRound, prevIncome);
         heal();
     }
 
@@ -124,21 +124,21 @@ public class Archon extends RobotCommon{
         }
         // Build miners up to limit before round 100
         if(!built && round < 100 && rc.canBuildRobot(RobotType.MINER, dir) 
-            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (alarm == 65535 || round % 13 == 0) && prevIncome < 10) {
+            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (alarm == 65535 || round % 13 == 0)) {
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && !localMiner) { // we have local lead locations
                 rc.writeSharedArray(writeLocation, targetLoc);
                 dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
                 localMiner = true;
             }
-            else { // create a farmer
+            else {
                 rc.writeSharedArray(writeLocation, 0);
             }
             rc.buildRobot(RobotType.MINER, dir);
             built = true;
         }
-        // Build one laboratory builder with sufficient income after round 100
-        if (!built && round > 100 && numBuilders == 0 && rank == 1 && incomeSum > 150 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+        // Build one laboratory builder with sufficient income
+        if (!built && rank == 1 && incomeSum > 150 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             numBuilders++;
             rc.buildRobot(RobotType.BUILDER, dir);
             built = true;
@@ -148,28 +148,36 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.SOLDIER, dir);
             built = true;
         }
-        // Build builders when there is an abundance of lead
-        if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
-            rc.buildRobot(RobotType.BUILDER, dir);
-            built = true;
-            numBuilders++;
-        }
-        // Build miner-farmers if you've sacrificed at least ten builders
-        if(!built && numSacrifices % 10 == 0 && !builtMinerLast && rc.canBuildRobot(RobotType.MINER, dir)) {
+        // Build one farmer at least
+        if(!built && numFarmers < 1 && rc.canBuildRobot(RobotType.MINER, dir)) {
             rc.writeSharedArray(writeLocation, Util.MAX_LOC); // subtype 1
             rc.buildRobot(RobotType.MINER, dir);
-            builtMinerLast = true;
+            numFarmers++;
             built = true;
         }
-        // Build builder-sacrifices as default case
-        if(!built && rc.canBuildRobot(RobotType.BUILDER, dir)) {
-            int minerReport = rc.readSharedArray(writeLocation + 1);
-            rc.writeSharedArray(writeLocation, Util.MAX_LOC + minerReport); // subtype 1
-            rc.writeSharedArray(writeLocation + 1, 0);
-            rc.buildRobot(RobotType.BUILDER, dir);
-            builtMinerLast = false;
+        if(alarm == 65535) {
+            // Build builders when there is an abundance of lead
+            if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+                rc.buildRobot(RobotType.BUILDER, dir);
+                built = true;
+                numBuilders++;
+            }
+            // Build miner-farmers if you've sacrificed at least ten builders
+            if(!built && (numFarmers == 0 || numSacrifices / numFarmers > 20) && rc.canBuildRobot(RobotType.MINER, dir)) {
+                rc.writeSharedArray(writeLocation, Util.MAX_LOC); // subtype 1
+                rc.buildRobot(RobotType.MINER, dir);
+                numFarmers++;
+                built = true;
+            }
+            // Build builder-sacrifices as default case
+            if(!built && rc.canBuildRobot(RobotType.BUILDER, dir) && numFarmers > 0) {
+                int minerReport = rc.readSharedArray(writeLocation + 1);
+                rc.writeSharedArray(writeLocation, Util.MAX_LOC + minerReport); // subtype 1
+                rc.writeSharedArray(writeLocation + 1, 0);
+                rc.buildRobot(RobotType.BUILDER, dir);
+                built = true;
+            }
         }
-
         // Update the target archon value
         if(built) {
             rc.writeSharedArray(52, targetArchon + 1);
@@ -245,6 +253,7 @@ public class Archon extends RobotCommon{
     }
 
     public void initializeEachTurn() throws GameActionException{
+        rc.setIndicatorString("" + rank);
         nearbyTeammatesWithinHealingRange = rc.senseNearbyRobots(20, myTeam);
         // update variables
         round = rc.getRoundNum();

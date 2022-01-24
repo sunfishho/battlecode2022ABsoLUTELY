@@ -115,7 +115,7 @@ public abstract class RobotCommon {
 
     public static int rankOfNearestArchon(MapLocation loc) throws GameActionException{
         int best = 0;
-        int mindist = 69;
+        int mindist = 1000;
         for(int i = 0; i < rc.getArchonCount(); i++){
             MapLocation archonLocation = Util.getLocationFromInt(rc.readSharedArray(i));
             int dist = Util.distanceMetric(archonLocation, loc);

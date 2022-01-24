@@ -116,7 +116,7 @@ public class Builder extends Unit {
             distArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
-                    MapLocation l = me.translate(dx, dy);
+                    MapLocation l = loc.translate(dx, dy);
                     if(rc.onTheMap(l) && rc.senseLead(l) > 0) leadAround++;
                 }
             }

@@ -146,7 +146,6 @@ public class Sage extends Unit {
         }
 
         if (shouldSendMinerHere(isRetreating, numTeammates, numEnemies)){
-            System.out.println("SENDING MINERS TO: " + me);
             rc.writeSharedArray(57, Util.getIntFromLocation(me));
         }
 

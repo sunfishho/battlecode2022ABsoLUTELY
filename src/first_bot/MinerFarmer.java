@@ -216,12 +216,12 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -3, C = 3, D = 3;
+        final double A = -100, B = -3, C = 3, D = 2, E = -1000;
         int visibleMiners; // # of miners visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         double distArchon; // (not-squared) distance to archon
         int leadAround; // number of squares in radius 2 around with lead > 1
-        boolean isArchon;
+        int adjacentToArchon; // 0 if not adjacent, 1 if adjacent
         Direction dir;
 
         public LocationInfo(MapLocation loc) throws GameActionException {
@@ -234,24 +234,25 @@ public class MinerFarmer extends Unit {
 
             rubble = rc.senseRubble(loc);
             distArchon = Math.sqrt(loc.distanceSquaredTo(archonLocation));
+            if(distArchon * distArchon <= 2) adjacentToArchon = 1;
 
-            l = me.translate(-1, -1);
+            l = loc.translate(-1, -1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(-1, 0);
+            l = loc.translate(-1, 0);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(-1, 1);
+            l = loc.translate(-1, 1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(0, -1);
+            l = loc.translate(0, -1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(0, 0);
+            l = loc.translate(0, 0);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(0, 1);
+            l = loc.translate(0, 1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(1, -1);
+            l = loc.translate(1, -1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(1, 0);
+            l = loc.translate(1, 0);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
-            l = me.translate(1, 1);
+            l = loc.translate(1, 1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
 
             /* Original:
@@ -270,7 +271,7 @@ public class MinerFarmer extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleMiners + B * rubble + C * leadAround + D * distArchon;
+            return A * visibleMiners + B * rubble + C * leadAround + D * distArchon + E * adjacentToArchon;
         }
     }
 }
