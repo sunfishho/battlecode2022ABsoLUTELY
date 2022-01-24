@@ -37,20 +37,40 @@ public strictfp class RobotPlayer {
             int rank = 0;
             for(RobotInfo neighbor : rc.senseNearbyRobots(2, rc.getTeam())) {
                 if(neighbor.getType() == RobotType.ARCHON) {
-                    archon = neighbor;
-                    archonLocation = neighbor.getLocation();
-                    break;
-                }
-            }
-            for(int i = 0; i < 4; i++) {
-                if(rc.readSharedArray(i) == Util.getIntFromLocation(archonLocation)) {
-                    rank = i + 1;
-                    break;
+                    MapLocation loc = neighbor.getLocation();
+                    for(int i = 0; i < 4; i++) {
+                        if(rc.readSharedArray(i) == Util.getIntFromLocation(loc)) {
+                            rank = i + 1;
+                            break;
+                        }
+                    }
+                    int typeCommunicated = rc.readSharedArray(Util.getArchonMemoryBlock(rank) + 2);
+                    RobotType r = RobotType.MINER;
+                    switch(typeCommunicated) {
+                        case 3:
+                            r = RobotType.SAGE;
+                            break;
+                        case 2:
+                            r = RobotType.SOLDIER;
+                            break;
+                        case 1:
+                            r = RobotType.BUILDER;
+                            break;
+                        default:
+                            r = RobotType.MINER;
+                            break;
+                    }
+                    if(r.equals(rc.getType())) {
+                        archon = neighbor;
+                        archonLocation = neighbor.getLocation();
+                        break;
+                    }
                 }
             }
             int readValue = rc.readSharedArray(Util.getArchonMemoryBlock(rank));
             int subtype = readValue / Util.MAX_LOC;
-            MapLocation target = Util.getLocationFromInt(readValue % Util.MAX_LOC);
+            int targetValue = readValue % Util.MAX_LOC;
+            MapLocation target = Util.getLocationFromInt(targetValue);
             switch(rc.getType()){
                 case BUILDER:
                     switch(subtype) {
@@ -68,11 +88,12 @@ public strictfp class RobotPlayer {
                 case MINER:
                     switch(subtype) {
                         case 1:
-                            if(readValue % Util.MAX_LOC == 0) robot = new Miner(rc, rank, archonLocation);
+                            if(targetValue == 0) robot = new Miner(rc, rank, archonLocation);
                             else robot = new Miner(rc, rank, archonLocation, target);
                             break;
                         default:
-                            robot = new MinerFarmer(rc, rank, archonLocation);
+                            if(targetValue == 0) robot = new MinerFarmer(rc, rank, archonLocation);
+                            else robot = new MinerFarmer(rc, rank, archonLocation, target);
                             break;
                     }
                     break;
@@ -91,7 +112,7 @@ public strictfp class RobotPlayer {
         while(true){
             Util.WIDTH = rc.getMapWidth();
             Util.HEIGHT = rc.getMapHeight();
-            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.SAGE){
+            if (rc.getType() == RobotType.SOLDIER || rc.getType() == RobotType.SAGE || rc.getType() == RobotType.MINER){
                 rc.writeSharedArray(40, rc.readSharedArray(40) + rc.getHealth());
             }
             robot.takeTurn();

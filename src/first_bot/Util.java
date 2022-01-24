@@ -2,6 +2,8 @@ package first_bot;
 import battlecode.common.*;
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 
 public class Util {
     static int TAXICAB_WEIGHT = 30;
@@ -15,6 +17,8 @@ public class Util {
             40: aggregate health
             41: farmer attendance
             42: round in which we first observe enemy miner
+            43: alarm indicator (location) + 10000 * rank #2
+            44: alarm indicator (round)
             45: location of spawned defender
             46: 1 if some archon is in portable mode, 0 else
             48: number of useful builder sacrifices
@@ -33,7 +37,7 @@ public class Util {
         Indices within each memory block size correspond to:
             0: Archon writes to value
             1: Miner writes to value
-            2: Builder writes to value
+            2: Archon writes to value-secondarily
         Use Util.getMemoryBlock(rank) to find beginning of memory block
     */
     static int NUM_ITERATIONS_BELLMAN_FORD = 7;
@@ -42,9 +46,9 @@ public class Util {
     static int MAX_LOC = LOC_BASE * LOC_BASE;
     static int HEIGHT, WIDTH;
     static int NUM_ARCHONS;
+    static int[] charges;
     //this is for distanceMetric()
     static int DISTANCE_WEIGHT_RECIPROCAL = 5;
-    static int[] charges;//charge schedule
 
     static final int[] dxDiff = new int[] {0, 1, 1, 1, 0, -1, -1, -1};
     static final int[] dyDiff = new int[] {1, 1, 0, -1, -1, -1, 0, 1};

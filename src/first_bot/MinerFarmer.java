@@ -6,10 +6,15 @@ import battlecode.common.*;
 
 public class MinerFarmer extends Unit {
     int income;
+    double tetherRadius;
 
-    // We want farmers to continually pick good spots to mine
     public MinerFarmer(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
+    }
+
+    public MinerFarmer(RobotController rc, int r, MapLocation loc, MapLocation t) throws GameActionException {
+        super(rc, r, loc);
+        target = t;
     }
 
     public void takeTurn() throws GameActionException {
@@ -35,6 +40,19 @@ public class MinerFarmer extends Unit {
 
     // Chooses best place to move to 
     public void move() throws GameActionException {
+        if(target != null) {
+            rc.setIndicatorString("target: " + target);
+            Direction dir = pf.findBestDirection(target, 50);
+            if (rc.canMove(dir)) {
+                rc.move(dir);
+                me = rc.getLocation();
+            }
+            if(me == target) {
+                target = null;
+            }
+            return;
+        }
+
         MapLocation loc = me;
         LocationInfo best = new LocationInfo(loc);
         LocationInfo there = best;
@@ -226,12 +244,13 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -3, C = 3, D = 0.1, E = -1000;
+        final double A = -100, B = -2.5, C = 3, D = 0.1, E = -1000, F = -1000;
         int visibleFarmers; // # of farmers visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         double distArchon; // (not-squared) distance to archon
         int leadAround; // number of squares in radius 2 around with lead > 1
         int adjacentToArchon; // 0 if not adjacent, 1 if adjacent
+        int outsideTether; // 0 if in, 1 if out
         Direction dir;
 
         public LocationInfo(MapLocation loc) throws GameActionException {
@@ -267,6 +286,8 @@ public class MinerFarmer extends Unit {
             l = loc.translate(1, 1);
             if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
 
+            if(tetherRadius != 0 && distArchon > tetherRadius) outsideTether = 1;
+
             /* Original:
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
@@ -283,7 +304,7 @@ public class MinerFarmer extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleFarmers + B * rubble + C * leadAround + D * distArchon + E * adjacentToArchon;
+            return A * visibleFarmers + B * rubble + C * leadAround + D * distArchon + E * adjacentToArchon + F * outsideTether;
         }
     }
 }

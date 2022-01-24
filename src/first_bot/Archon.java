@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
 
     // static RobotController rc;
     static MapLocation home;
-    static int numArchons, teamLeadAmount, targetArchon, nextWriteValue, labValue;
+    static int teamLeadAmount, targetArchon, nextWriteValue, labValue, nextTypeValue, writeLocation;
     static boolean builtMinerLast, localMiner;
     static ArrayList<Integer> vortexRndNums;
     static ArrayList<Integer> chargeRndNums;
@@ -18,7 +18,7 @@ public class Archon extends RobotCommon{
     static int oppLeadCount = 200;
     static int changeOppLeadCount = 0;
     static MapLocation archonLocs;
-    static int numMinersAlive, numSoldiersAlive, numFarmersAlive, numSacrifices, numDefenders;
+    static int numArchons, numMinersAlive, numSoldiersAlive, numFarmersAlive, numSacrifices, numDefenders;
     static RobotInfo[] nearbyTeammatesWithinHealingRange;
     static int numBuilders;
     static int incomeSum;
@@ -59,28 +59,6 @@ public class Archon extends RobotCommon{
     public void takeTurn() throws GameActionException {
         initializeEachTurn();
 
-        farthestArchonFromCenterIdx = -1;
-        int bestDistance = -1;
-        for (int idx = 0; idx < numArchons; idx++){
-            if (bestDistance < Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)))){
-                bestDistance = Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)));
-                farthestArchonFromCenterIdx = idx + 1;
-            }
-        }
-
-
-        if (aggregateHealthQueue.size() == 10){
-            if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200 && rank == farthestArchonFromCenterIdx){
-                shouldFarm = true;
-            }
-            else{
-                shouldFarm = false;
-            }
-            aggregateHealthQueue.remove();
-        }
-        aggregateHealthQueue.add(rc.readSharedArray(40));
-
-
         if (rank == numArchons){
             rc.writeSharedArray(40, 0);
         }
@@ -99,7 +77,7 @@ public class Archon extends RobotCommon{
 
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
-        if (incomeQueue.size() > 50) {
+        if (incomeQueue.size() > 10) {
             incomeSum -= incomeQueue.poll();
         }
         
@@ -141,8 +119,8 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
-        rc.setIndicatorString(rank + " " + alarmRound + " " + labValue + " " + " attempting to build");
         tryToBuildStuff(dir, alarmRound, prevIncome);
+        rc.setIndicatorString(rank + " " + nextWriteValue  + " " + nextTypeValue + " " + " attempting to build");
         heal();
     }
 
@@ -160,7 +138,6 @@ public class Archon extends RobotCommon{
         numSoldiersAlive = rc.readSharedArray(61);
 
         // update ranks of archons if change
-
 
         int rankInfo = rc.readSharedArray(55);
         int newRankInfo = rankInfo + 2000;
@@ -180,9 +157,11 @@ public class Archon extends RobotCommon{
         }
 
         // write the next write value
-        int writeLocation = Util.getArchonMemoryBlock(rank);
+        writeLocation = Util.getArchonMemoryBlock(rank);
         rc.writeSharedArray(writeLocation, nextWriteValue);
+        rc.writeSharedArray(writeLocation + 2, nextTypeValue);
         nextWriteValue = 0;
+        nextTypeValue = 0;
         labValue = rc.readSharedArray(63);
         labValue = computeLabValue();
         rc.writeSharedArray(63, labValue);
@@ -190,6 +169,28 @@ public class Archon extends RobotCommon{
         if (changeOppLeadCount > 51 && round > 10){
             rc.writeSharedArray(49, 65534);
         }
+
+        farthestArchonFromCenterIdx = -1;
+        int bestDistance = -1;
+        for (int idx = 0; idx < numArchons; idx++){
+            if (bestDistance < Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)))){
+                bestDistance = Util.distanceMetric(new MapLocation(Util.WIDTH / 2, Util.HEIGHT / 2), Util.getLocationFromInt(rc.readSharedArray(idx + 1)));
+                farthestArchonFromCenterIdx = idx + 1;
+            }
+        }
+
+        if (aggregateHealthQueue.size() == 10){
+            if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200 && rank == farthestArchonFromCenterIdx && round >= 60){
+                if ((rc.readSharedArray(42) == 0 || rc.readSharedArray(42) > 55) && (rc.readSharedArray(50) == 0 || rc.readSharedArray(50) > 55 )){
+                    shouldFarm = true;
+                }
+            }
+            else{
+                shouldFarm = false;
+            }
+            aggregateHealthQueue.remove();
+        }
+        aggregateHealthQueue.add(rc.readSharedArray(40));
     }
 
     public void doRoundOneDuties() throws GameActionException{
@@ -198,18 +199,6 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 7);
         }
         observeSymmetry();
-        vortexRndNums = new ArrayList<Integer>();
-        chargeRndNums = new ArrayList<Integer>();
-        AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
-        for (AnomalyScheduleEntry a : sched){
-            if(a.anomalyType == AnomalyType.VORTEX){
-                vortexRndNums.add(a.roundNumber);
-            }
-            if(a.anomalyType == AnomalyType.CHARGE){
-                chargeRndNums.add(a.roundNumber);
-            }
-        }
-        Util.getChargeSchedule(chargeRndNums);
     }
 
     public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException { 
@@ -218,12 +207,15 @@ public class Archon extends RobotCommon{
         // Build sages always if you can
         if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
+            nextTypeValue = 3;
             built = true;
         }
         // Build one laboratory builder when we want to
-        if (!built && numBuilders == 0 && (labValue % 10000) % 101 != 0 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
+        if (!built && numBuilders == 0 && (labValue % 10000) % 101 != 0 && rc.canBuildRobot(RobotType.BUILDER, dir) && rank == farthestArchonFromCenterIdx) {
+            rc.setIndicatorString(rank + " builder built");
             numBuilders++;
             rc.buildRobot(RobotType.BUILDER, dir);
+            nextTypeValue = 1;
             labValue += 10000;
             rc.writeSharedArray(63, labValue);
             built = true;
@@ -234,7 +226,7 @@ public class Archon extends RobotCommon{
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && numFarmersAlive < 1 && !localMiner) { // we have local lead locations, make a farmer
                 rc.setIndicatorString(rank + " making local farmer");
-                nextWriteValue = 0;
+                nextWriteValue = targetLoc;
                 dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
                 localMiner = true;
             }
@@ -243,6 +235,7 @@ public class Archon extends RobotCommon{
                 nextWriteValue = Util.MAX_LOC; //subtype 1
             }
             rc.buildRobot(RobotType.MINER, dir);
+            nextTypeValue = 0;
             built = true;
         }
         if (!built && numSacrifices >= 5 && numDefenders == 0 && !rc.canBuildRobot(RobotType.SOLDIER, dir)){
@@ -252,24 +245,28 @@ public class Archon extends RobotCommon{
         // Build soldiers when there is a specific alarm
         if(!built && alarm != 65535 && alarm != 65534 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
+            nextTypeValue = 2;
             built = true;
         }
         if((alarm == 65535 || shouldFarm) && rank == farthestArchonFromCenterIdx) { //incorporate foundMiner at some point
             // Build builders when there is an abundance of lead
             if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 rc.buildRobot(RobotType.BUILDER, dir);
+                nextTypeValue = 1;
                 built = true;
                 numBuilders++;
             }
             // Build miner-farmers if you've sacrificed at least ten builders
             if(!built && (numFarmersAlive == 0 || numSacrifices / numFarmersAlive > 20) && rc.canBuildRobot(RobotType.MINER, dir)) {
-                nextWriteValue = 0;
                 rc.buildRobot(RobotType.MINER, dir);
+                nextWriteValue = 0;
+                nextTypeValue = 0;
                 built = true;
             }
             // Build one defender if you've sacrificed at least five builders
             if(!built && numSacrifices >= 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
                 rc.buildRobot(RobotType.SOLDIER, dir);
+                nextTypeValue = 2;
                 numDefenders++;
                 rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
                 built = true;
@@ -280,6 +277,7 @@ public class Archon extends RobotCommon{
                 nextWriteValue = Util.MAX_LOC + minerReport; // subtype 1
                 rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, 0);
                 rc.buildRobot(RobotType.BUILDER, dir);
+                nextTypeValue = 1;
                 numSacrifices++;
                 built = true;
             }
@@ -287,6 +285,7 @@ public class Archon extends RobotCommon{
         // Default
         if(!built && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
+            nextTypeValue = 2;
             numDefenders++;
             rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
             built = true;
@@ -374,7 +373,6 @@ public class Archon extends RobotCommon{
     }
 
     public boolean heal() throws GameActionException {
-        // System.out.println(round + ", " + rank + ", " + nearbyTeammatesWithinHealingRange.length);
         if (nearbyTeammatesWithinHealingRange.length != 0){
             RobotInfo mostNeedy = null;
 
@@ -410,7 +408,6 @@ public class Archon extends RobotCommon{
                         break;
                 }
             }
-            // System.out.println("HEALABLE: " + healable);
             if (mostNeedy != null && rc.canRepair(mostNeedy.getLocation())){
                 MapLocation targetBot = mostNeedy.getLocation();
                 rc.repair(targetBot);
@@ -469,12 +466,10 @@ public class Archon extends RobotCommon{
 
     //see if any nearby squares have significantly less rubble
     public void relocCheck() throws GameActionException {
-        System.out.println("CHECKING RELOCATION AT ROUND " + rc.getRoundNum());
         int lx = me.x;
         int ly = me.y;
         int bestd = 0;
         int bestr = rc.senseRubble(me);
-        System.out.println(lx + " " + ly + " RUBBLE COUNT: " + bestr);
         MapLocation newhome = me;
         for(int dx = 1; dx >= -1; dx--){
             for(int dy = 1; dy >= -1; dy--){
@@ -543,10 +538,10 @@ public class Archon extends RobotCommon{
         if(incomeQueue.size() == 0) return labValue;
         switch (curNumLabs) {
             case 0:
-                if(incomeSum / incomeQueue.size() >= 5 && teamLeadAmount > 150) return labValue + 100;
+                if(round > 20 && incomeSum / incomeQueue.size() >= 5 && teamLeadAmount > 50) return labValue + 100;
                 return labValue;
             case 1:
-                if(incomeSum / incomeQueue.size() >= 10 && teamLeadAmount > 150) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 10 && teamLeadAmount > 50) return labValue + 100;
                 return labValue;
             default:
                 if(incomeSum / incomeQueue.size() >= 20 * curNumLabs) return labValue + 100;

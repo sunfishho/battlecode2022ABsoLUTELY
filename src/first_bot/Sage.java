@@ -39,7 +39,16 @@ public class Sage extends Unit {
         me = rc.getLocation();
         archonLocation = nearestArchon(me);
         health = rc.getHealth();
-        nextCharge = Util.nextCharge(round);
+
+        AnomalyScheduleEntry[] sched = rc.getAnomalySchedule();
+        for (AnomalyScheduleEntry a : sched){
+            if(a.anomalyType == AnomalyType.CHARGE && a.roundNumber > round){
+                nextCharge = a.roundNumber;
+                break;
+            }
+        }
+        nextCharge = 3000;
+
         observe();
         observeSymmetry();
         if(nextCharge - round < 20){//try to get away from our friends
