@@ -47,6 +47,7 @@ public class Util {
     static int MAX_LOC = LOC_BASE * LOC_BASE;
     static int HEIGHT, WIDTH;
     static int NUM_ARCHONS;
+    static int[] charges;
     //this is for distanceMetric()
     static int DISTANCE_WEIGHT_RECIPROCAL = 5;
 
@@ -273,6 +274,29 @@ public class Util {
 
     public static boolean inGrid(MapLocation loc){
         return (0 <= loc.x) && (loc.x < WIDTH) && (0 <= loc.y) && (loc.y < HEIGHT);
+    }
+
+    public static void getChargeSchedule(ArrayList<Integer> chargeRndNums){//store charge round numbers in Util
+        int sz = chargeRndNums.size();
+        charges = new int[sz];
+        for(int i = 0; i < sz; i++){
+            charges[i] = chargeRndNums.get(i);
+        }
+    }
+
+    public static int nextCharge(int rnd){//get the round number of the next charge
+        int idx = 0;
+        if(charges == null){
+            return 3000;
+        }
+        //System.out.println(charges + " " + charges.length);
+        while(idx < charges.length){
+            if(charges[idx] > rnd){
+                return charges[idx];
+            }
+            idx++;
+        }
+        return 3000;//no more charges
     }
 
 }
