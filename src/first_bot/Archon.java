@@ -123,7 +123,7 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build miners up to limit before round 100
-        if(!built && round < 100 && rc.canBuildRobot(RobotType.MINER, dir) 
+        if(!built && (round < 100 || round % 13 == 0) && rc.canBuildRobot(RobotType.MINER, dir) 
             && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 120) && (alarm == 65535 || round % 13 == 0)) {
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && !localMiner) { // we have local lead locations
