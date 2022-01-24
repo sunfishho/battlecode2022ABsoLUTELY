@@ -101,7 +101,7 @@ public class MinerFarmer extends Unit {
     public void mine(int leaveLead) throws GameActionException {
         MapLocation mineLocation = me;
 
-        mineLocation = me.translate(1, -1);
+        mineLocation = me.translate(-1, -1);
         while (rc.canMineGold(mineLocation) && rc.senseGold(mineLocation) > 0) {
             rc.mineGold(mineLocation);
         }
