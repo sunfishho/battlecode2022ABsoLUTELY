@@ -14,7 +14,7 @@ public class Soldier extends Unit {
     static int loopingPenalty;//increase rubble tolerance if we're stuck in a loop
     static MapLocation enemySoldierCentroid = new MapLocation(0, 0);
     static int health;
-    static int mode; // 0 for normal, 1 for healing, 2 for patrolling
+    static int mode; // 0 for normal, 1 for healing, 2 for patrolling, 3 for guarding lead deposit
     static int patrollingRounds;
 
     public Soldier(RobotController rc, int r, MapLocation loc) throws GameActionException {
@@ -35,6 +35,10 @@ public class Soldier extends Unit {
         patrollingRounds = 0;
         mode = 0;
         //do more stuff later
+        if (Util.getLocationFromInt(rc.readSharedArray(45)).equals(rc.getLocation())){
+            mode = 3;
+            rc.writeSharedArray(45, 0);
+        }
     }
 
     public void takeTurn() throws GameActionException {
@@ -50,6 +54,12 @@ public class Soldier extends Unit {
         }
         if (rc.getHealth() > health) {
             mode = 1;
+        }
+        if (mode == 3){
+            if (me.distanceSquaredTo(nearestArchon(me)) > 13){
+                Direction dir = pf.findBestDirection(nearestArchon(me), 50);
+                target = me.add(dir);
+            }
         }
         health = rc.getHealth();
         switch(checkLoop()){

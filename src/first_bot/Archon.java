@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
 
     // static RobotController rc;
     static MapLocation home;
-    static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon, numSacrifices, numFarmers;
+    static int numArchons, numScoutsSent, numForagersSent, numSoldiersSent, teamLeadAmount, targetArchon, numSacrifices, numFarmers, numDefenders;
     static boolean builtMinerLast, localMiner;
     static ArrayList<Integer> vortexRndNums;
     int numArchonsAtStart;
@@ -137,6 +137,10 @@ public class Archon extends RobotCommon{
             rc.buildRobot(RobotType.MINER, dir);
             built = true;
         }
+        if (!built && numSacrifices >= 5 && numDefenders == 0 && !rc.canBuildRobot(RobotType.SOLDIER, dir)){
+            //we should wait for a defender
+            return;
+        }
         // Build one laboratory builder with sufficient income
         if (!built && numBuilders == 0 && incomeSum > 150 && rc.canBuildRobot(RobotType.BUILDER, dir)) {
             numBuilders++;
@@ -170,14 +174,29 @@ public class Archon extends RobotCommon{
                 numFarmers++;
                 built = true;
             }
+            // Build one defender if you've sacrificed at least five builders
+            if(!built && numSacrifices >= 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                rc.buildRobot(RobotType.SOLDIER, dir);
+                numDefenders++;
+                rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
+                built = true;
+            }
             // Build builder-sacrifices as default case
             if(!built && rc.canBuildRobot(RobotType.BUILDER, dir) && numFarmers > 0) {
                 int minerReport = rc.readSharedArray(writeLocation + 1);
                 rc.writeSharedArray(writeLocation, Util.MAX_LOC + minerReport); // subtype 1
                 rc.writeSharedArray(writeLocation + 1, 0);
                 rc.buildRobot(RobotType.BUILDER, dir);
+                numSacrifices++;
                 built = true;
             }
+        }
+        // Default
+        if(!built && numSacrifices >= 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+            rc.buildRobot(RobotType.SOLDIER, dir);
+            numDefenders++;
+            rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
+            built = true;
         }
         // Update the target archon value
         if(built) {

@@ -114,6 +114,7 @@ public class Archon extends RobotCommon{
     }
 
     public void tryToBuildStuff(Direction dir, int alarm, int prevIncome) throws GameActionException { 
+        System.out.println(numSacrifices);
         int writeLocation = Util.getArchonMemoryBlock(rank);
         boolean built = false;
         
@@ -156,6 +157,7 @@ public class Archon extends RobotCommon{
         if(!built && numFarmers < 1 && rc.canBuildRobot(RobotType.MINER, dir)) {
             rc.writeSharedArray(writeLocation, Util.MAX_LOC); // subtype 1
             rc.buildRobot(RobotType.MINER, dir);
+            numFarmers++;
             built = true;
         }
         if(alarm == 65535 && (firstRoundMiner >= 60 || firstRoundMiner == 0)) {
@@ -165,16 +167,18 @@ public class Archon extends RobotCommon{
                 built = true;
                 numBuilders++;
             }
+
+            // Build one defender if you've sacrificed at least five builders
+            if(!built && numSacrifices >= 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+                rc.buildRobot(RobotType.SOLDIER, dir);
+                numDefenders++;
+                rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
+                built = true;
+            }
             // Build miner-farmers if you've sacrificed at least ten builders or your income is simply low
             if(!built && (numFarmers == 0 || numSacrifices / numFarmers > 20 || prevIncome < 15) && rc.canBuildRobot(RobotType.MINER, dir)) {
                 rc.writeSharedArray(writeLocation, Util.MAX_LOC); // subtype 1
                 rc.buildRobot(RobotType.MINER, dir);
-                built = true;
-            }
-            // Build one defender if you've sacrificed at least five builders
-            if(!built && numSacrifices > 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                rc.buildRobot(RobotType.SOLDIER, dir);
-                numDefenders++;
                 built = true;
             }
             // Build builder-sacrifices 
@@ -183,6 +187,7 @@ public class Archon extends RobotCommon{
                 rc.writeSharedArray(writeLocation, Util.MAX_LOC + minerReport); // subtype 1
                 rc.writeSharedArray(writeLocation + 1, 0);
                 rc.buildRobot(RobotType.BUILDER, dir);
+                numSacrifices++;
                 built = true;
             }
         }
@@ -190,6 +195,7 @@ public class Archon extends RobotCommon{
         if(!built && numSacrifices > 5 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             numDefenders++;
+            rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
             built = true;
         }
         // Update the target archon value
