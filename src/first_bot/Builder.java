@@ -249,6 +249,9 @@ public class Builder extends Unit {
         }
         else {
             // Build watchtowers if you have enough lead, and return to Archon
+            if(me.distanceSquaredTo(target) > 5) {
+                return false;
+            }
             for (Direction d : Direction.allDirections()) {
                 MapLocation loc = me.add(d);
                 if (rc.getTeamLeadAmount(us) > 280 && rc.canBuildRobot(RobotType.WATCHTOWER, d) && Util.watchtowerElig(loc)) {
