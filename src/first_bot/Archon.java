@@ -245,7 +245,7 @@ public class Archon extends RobotCommon{
             nextTypeValue = 2;
             built = true;
         }
-        if((!alarmRecent || shouldFarm) && rank == farthestArchonFromCenterIdx) { //incorporate foundMiner at some point
+        if((!alarmRecent || shouldFarm) && rank == farthestArchonFromCenterIdx && numDefenders > 0) { //incorporate foundMiner at some point
             // Build builders when there is an abundance of lead
             if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 rc.buildRobot(RobotType.BUILDER, dir);
@@ -279,7 +279,7 @@ public class Archon extends RobotCommon{
                 built = true;
             }
         }
-        if(!built && labValue % 100 > 0) {
+        if(!built && labValue % 100 > 0 && !alarmRecent) {
             shouldFarm = true;
             if((numFarmersAlive == 0 || numSacrifices / numFarmersAlive > 20) && rc.canBuildRobot(RobotType.MINER, dir)) {
                 rc.buildRobot(RobotType.MINER, dir);
