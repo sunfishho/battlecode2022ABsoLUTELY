@@ -1,5 +1,4 @@
-
-package first_bot;
+package bot0124;
 
 import battlecode.common.*;
 

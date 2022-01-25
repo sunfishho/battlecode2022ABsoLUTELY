@@ -1,4 +1,4 @@
-package first_bot;
+package bot0124;
 
 import java.util.Map;
 import java.util.Random;

@@ -1,4 +1,3 @@
-
 package first_bot;
 
 import battlecode.common.*;
