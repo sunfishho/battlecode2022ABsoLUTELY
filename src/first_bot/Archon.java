@@ -87,7 +87,7 @@ public class Archon extends RobotCommon{
         moveIfArchonHasTarget();
         
         Direction dir = findDirectionToBuildIn();
-        boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535 && rc.readSharedArray(38) > 0);
+        boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535) || rc.readSharedArray(38) > 0;
         
         if (!alarmRecent && round != 1) {
             if (teamLeadAmount < 250 && labValue >= 10000 && (labValue % 10000) % 101 != 0) {
@@ -185,7 +185,6 @@ public class Archon extends RobotCommon{
             aggregateHealthQueue.remove();
         }
         aggregateHealthQueue.add(rc.readSharedArray(40));
-        System.out.println(labValue);
     }
 
     public void doRoundOneDuties() throws GameActionException{
