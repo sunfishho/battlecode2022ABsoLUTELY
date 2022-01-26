@@ -20,6 +20,7 @@ public class Miner extends Unit{
     static int friendlyMinerCount = 1;
     static int enemyMinerCount = 0;
     static MapLocation prevTarget = null;
+    static int randomizeCounter = 0;
 
     public Miner(RobotController rc, int r, MapLocation loc) throws GameActionException {
         super(rc, r, loc);
@@ -277,16 +278,19 @@ public class Miner extends Unit{
                 }
                 return;
             }
-            MapLocation bestLoc = chooseRandomInitialDestination();
-            while (bestLoc.distanceSquaredTo(archonLocation) <= 10) {
-                bestLoc = chooseRandomInitialDestination();
+            if (randomizeCounter >= 4){
+                MapLocation bestLoc = chooseRandomInitialDestination();
+                while (bestLoc.distanceSquaredTo(archonLocation) <= 10) {
+                    bestLoc = chooseRandomInitialDestination();
+                }
+                target = bestLoc;
             }
             
-            target = bestLoc;
             targetCountdown = 0;
             if (target.equals(me) == false) {
                 reachedTarget = false;
             }
+            randomizeCounter++;
             // System.out.println("Miner " + rc.getID() + " to (" + target.x + ", " + target.y + "), random, turn " + round);
             // rc.writeSharedArray(Util.getArchonMemoryBlock(rank) + 1, Util.moveOnLattice(Util.getIntFromLocation(bestLoc)));
         }
