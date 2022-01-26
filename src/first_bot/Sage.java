@@ -406,7 +406,7 @@ public class Sage extends Unit {
             canSafelyFury = false;
             //TODO: check later if it's portable or not
         }
-        int shouldAttackEvenIfLow = rng.nextInt(100);
+        int shouldAttackEvenIfLow = rng.nextInt(20);
         //Checking if it's not worth to attack
         if (attackScore < 20 && chargeScore < 20 && furyScore < 20 && round > 100 && shouldAttackEvenIfLow != 0){
             return;
