@@ -39,6 +39,9 @@ public abstract class RobotCommon {
             case SOLDIER: 
                 rc.writeSharedArray(61, rc.readSharedArray(61) + 1);
                 return;
+            case LABORATORY:
+                rc.writeSharedArray(37, rc.readSharedArray(37) + 1);
+                return;
             default: return;
         }
     }

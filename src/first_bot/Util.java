@@ -14,6 +14,7 @@ public class Util {
             0-3: location of Archons 1-4
             4-15: memory blocks
             16: symmetry indicator (7 if undecided, 1 if symmetric about vertical line, 2 if symmetric about horizontal, 4 if rotationally symmetric)
+            37: laboratory attendance
             38: archon alarm special
             39: literally 0 if our aggregate health decreased over last 10, 1 if our aggregate health increased over last 10
             40: aggregate health
@@ -28,8 +29,8 @@ public class Util {
             50: alarm indicator (round)
             51: number of foragers sent in total
             52: targeted archon for robot production mod numArchons
-            53: Used for soldier detection of lead
-            54: warning for locating archon
+            53: alarm indicator (location) + 10000 * rank (for enemy archons)
+            54: alarm indicator (round) (for enemy archons)
             55: round number + 2000 * number of archons processed (used for updating rank numbers when archons die)
             56-59: archon initial locations
             60: miner attendance

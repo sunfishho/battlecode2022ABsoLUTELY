@@ -289,7 +289,7 @@ public class Builder extends Unit {
 
     class LaboratoryInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -10, B = -14, C = 10000, D = -10000, E = 6, F = 14, G = -10;
+        final double A = -20, B = -14, C = 10000, D = -10000, E = 6, F = 14, G = -10;
         int visibleUnits;
         double distToCorner; // euclidean distance to corner
         double distToArchon; // euclidean distance to archon
