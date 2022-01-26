@@ -117,25 +117,27 @@ public class Archon extends RobotCommon{
 
     // Reset values at the end of turn
     public void finalize() throws GameActionException {
-        if(rank == numArchons) {
-            // reset enemy alarm archon if no more observation in 5 rounds
-            if(rc.readSharedArray(53) != 0 && rc.readSharedArray(54) < round - 5) {
-                rc.writeSharedArray(53, 0);
-            }
-            
-            // reset attendances
-            rc.writeSharedArray(37, 0);
-            rc.writeSharedArray(41, 0);
-            rc.writeSharedArray(60, 0);
-            rc.writeSharedArray(61, 0);
-            rc.writeSharedArray(38, 0);
-
-            // reset income
-            rc.writeSharedArray(62, 0);
-
-            // reset aggregate health
-            rc.writeSharedArray(40, 0);
+        if(rank != numArchons) return;
+        // reset enemy alarm archon if no more observation in 5 rounds
+        if(rc.readSharedArray(53) != 0 && rc.readSharedArray(54) < round - 5) {
+            rc.writeSharedArray(53, 0);
         }
+        
+        // reset attendances
+        rc.writeSharedArray(37, 0);
+        rc.writeSharedArray(41, 0);
+        rc.writeSharedArray(60, 0);
+        rc.writeSharedArray(61, 0);
+        rc.writeSharedArray(38, 0);
+
+        // reset income
+        rc.writeSharedArray(62, 0);
+
+        // reset aggregate health
+        rc.writeSharedArray(40, 0);
+
+        // reset alarm
+        if(rc.readSharedArray(50) < round - 3) rc.writeSharedArray(49, 65535);
     }
 
     public void initializeEachTurn() throws GameActionException{
