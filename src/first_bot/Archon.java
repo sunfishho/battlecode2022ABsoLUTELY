@@ -86,9 +86,9 @@ public class Archon extends RobotCommon{
         moveIfArchonHasTarget();
         
         Direction dir = findDirectionToBuildIn();
-        boolean alarmRecent = (alarmRound > round - 3 && alarmRound != 65535) || (rc.readSharedArray(38) > 0);
+        boolean danger = (alarmRound > round - 3 && alarmRound != 65535 && !shouldFarm) || (rc.readSharedArray(38) > 0);
         
-        if (!alarmRecent && round != 1) {
+        if (!danger && round != 1) {
             if (teamLeadAmount < 250 && labValue >= 10000 && (labValue % 10000) % 101 != 0) {
                 // we want to build labs and we've sent out a builder
                 rc.setIndicatorString(rank + " " + labValue + " halting production for labs");
@@ -113,7 +113,7 @@ public class Archon extends RobotCommon{
                 return;
             }
         }
-        tryToBuildStuff(dir, alarmRecent, prevIncome);
+        tryToBuildStuff(dir, danger, prevIncome);
         rc.setIndicatorString(rank + " " + nextWriteValue  + " " + nextTypeValue + " " + " attempting to build");
         heal();
         finalize();
@@ -211,18 +211,19 @@ public class Archon extends RobotCommon{
 
     public void doRoundOneDuties() throws GameActionException{
         relocCheck();
-        if(rc.readSharedArray(Util.getSymmetryMemoryBlock()) == 0){//array initialized to 0, but we should initialize to 7
+        if(rc.readSharedArray(Util.getSymmetryMemoryBlock()) == 0){ //array initialized to 0, but we should initialize to 7
             rc.writeSharedArray(Util.getSymmetryMemoryBlock(), 7);
         }
         observeSymmetry();
     }
 
-    public void tryToBuildStuff(Direction dir, boolean alarmRecent, int prevIncome) throws GameActionException { 
+    public void tryToBuildStuff(Direction dir, boolean danger, int prevIncome) throws GameActionException { 
         boolean built = false;
 
         int enemyArchonLoc = rc.readSharedArray(53);
         // this archon has observed an enemy, or we have observed an enemy archon nearby
         if(rc.readSharedArray(38) == rank || (enemyArchonLoc != 0 && me.distanceSquaredTo(Util.getLocationFromInt(enemyArchonLoc % 10000)) <= (Util.HEIGHT * Util.HEIGHT + Util.WIDTH * Util.WIDTH) / 16)) { 
+            System.out.println("danger");
             // Build sages if you can
             if(!built && rc.canBuildRobot(RobotType.SAGE, dir)) {
                 rc.buildRobot(RobotType.SAGE, dir);
@@ -230,7 +231,7 @@ public class Archon extends RobotCommon{
                 built = true;
             }
             // Build soldiers if there are fewer than two laboratories
-            if(!built && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 2) {
+            if(!built && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 1) {
                 rc.buildRobot(RobotType.SOLDIER, dir);
                 nextTypeValue = 2;
                 built = true;
@@ -243,7 +244,7 @@ public class Archon extends RobotCommon{
         
         // Build miners up to limit
         if(!built && (round < 100 || round % 13 == 0) && rc.canBuildRobot(RobotType.MINER, dir) 
-            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 200) && (!alarmRecent || round % 13 == 0)) {
+            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 200) && (!danger || round % 13 == 0)) {
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && numFarmersAlive < 1 && !localMiner) { // we have local lead locations, make a farmer
                 rc.setIndicatorString(rank + " making targeted farmer");
@@ -260,7 +261,7 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build sages if you have sufficient lead production
-        if (rc.canBuildRobot(RobotType.SAGE, dir)) {
+        if (rc.canBuildRobot(RobotType.SAGE, dir) && incomeSum / incomeQueue.size() > 5) {
             rc.buildRobot(RobotType.SAGE, dir);
             nextTypeValue = 3;
             built = true;
@@ -283,12 +284,12 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build soldiers when there is a specific alarm and no laboratories
-        if(!built && alarmRecent && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 2) {
+        if(!built && danger && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 1) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             built = true;
         }
-        if((!alarmRecent || shouldFarm) && rank == farthestArchonFromCenterIdx && numDefenders > 0) { //incorporate foundMiner at some point
+        if((!danger || shouldFarm) && rank == farthestArchonFromCenterIdx && numDefenders > 0) { //incorporate foundMiner at some point
             // Build builders when there is an abundance of lead
             if (!built && numBuilders >= 1 && rc.getTeamLeadAmount(rc.getTeam()) >= 300 * numBuilders && rc.canBuildRobot(RobotType.BUILDER, dir)) {
                 rc.buildRobot(RobotType.BUILDER, dir);
@@ -322,7 +323,7 @@ public class Archon extends RobotCommon{
                 built = true;
             }
         }
-        if(!built && labValue % 100 > 0 && !alarmRecent) {
+        if(!built && labValue % 100 > 0 && !danger) {
             shouldFarm = true;
             if((numFarmersAlive == 0 || numSacrifices / numFarmersAlive > 20) && rc.canBuildRobot(RobotType.MINER, dir)) {
                 rc.buildRobot(RobotType.MINER, dir);
@@ -596,10 +597,10 @@ public class Archon extends RobotCommon{
                 if(round > 20 && incomeSum / incomeQueue.size() >= 5 && teamLeadAmount > 50) return labValue + 100;
                 return labValue;
             case 1:
-                if(incomeSum / incomeQueue.size() >= 8) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 7) return labValue + 100;
                 return labValue;
             default:
-                if(incomeSum / incomeQueue.size() >= 8 + 4 * curNumLabs) return labValue + 100;
+                if(incomeSum / incomeQueue.size() >= 8 + 3 * curNumLabs) return labValue + 100;
                 return labValue;
         }
     }

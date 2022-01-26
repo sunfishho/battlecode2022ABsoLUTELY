@@ -245,11 +245,12 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -2.5, C = 3, D = 0.1, E = -1000, F = 1000;
+        final double A = -100, B = -2.5, C = 3, D = 0.1, E = -1000, F = 1000, G = 10;
         int visibleFarmers; // # of farmers visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         double minDistArchon; // (not-squared) distance to archon
-        int leadAround; // number of squares in radius 2 around with lead > 1
+        int leadAround; // number of squares in radius 2 around with lead
+        int goldAround; // number of squares in radius 2 around with gold
         double adjacentToArchon; // 0 if not adjacent, squared distance to archon otherwise
         int outsideTether; // 0 if in, 1 if out
         Direction dir;
@@ -274,23 +275,50 @@ public class MinerFarmer extends Unit {
             if(minDistArchon * minDistArchon <= 4) adjacentToArchon = 4 - minDistArchon * minDistArchon;
 
             l = loc.translate(-1, -1);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(-1, 0);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(-1, 1);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(0, -1);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(0, 0);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(0, 1);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(1, -1);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(1, 0);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
             l = loc.translate(1, 1);
-            if(rc.onTheMap(l)) leadAround += rc.senseLead(l);
+            if(rc.onTheMap(l)) {
+                leadAround += rc.senseLead(l);
+                goldAround += rc.senseGold(l);
+            }
 
             if(tetherRadius != 0 && minDistArchon > tetherRadius) outsideTether = 1;
 
@@ -310,7 +338,7 @@ public class MinerFarmer extends Unit {
         }
 
         public double getRating() throws GameActionException {
-            return A * visibleFarmers + B * rubble + C * leadAround + D * minDistArchon + E * adjacentToArchon + F * outsideTether;
+            return A * visibleFarmers + B * rubble + C * leadAround + D * minDistArchon + E * adjacentToArchon + F * outsideTether + G * goldAround;
         }
     }
 }
