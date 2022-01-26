@@ -275,7 +275,7 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build a defender if there is a local miner
-        if(!built && numFarmers > 1 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+        if(!built && numFarmersAlive > 1 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             numDefenders++;
