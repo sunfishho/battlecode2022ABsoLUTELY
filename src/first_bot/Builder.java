@@ -42,6 +42,7 @@ public class Builder extends Unit {
         if(a) {
             return; //should finish repairing the lab or whatever before moving on to build second lab?
         }
+        
         boolean b = tryToBuild();
         boolean c = tryToMove();
     }
@@ -125,7 +126,7 @@ public class Builder extends Unit {
             rubble = rc.senseRubble(loc);
             RobotInfo r = rc.senseRobotAtLocation(loc);
             if(rc.senseLead(loc) == 0 && r == null) noLead = 1; 
-            if(r != null) isOccupied = 1;
+            if(r != null && loc != me) isOccupied = 1;
             dir = me.directionTo(loc);
         }
 
@@ -190,7 +191,8 @@ public class Builder extends Unit {
 
     // Returns true if you moved this turn
     public boolean tryToBuild() throws GameActionException {
-        if(labsBuilt < totalLabs && (rc.readSharedArray(63) % 10000) % 101 != 0) {
+        if(labsBuilt < totalLabs && ((rc.readSharedArray(63) % 10000) % 101 != 0)) {
+            rc.setIndicatorString("HI");
             return tryToBuildLaboratory();
         }
         // else 
