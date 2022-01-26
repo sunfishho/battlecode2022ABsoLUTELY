@@ -185,7 +185,6 @@ public class Archon extends RobotCommon{
             aggregateHealthQueue.remove();
         }
         aggregateHealthQueue.add(rc.readSharedArray(40));
-        System.out.println(labValue);
     }
 
     public void doRoundOneDuties() throws GameActionException{
