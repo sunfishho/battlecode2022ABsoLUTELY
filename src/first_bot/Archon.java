@@ -73,6 +73,8 @@ public class Archon extends RobotCommon{
         int alarmRound = rc.readSharedArray(50);
         int alarmLocation = rc.readSharedArray(49);
         int prevIncome = rc.readSharedArray(62);
+        
+        finalize();
 
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
@@ -89,14 +91,16 @@ public class Archon extends RobotCommon{
         if (!alarmRecent && round != 1) {
             if (teamLeadAmount < 250 && labValue >= 10000 && (labValue % 10000) % 101 != 0) {
                 // we want to build labs and we've sent out a builder
-                heal();
                 rc.setIndicatorString(rank + " " + labValue + " halting production for labs");
+                heal();
+                finalize();
                 return;
             }
             if (teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
                 // If we don't have enough lead for 50 * remaining archons, don't spawn if you're not target
                 rc.setIndicatorString(rank + " " + alarmRound + " " + round + " healing");
                 heal();
+                finalize();
                 return;
             }
         }
@@ -105,13 +109,13 @@ public class Archon extends RobotCommon{
                 // Only the closest archon should be spawning with limited lead if there is a valid alarm
                 rc.setIndicatorString(rank + " " + alarmLocation + " " + round + " healing");
                 heal();
+                finalize();
                 return;
             }
         }
         tryToBuildStuff(dir, alarmRecent, prevIncome);
         rc.setIndicatorString(rank + " " + nextWriteValue  + " " + nextTypeValue + " " + " attempting to build");
         heal();
-        
         finalize();
     }
 
@@ -218,7 +222,7 @@ public class Archon extends RobotCommon{
 
         int enemyArchonLoc = rc.readSharedArray(53);
         // this archon has observed an enemy, or we have observed an enemy archon nearby
-        if(rc.readSharedArray(38) == rank || (enemyArchonLoc != 0 && me.distanceSquaredTo(Util.getLocationFromInt(enemyArchonLoc % 1000)) <= (Util.HEIGHT * Util.HEIGHT + Util.WIDTH * Util.WIDTH) / 16)) { 
+        if(rc.readSharedArray(38) == rank || (enemyArchonLoc != 0 && me.distanceSquaredTo(Util.getLocationFromInt(enemyArchonLoc % 10000)) <= (Util.HEIGHT * Util.HEIGHT + Util.WIDTH * Util.WIDTH) / 16)) { 
             // Build sages if you can
             if(!built && rc.canBuildRobot(RobotType.SAGE, dir)) {
                 rc.buildRobot(RobotType.SAGE, dir);
