@@ -259,12 +259,12 @@ public class Sage extends Unit {
         int attackScore = 0;
         int furyScore = 0;
         int bestBotToAttackIdx = -1;
-        final int MINER_BUILDER_KILL_BONUS = 10;
+        final int MINER_BUILDER_KILL_BONUS = 5;
         final int SOLDIER_KILL_BONUS = 20;
         final int SAGE_KILL_BONUS = 40;
         final int WATCHTOWER_KILL_BONUS = 80;
         final int LAB_KILL_BONUS = 100;
-        final double MINER_BUILDER_HEALTH_MULTIPLIER = 0.5;
+        final double MINER_BUILDER_HEALTH_MULTIPLIER = 0.25;
         final double SOLDIER_HEALTH_MULTIPLIER = 1;
         final double SAGE_HEALTH_MULTIPLIER = 2;
         final double WATCHTOWER_HEALTH_MULTIPLIER = 4;
@@ -406,8 +406,9 @@ public class Sage extends Unit {
             canSafelyFury = false;
             //TODO: check later if it's portable or not
         }
+        int shouldAttackEvenIfLow = rng.nextInt(20);
         //Checking if it's not worth to attack
-        if (attackScore < 30 && chargeScore < 30 && furyScore < 30 && round > 100){
+        if (attackScore < 20 && chargeScore < 20 && furyScore < 20 && round > 100 && shouldAttackEvenIfLow != 0){
             return;
         }
         if (furyScore > chargeScore && furyScore > attackScore && canSafelyFury && rc.canEnvision(AnomalyType.FURY)){
