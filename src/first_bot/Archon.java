@@ -73,7 +73,7 @@ public class Archon extends RobotCommon{
         int alarmRound = rc.readSharedArray(50);
         int alarmLocation = rc.readSharedArray(49);
         int prevIncome = rc.readSharedArray(62);
-        
+
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
         if (incomeQueue.size() > 20) {
@@ -275,7 +275,7 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build a defender if there is a local miner
-        if(!built && numFarmers > 1 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+        if(!built && numFarmersAlive > 1 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             numDefenders++;
