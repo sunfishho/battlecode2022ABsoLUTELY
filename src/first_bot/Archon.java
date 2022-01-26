@@ -259,7 +259,7 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build sages if you have sufficient lead production
-        if (rc.canBuildRobot(RobotType.SAGE, dir) && incomeSum / incomeQueue.size() > 5) {
+        if (rc.canBuildRobot(RobotType.SAGE, dir)) {
             rc.buildRobot(RobotType.SAGE, dir);
             nextTypeValue = 3;
             built = true;
