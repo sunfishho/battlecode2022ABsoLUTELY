@@ -185,7 +185,7 @@ public class Sage extends Unit {
             rc.writeSharedArray(57, Util.getIntFromLocation(me));
         }
 
-        if (numEnemies == 0){
+        if (numEnemies == 0 && rc.getActionCooldownTurns() < 20){
             tryToMove(15 + loopingPenalty);
             moveLowerRubble(false);
             tryToAttack();
@@ -198,7 +198,7 @@ public class Sage extends Unit {
         
         // This whole block only runs if we have an enemy in sight
         tryToAttack();
-        if (rc.getActionCooldownTurns() > 3) {
+        if (rc.getActionCooldownTurns() > 40) {
             Direction dir = retreat(enemySoldierCentroid);
             if (rc.canMove(dir)) {
                 rc.move(dir);
