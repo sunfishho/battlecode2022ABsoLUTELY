@@ -88,21 +88,19 @@ public class Archon extends RobotCommon{
         Direction dir = findDirectionToBuildIn();
         boolean danger = (alarmRound > round - 3 && alarmRound != 65535 && !shouldFarm) || (rc.readSharedArray(38) > 0);
         
-        if (!danger && round != 1) {
-            if (teamLeadAmount < 250 && labValue >= 10000 && (labValue % 10000) % 101 != 0) {
-                // we want to build labs and we've sent out a builder
-                rc.setIndicatorString(rank + " " + labValue + " halting production for labs");
-                heal();
-                finalize();
-                return;
-            }
-            if (teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
-                // If we don't have enough lead for 50 * remaining archons, don't spawn if you're not target
-                rc.setIndicatorString(rank + " " + alarmRound + " " + round + " healing");
-                heal();
-                finalize();
-                return;
-            }
+        if(shouldFarm && round != 1 && teamLeadAmount < 250 && labValue >= 10000 && (labValue % 10000) % 101 != 0) {
+            // we want to build labs and we've sent out a builder
+            rc.setIndicatorString(rank + " " + labValue + " halting production for labs");
+            heal();
+            finalize();
+            return;
+        }
+        else if (danger && teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
+            // If we don't have enough lead for 50 * remaining archons, don't spawn if you're not target
+            rc.setIndicatorString(rank + " " + alarmRound + " " + round + " healing");
+            heal();
+            finalize();
+            return;
         }
         else {
             if (teamGoldAmount < 40 && teamLeadAmount < 120 && alarmLocation != 65535 && (alarmLocation / 10000) != rank) {
