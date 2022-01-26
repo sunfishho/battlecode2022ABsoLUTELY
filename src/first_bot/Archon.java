@@ -9,7 +9,7 @@ public class Archon extends RobotCommon{
     // static RobotController rc;
     static MapLocation home;
     static int teamLeadAmount, teamGoldAmount, targetArchon, nextWriteValue, labValue, nextTypeValue, writeLocation;
-    static boolean builtMinerLast, localMiner;
+    static boolean builtMinerLast;
     static ArrayList<Integer> vortexRndNums;
     static ArrayList<Integer> chargeRndNums;
     int numArchonsAtStart;
@@ -73,8 +73,6 @@ public class Archon extends RobotCommon{
         int alarmRound = rc.readSharedArray(50);
         int alarmLocation = rc.readSharedArray(49);
         int prevIncome = rc.readSharedArray(62);
-        
-        finalize();
 
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
@@ -192,6 +190,9 @@ public class Archon extends RobotCommon{
         }
 
         if (aggregateHealthQueue.size() == 10){
+            /*if (rc.readSharedArray(40) >= 1500) {
+                shouldFarm = true;
+            }*/
             if (rc.readSharedArray(40) >= aggregateHealthQueue.peek() && aggregateHealthQueue.peek() > 200 && rank == farthestArchonFromCenterIdx && round >= 60){
                 if ((rc.readSharedArray(42) == 0 || rc.readSharedArray(42) > 55) && (rc.readSharedArray(50) == 0 || rc.readSharedArray(50) > 55 )){
                     shouldFarm = true;
@@ -219,7 +220,7 @@ public class Archon extends RobotCommon{
         boolean built = false;
 
         int enemyArchonLoc = rc.readSharedArray(53);
-        // this archon has observed an enemy, or we have observed an enemy archon nearby
+        // this archon has observed an enemy, or we have observed an enemy archon nearby in an early round
         if(rc.readSharedArray(38) == rank || (enemyArchonLoc != 0 && me.distanceSquaredTo(Util.getLocationFromInt(enemyArchonLoc % 10000)) <= (Util.HEIGHT * Util.HEIGHT + Util.WIDTH * Util.WIDTH) / 16)) { 
             System.out.println("danger");
             // Build sages if you can
@@ -244,11 +245,10 @@ public class Archon extends RobotCommon{
         if(!built && (round < 100 || round % 13 == 0) && rc.canBuildRobot(RobotType.MINER, dir) 
             && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 200) && (!danger || round % 13 == 0)) {
             int targetLoc = findLocalLocation();
-            if(targetLoc != -1 && numFarmersAlive < 1 && !localMiner) { // we have local lead locations, make a farmer
+            if(targetLoc != -1 && numFarmersAlive < 1) { // we have local lead locations, make a farmer
                 rc.setIndicatorString(rank + " making targeted farmer");
                 nextWriteValue = targetLoc;
                 dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
-                localMiner = true;
             }
             else { // make a forager
                 rc.setIndicatorString(rank + " making forager");
@@ -274,7 +274,8 @@ public class Archon extends RobotCommon{
             rc.writeSharedArray(63, labValue);
             built = true;
         }
-        if(!built && localMiner && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
+        // Build a defender if there is a local miner
+        if(!built && numFarmers > 1 && numDefenders == 0 && rc.canBuildRobot(RobotType.SOLDIER, dir)) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             numDefenders++;
@@ -282,7 +283,7 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build soldiers when there is a specific alarm and no laboratories
-        if(!built && danger && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 1) {
+        if(!built && danger && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 1 && labValue < 10000) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             built = true;
@@ -488,6 +489,7 @@ public class Archon extends RobotCommon{
                     rc.writeSharedArray(54, round);
                     rc.writeSharedArray(49, Util.getIntFromLocation(robot.location) + 10000 * rankOfNearestArchon(robot.getLocation()));
                     rc.writeSharedArray(50, round);
+                    rc.writeSharedArray(38, rank);
                     return true;
                 default:
                     rc.writeSharedArray(38, rank);

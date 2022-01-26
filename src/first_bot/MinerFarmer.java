@@ -245,7 +245,7 @@ public class MinerFarmer extends Unit {
     // Stores information about potential locations to move to in radius 2 around
     class LocationInfo {
         final int LOOK_RADIUS = 9;
-        final double A = -100, B = -2.5, C = 3, D = 0.1, E = -1000, F = 1000, G = 10;
+        final double A = -100, B = -2.5, C = 5, D = 0.1, E = -1000, F = 1000, G = 10;
         int visibleFarmers; // # of farmers visible in radius LOOK_RADIUS
         int rubble; // rubble level at the square
         double minDistArchon; // (not-squared) distance to archon
