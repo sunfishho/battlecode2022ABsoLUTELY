@@ -283,7 +283,7 @@ public class Archon extends RobotCommon{
             built = true;
         }
         // Build soldiers when there is a specific alarm and no laboratories
-        if(!built && danger && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 1 && labValue < 10000) {
+        if(!built && danger && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 1 && !shouldFarm) {
             rc.buildRobot(RobotType.SOLDIER, dir);
             nextTypeValue = 2;
             built = true;
