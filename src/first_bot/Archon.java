@@ -74,8 +74,6 @@ public class Archon extends RobotCommon{
         int alarmLocation = rc.readSharedArray(49);
         int prevIncome = rc.readSharedArray(62);
         
-        finalize();
-
         incomeQueue.add(prevIncome);
         incomeSum += prevIncome;
         if (incomeQueue.size() > 20) {
