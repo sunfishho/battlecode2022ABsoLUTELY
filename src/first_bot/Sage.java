@@ -86,13 +86,15 @@ public class Sage extends Unit {
             targetCountdown = 0;
             loopingPenalty = 0;
         }
+        if (rc.getID() == 10991 && rc.getRoundNum() == 585){
+            System.out.println("isHealing: " + isHealing + "and suicideMode: " + suicideMode);
+        }
         // If high health, leave archon
         if (isHealing && !suicideMode) {
             if (waitingTime >= 100){
                 waitingTime = 0;
                 suicideMode = true;
             }
-            waitingTime++;
             target = archonLocation;
             targetCountdown = 0;
             loopingPenalty = 0;
@@ -110,6 +112,7 @@ public class Sage extends Unit {
                 target = chooseRandomInitialDestination();
                 targetCountdown = 0;
                 loopingPenalty = 0;
+                waitingTime = 0;
             } else {
                 return;
             }
@@ -192,25 +195,36 @@ public class Sage extends Unit {
             rc.setIndicatorString("target1: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
             return;
         }
-        enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
-        enemySoldierCentroidy = (int) ((enemySoldierCentroidy / (numEnemies + 0.0)) + 0.5);
-        enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
-        
-        // This whole block only runs if we have an enemy in sight
-        tryToAttack();
-        if (rc.getActionCooldownTurns() > 40) {
-            Direction dir = retreat(enemySoldierCentroid);
-            if (rc.canMove(dir)) {
-                rc.move(dir);
+        else if (numEnemies == 0){
+            if (rc.readSharedArray(49) < 65534){
+                MapLocation alarmLoc = Util.getLocationFromInt(rc.readSharedArray(49));
+                retreat(alarmLoc);
+                tryToAttack();
+                return;
             }
-        } else {
-            target = enemySoldierCentroid;
-            targetCountdown = 0;
-            loopingPenalty = 0;
-            tryToMove(20);
+            else{
+                tryToAttack();
+                return;
+            }
         }
-        // rc.setIndicatorString(teammateSoldiers + " " + enemySoldiers + " " + onOffense + " " + onDefense);
-        rc.setIndicatorString("target2: " + target.x + ", " + target.y + ", " + isHealing + ", " + rc.getActionCooldownTurns());
+        if (numEnemies != 0){
+            enemySoldierCentroidx = (int) ((enemySoldierCentroidx / (numEnemies + 0.0)) + 0.5);
+            enemySoldierCentroidy = (int) ((enemySoldierCentroidy / (numEnemies + 0.0)) + 0.5);
+            enemySoldierCentroid = enemySoldierCentroid.translate((int) enemySoldierCentroidx - enemySoldierCentroid.x, (int) enemySoldierCentroidy - enemySoldierCentroid.y);
+            tryToAttack();
+            if (rc.getActionCooldownTurns() > 40) {
+                Direction dir = retreat(enemySoldierCentroid);
+                if (rc.canMove(dir)) {
+                    rc.move(dir);
+                }
+            } 
+            else {
+                target = enemySoldierCentroid;
+                targetCountdown = 0;
+                loopingPenalty = 0;
+                tryToMove(20);
+            }
+        }
 
     }
 
