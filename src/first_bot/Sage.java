@@ -62,10 +62,10 @@ public class Sage extends Unit {
             tryToEscape();
             return;
         }
-        if(round > 1850){
-            target = Util.getCorner(archonLocation);
-            tryToMove(20);
-            return;
+        if(round > 1925){
+            isHealing = true;
+            suicideMode = false;
+            waitingTime = 0;
         }
         if (me.equals(target)){
             target = chooseRandomInitialDestination();
