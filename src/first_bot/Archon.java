@@ -93,23 +93,22 @@ public class Archon extends RobotCommon{
             finalize();
             return;
         }
-        else if (danger && teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
+        if (danger && teamLeadAmount < (numArchons - rank + 1) * 50 && (targetArchon % numArchons) != (rank % numArchons)) {
             // If we don't have enough lead for 50 * remaining archons, don't spawn if you're not target
             rc.setIndicatorString(rank + " " + alarmRound + " " + round + " healing");
             heal();
             finalize();
             return;
         }
-        else {
-            if (teamGoldAmount < 40 && teamLeadAmount < 120 && alarmLocation != 65535 && (alarmLocation / 10000) != rank) {
-                // Only the closest archon should be spawning with limited lead if there is a valid alarm
-                rc.setIndicatorString(rank + " " + alarmLocation + " " + round + " healing");
-                heal();
-                finalize();
-                return;
-            }
-        }
         tryToBuildStuff(dir, danger, prevIncome);
+        if (teamGoldAmount < 40 && teamLeadAmount < 120 && alarmLocation != 65535 && (alarmLocation / 10000) != rank) {
+            // Only the closest archon should be spawning with limited lead if there is a valid alarm
+            rc.setIndicatorString(rank + " " + alarmLocation + " " + round + " healing");
+            heal();
+            finalize();
+            return;
+        }
+        
         rc.setIndicatorString(rank + " " + nextWriteValue  + " " + nextTypeValue + " " + " attempting to build");
         heal();
         finalize();
@@ -220,6 +219,21 @@ public class Archon extends RobotCommon{
         boolean built = false;
 
         int enemyArchonLoc = rc.readSharedArray(53);
+        if(!built && (round % 19 == 0) && rc.canBuildRobot(RobotType.MINER, dir)) {
+            int targetLoc = findLocalLocation();
+            if(targetLoc != -1 && numFarmersAlive < 1) { // we have local lead locations, make a farmer
+                rc.setIndicatorString(rank + " making targeted farmer");
+                nextWriteValue = targetLoc;
+                dir = pf.findBestDirection(Util.getLocationFromInt(targetLoc), 60);
+            }
+            else { // make a forager
+                rc.setIndicatorString(rank + " making forager");
+                nextWriteValue = Util.MAX_LOC; //subtype 1
+            }
+            rc.buildRobot(RobotType.MINER, dir);
+            nextTypeValue = 0;
+            built = true;
+        }
         // this archon has observed an enemy, or we have observed an enemy archon nearby in an early round
         if(rc.readSharedArray(38) == rank || (enemyArchonLoc != 0 && me.distanceSquaredTo(Util.getLocationFromInt(enemyArchonLoc % 10000)) <= (Util.HEIGHT * Util.HEIGHT + Util.WIDTH * Util.WIDTH) / 16)) { 
             System.out.println("danger");
@@ -242,8 +256,8 @@ public class Archon extends RobotCommon{
         }
         
         // Build miners up to limit
-        if(!built && (round < 100 || round % 13 == 0) && rc.canBuildRobot(RobotType.MINER, dir) 
-            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 200) && (!danger || round % 13 == 0)) {
+        if(!built && (round < 100 || round % 19 == 0) && rc.canBuildRobot(RobotType.MINER, dir) 
+            && numMinersAlive < Math.max(6, Util.WIDTH * Util.HEIGHT / 200) && (!danger || round % 19 == 0)) {
             int targetLoc = findLocalLocation();
             if(targetLoc != -1 && numFarmersAlive < 1) { // we have local lead locations, make a farmer
                 rc.setIndicatorString(rank + " making targeted farmer");
@@ -281,6 +295,9 @@ public class Archon extends RobotCommon{
             numDefenders++;
             rc.writeSharedArray(45, Util.getIntFromLocation(me.add(dir)));
             built = true;
+        }
+        if (rc.getTeamLeadAmount(rc.getTeam()) < 100 && round > 100) {
+            return;
         }
         // Build soldiers when there is a specific alarm and no laboratories
         if(!built && danger && rc.canBuildRobot(RobotType.SOLDIER, dir) && (labValue % 100) < 1 && !shouldFarm) {
